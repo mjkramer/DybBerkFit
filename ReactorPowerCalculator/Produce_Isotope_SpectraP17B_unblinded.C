@@ -438,4 +438,7 @@ void PrintSpectra(){
     }
 }
 
-
+void Produce_Isotope_SpectraP17B_unblinded()
+{
+  PrintSpectra();
+}
