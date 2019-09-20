@@ -1,0 +1,160 @@
+# Complete data set description
+# Created By: dadwyer@lbl.gov May 4, 2012
+
+# Current global measurements of neutrino oscillation parameters
+# 2010 Review of Particle Physics [PDG]
+#  K. Nakamura et al. (Particle Data Group), J. Phys. G 37, 075021 (2010)
+#  Updated deltaMSq13 taken from MINOS 2011 result: 
+#    P. Adamson et al., Phys. Rev. Lett. 106, 181801 (2011).
+#  Further updated deltaMSq13 taken from MINOS 2013 result.
+deltaMSqee       2.48e-3  # eV^2
+deltaMSqeeErr    0.10e-3  # eV^2
+deltaMSq21       7.53e-5  # eV^2
+deltaMSq21Err    0.18e-5  # eV^2
+sinSq2Theta12    0.846
+sinSq2Theta12Err 0.021
+sinSq2Theta13    0.084
+sinSq2Theta13Err 0.005
+
+# sterile oscillation parameters
+deltaMSq41       1.0  # eV^2
+deltaMSq41Err    0.0  # eV^2
+
+sinSq2Theta14    0.0
+sinSq2Theta14Err 0.0
+
+
+# Running time of experiment, in years
+# runningTime    0.35  # years
+
+# Nominal detector size, in kilotons
+# detectorSize        0.020  # kton
+
+# Detector energy resolution [ X% / sqrt(E / 1MeV) ]
+detectorResolution  8.0
+# detectorResolutionError 1.0
+detectorResolutionError 0.2 
+detectorResolutionErrorUncorr 0.2 
+
+# Detector nonlinearity alpha
+detectorNonlinearAlpha     0.08
+#detectorNonlinearAlpha     0.0
+detectorNonlinearAlphaError  0.02
+
+# Detector linearity beta
+detectorLinearBeta     1.0
+detectorLinearBetaErr  0.01
+
+detectorAbsoluteEnergyScale  1.0
+detectorAbsoluteEnergyScaleError  0.01
+
+# FIXME: need table for relative energy scale uncertainty
+
+# uncertainty of the IAV thickness (relative), that cause the energy spectrum distortion
+detectorIavThicknessError 0.04 
+
+
+
+# Nominal number of target protons per kton of target
+#  (Uses Daya Bay proton density)
+nominalTargetProtons   7.1638e31  # protons per kton
+
+# Nominal thermal power of all reactor cores [GW(th)]
+# reactorPower    2.95  # GW(th)
+
+# Detector Efficiency (approximate value from Daya Bay experience)
+# detectorEfficiency     0.6
+
+#detectorDataFilename  ./Theta13-inputs_32week_inclusive.txt #Obselete! (Henoch)
+#reactorNominalSpectraFilename  ../reactor_covmatrix/p12c_unblinded/combined/nNu_Nom_combined_huber-french.txt
+#reactorSpectraCovMatrixFilename  ../reactor_covmatrix/p12c_unblinded/combined/nNu_Mcov_combined_huber-french_u238cor.txt
+
+# Fission isotope data: nominal fission fractions and energy per fission
+fissionIsotopeFilename  ./reactor/fissionIsotopeTable_v1.txt
+
+# Fission isotope data for each reactor core
+fissionIsotopeFilename1  ./reactor/fissionIsotopeTable_DayaBay1.txt
+fissionIsotopeFilename2  ./reactor/fissionIsotopeTable_DayaBay2.txt
+fissionIsotopeFilename3  ./reactor/fissionIsotopeTable_LingAo1.txt
+fissionIsotopeFilename4  ./reactor/fissionIsotopeTable_LingAo2.txt
+fissionIsotopeFilename5  ./reactor/fissionIsotopeTable_LingAo3.txt
+fissionIsotopeFilename6  ./reactor/fissionIsotopeTable_LingAo4.txt
+
+# Fission isotope data: nominal fission fractions and energy per fission
+fissionIsotopeCovMatrixFilename  ./reactor/fissionIsotopeCovMatrix.txt
+
+# Antineutrino spectra from fission isotopes
+fissionSpectraFilename  ./reactor/fissionIsotopeSpectra_Huber_v0.txt
+
+# Inverse-beta decay cross section
+#crossSectionFilename    ./reactor/inverseBetaCrossSection_v0.txt
+crossSectionFilename    ./reactor/Xsec1_2011.dat
+
+# Energy scale distortion due to IAV
+#iavCorrectionFilename   ./IavDistortion/IAVDistortion.root 
+iavCorrectionFilename   ./IavDistortion/iavMatrix_P14A.root
+
+#  Use non-linear model developped by IHEP
+useIhepNonLinearModel 0
+
+#  Use non-linear model developped by BCW
+useBcwNonLinearModel 0
+
+#  Use non-linear model developped by LBNL
+useLbnlNonLinearModel 0
+
+#  Use the unified non-linear model 
+useUnifiedNonLinearModel 0
+
+correlateUnifiedNonlinearPars 0
+
+#  Use the non-linear model 2015 update
+use2015NonLinearModel 1
+
+defaultNonlinearPar0 0
+defaultNonlinearPar1 0
+defaultNonlinearPar2 0
+defaultNonlinearPar3 0
+
+# Additional analysis configuration (designed to match fitting binning, with 0.2MeV bin sizes)
+minimumEnergy    0.0     # MeV
+maximumEnergy    12.0    # MeV
+#nSpectrumSamples 240  # Number of samples in spectra
+# number of bins has to be 240, to match IAV correction table
+nSpectrumSamples 2880  # Number of samples in spectra
+nSpectrumSamplesBkg 240  # Number of samples in spectra
+
+randomizeSolarOscPars 0
+randomizeDm2ee 0
+
+randomizeIsotopeFraction 0
+randomizeReactorPower 0
+randomizeIavDistortion 0
+randomizeScintiNonLinear 0
+randomizeElecNonLinear 0
+randomizeAbsoluteEnergyScale 0
+randomizeRelativeEnergyScale 0
+randomizeAbsoluteEnergyOffset 0
+randomizeRelativeEnergyOffset 0
+randomizeResolution 0
+randomizeDetectorEfficiency 0
+randomizeCoreSpectra 0
+
+#These scale the full background spectra by their systematic errors as specified in the input file. 
+# Note: the number does not make any difference; it just has to be larer than 0
+varyAccBg 0
+varyAmcBg 0
+varyFnBg 0
+varyLi9Bg 0
+varyAlnBg 0 
+
+#These distort the shape of the background spectra by a line 
+#Note: the value is the amount of variation that you want to introduce
+distortAccBg 0
+distortAmcBg 0
+distortFnBg 0
+distortLi9Bg null
+distortAlnBg 0
+
+#Finally, flag for statistical flactuation
+statisticalFluctuation 0

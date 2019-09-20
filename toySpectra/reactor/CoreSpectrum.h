@@ -24,12 +24,14 @@ class CoreSpectrum {
   void setRandomSeed(unsigned int seed);
   void setRandomAntiNuSpectra();
 
+  bool loadCrossSectionTable(const char* filename_xsec);
   Bool_t loadCovMatrixBCW(const char* filename_mcov);
   void setRandomIBDSpectraBCW();
   double IBDSpectrumBCW(unsigned int coreId, double e_nu);
   
   double eMin();
   double eMax();
+
  private:
   double m_eMin; // Minimum Enu energy in spectrum
   double m_eMax; // Maximum Enu energy in spectrum
@@ -57,7 +59,6 @@ class CoreSpectrum {
   TRandom3 * ran ;
 
   CrossSectionTable * m_xsec;
-  bool loadCrossSectionTable(const char* filename_xsec);
   
   bool isAbInitioSpectraUsed;
   
