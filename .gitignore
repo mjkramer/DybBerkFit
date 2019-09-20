@@ -5,3 +5,7 @@
 .projectile
 doxygen/
 TAGS
+ShapeFit/Distances/
+ShapeFit/Inputs/
+ShapeFit/Spectra
+reactor_covmatrix/p17b_unblinded
