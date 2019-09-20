@@ -1,0 +1,7 @@
+*~
+*.d
+*.so
+*.pdf
+.projectile
+doxygen/
+TAGS
