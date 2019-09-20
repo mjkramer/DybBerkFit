@@ -1,0 +1,59 @@
+#Update on Apr. 4, 2018 by Beda
+#Working version for P17B analysis
+#
+# Stage
+1
+# DataFlag 1=Data, 0=MC
+1
+# Delta M^2_{32} and uncertainty  (in eV^2) (do not use those in the analysis)
+0.00243  0.00013
+# ===============================================================
+# First column is time period number, second column is row number
+# The nominal period for each set of entries is one week
+#
+# Row 0 ==>  Start UTC  |  End UTC | Start date and time
+# Row 1 ==>  Observed number of events in AD1 to AD8 
+# Row 2 ==>  Live time in days for AD1 to AD8
+# Row 3 ==>  Muon veto efficiency for AD1 to AD8
+# Row 4 ==>  Multiplicity cut efficiency for AD1 to AD8
+# Row 5 ==>  6 MeV neutron cut efficiency for AD1 to AD8
+# Row 6 ==>  Uncorrelated reactor power uncertainty (relative error in %)
+# Row 7 ==>  Total IBD cut efficiency uncertainty (relative error in %)
+# Row 8 ==>  Total target mass for AD1 to AD8 (kg)
+#### Note: The background estimates are *not* corrected for efficiencies anymore
+# Row 9  ==>  Expected number of bkg events per live day (AD1 to AD8)
+# Row 10 ==>  Absolute uncertainty on the bkg estimates per live day
+# Row 11 ==>  Expected number of accidental events per live day (AD1 to AD8)
+# Row 12 ==>  Absolute uncertainty on the accidental bkg per live day
+# Row 13 ==>  Expected number of li9/he8 events per live day (AD1 to AD8)
+# Row 14 ==>  Absolute uncertainty on the li9/he8 bkg per live day
+# Row 15 ==>  Expected number of fast-n events per live day (AD1 to AD8)
+# Row 16 ==>  Absolute uncertainty on the fast-n bkg per live day
+# Row 17 ==>  Expected number of AmC-corr events per live day (AD1 to AD8)
+# Row 18 ==>  Absolute uncertainty on the AmC-corr bkg per live day
+# Row 19 ==>  Expected number of alpha-n events per live day (AD1 to AD8)
+# Row 20 ==>  Absolute uncertainty on the alpha-n bkg per live day
+# Columns are organzed as:
+# EH1-AD1(AD1), EH1-AD2(AD2), EH2-AD1(AD3), EH2-AD2(AD8), EH3-AD1(AD4), EH3-AD2(AD5), EH3-AD3(AD6), EH3-AD2(AD7)
+# ===============================================================
+1	0	1324684800	1386374400	2011-12-24 00:00:00
+1	1	99126	100561	91672	0	13818	13722	13555	0
+1	2	186.786	186.786	187.191	0	187.666	187.666	187.666	0
+1	3	0.8161	0.8138	0.8479	1	0.9808	0.9802	0.9802	1
+1	4	0.9764	0.9768	0.9778	0	0.9769	0.9767	0.9766	0
+1	5	0.88	0.88	0.88	0.88	0.88	0.88	0.88	0.88
+1	6	0.8	0.8	0.8	0.8	0.8	0.8	0.8	0.8
+1	7	0.3	0.3	0.3	0.3	0.3	0.3	0.3	0.3
+1	8	19941	19966	19891	19945	19913	19991	19892	19931
+1	9	12.932	12.634	9.4414	0	3.3708	3.3206	3.2837	0
+1	10	0.98627	0.98433	0.71444	0	0.12564	0.12564	0.11783	0
+1	11	9.083	8.846	7.163	0	2.788	2.747	2.701	0
+1	12	0.027	0.026	0.023	0	0.013	0.013	0.013	0
+1	13	2.52	2.52	1.59	1.59	0.21	0.21	0.21	0.21
+1	14	0.68	0.68	0.46	0.46	0.07	0.07	0.07	0.07
+1	15	0.843	0.843	0.638	0.638	0.053	0.053	0.053	0.053
+1	16	0.083	0.083	0.062	0.062	0.009	0.009	0.009	0.009
+1	17	0.29	0.27	0.30	0.000	0.24	0.23	0.23	0.000
+1	18	0.13	0.12	0.14	0.000	0.11	0.10	0.10	0.000
+1	19	0.09	0.07	0.05	0.00	0.05	0.04	0.04	0.00
+1	20	0.04	0.04	0.02	0.04	0.02	0.02	0.02	0.03
