@@ -417,9 +417,9 @@ TGraph* gr_ratio[6][4];
 TGraph* gr_beda_spectra[6][4];
 TGraph* gr_henoch_spectra[6][4];
 
-void PrintSpectra(){
+void PrintSpectra(int option){
     ReadHenochSpectra(); //just for energy binning
-    ProduceSpectraDwyer();
+    ProduceSpectraDwyer(option);
     
     string period[Nstages]={"6AD","8AD","7AD"};
     string isotope[4]={"_U235","_U238","_Pu239","_Pu241"};
@@ -438,7 +438,7 @@ void PrintSpectra(){
     }
 }
 
-void Produce_Isotope_SpectraP17B_unblinded()
+void Produce_Isotope_SpectraP17B_unblinded(int option=1)
 {
-  PrintSpectra();
+  PrintSpectra(option);
 }
