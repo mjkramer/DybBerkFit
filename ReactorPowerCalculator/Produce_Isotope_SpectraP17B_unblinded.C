@@ -438,7 +438,7 @@ void PrintSpectra(int option){
     }
 }
 
-void Produce_Isotope_SpectraP17B_unblinded(int option=1)
+void Produce_Isotope_SpectraP17B_unblinded(int option=4) // XXX Should 4 (LBNL) be the default?
 {
   PrintSpectra(option);
 }
