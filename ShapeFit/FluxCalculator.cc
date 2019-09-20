@@ -255,7 +255,7 @@ TH1F *FluxCalculator::OscSpecQuick(int idet, int icore, double s22t13, int iweek
    //-->find best point for dm2
   int bestDi=0;
   if(dm2==-1){
-    dm2=osccalc->deltam2_ee;
+    dm2=osccalc->GetDeltaM2_ee();
   }
   if(NpointsD>1){
     double bestD=(dm2-Dmin)*(NpointsD-1)*1./(Dmax-Dmin);

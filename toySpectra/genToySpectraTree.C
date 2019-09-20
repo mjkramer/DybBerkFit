@@ -187,7 +187,7 @@ void genToySpectraTree(TString nominal_dataset_filename = "./data_file/dyb_data_
       double uncertainty=0.1;
       double rand_bin[8][3]; //8 detectors and 3 bins
       for(int idet=0; idet<Ndetectors; ++idet){
-          for(int ibin=0; ibin<3; ++bin){
+          for(int ibin=0; ibin<3; ++ibin){
               rand_bin[idet][ibin]=generator->Gaus(0.,uncertainty);
               if(rand_bin[idet][ibin]<-1.) rand_bin[idet][ibin]=-1.;
               cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;

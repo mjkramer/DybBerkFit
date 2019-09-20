@@ -12,7 +12,7 @@
 
 
 void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data_v1_nominal_noosc.txt",
-                        TString output_filename="../outputs/evis_to_enu_fine_2017Model_p17b_IHEP_BCWbin.root",
+                        TString output_filename="../outputs/evis_to_enu_fine_2017Model_p17b.root",
                         //CHANGE BINNING IF NAME IS WITH BCWbin
                         //do not forget change binning scheme accordingly to the name
 			Double_t  s2t13 = -1,
@@ -29,23 +29,22 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
 
   //  const Int_t n_evis_bins = 52;
     
-    /*
   const Int_t n_evis_bins = 37;
   Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
   evis_bins[0] = 0.7;
   for (Int_t i = 0; i < n_evis_bins-1; i++){
     evis_bins[i+1] = 0.2 *i + 1.0;
   }
-  evis_bins[n_evis_bins] = 12.0;*/
+  evis_bins[n_evis_bins] = 12.0;
     
     //in case of BCW binning
-   const Int_t n_evis_bins = 26;
-    Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-    evis_bins[0] = 0.7;
-    for (Int_t i = 0; i < n_evis_bins-1; i++){
-        evis_bins[i+1] = 0.25 *i + 1.3;
-    }
-    evis_bins[n_evis_bins] = 12.0;
+   // const Int_t n_evis_bins = 26;
+   //  Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
+   //  evis_bins[0] = 0.7;
+   //  for (Int_t i = 0; i < n_evis_bins-1; i++){
+   //      evis_bins[i+1] = 0.25 *i + 1.3;
+   //  }
+   //  evis_bins[n_evis_bins] = 12.0;
 
 
   Char_t name[1024];
@@ -86,7 +85,7 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
   Predictor *myPred = new Predictor();
   //myPred->LoadMainData("../ShapeFit/Inputs/Theta13-inputs_32week_inclusive.txt"); 
 
-  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_IHEP.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_IHEP.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_IHEP.txt"};
+  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
   }
@@ -98,7 +97,7 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
   spectrumNormNominal->loadDistances("./unblinded_baseline.txt");                    
   spectrumNormNominal->initialize(mydata_nominal);
 
-  TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_IHEP_BCWbin.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_IHEP_BCWbin.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_IHEP_BCWbin.root"};
+  TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
   
     spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
                                           "../li9_spectrum/8he9li_nominal_spectrum.root",

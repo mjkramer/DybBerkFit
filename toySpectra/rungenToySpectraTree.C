@@ -6,7 +6,7 @@ void rungenToySpectraTree(int x){
   
   const Int_t nopts = 18;
   TString options[nopts] = {
-    //"allsys",//1
+    "allsys",//1
     "sigsys",//2
     "bgsys",//3
     "allsys_and_stat",//5
