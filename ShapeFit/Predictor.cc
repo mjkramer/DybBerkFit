@@ -144,7 +144,7 @@ void Predictor::SetEnuBins(Int_t n, Double_t* bins){
   
 }
 
-void Predictor::LoadMainData(Char_t *mainmatrixname){
+void Predictor::LoadMainData(const Char_t *mainmatrixname){
 
   cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
   cout << "+++++++++++++++++++ Reading Main File +++++++++++++++++" << endl;
@@ -332,7 +332,7 @@ void Predictor::LoadMainData(Char_t *mainmatrixname){
   //}
 }//end of LoadMainMatrix
 
-void Predictor::LoadPredictedIBD(Char_t *nibdname){
+void Predictor::LoadPredictedIBD(const Char_t *nibdname){
   cout << "Loading # ibd ..." << endl;
 
   TFile *infile = new TFile(nibdname,"READ");
@@ -377,7 +377,7 @@ void Predictor::LoadIBDSpec(TString *ibdspecname){
   cout << "done loading ibd spectra!" << endl;
 }
 
-Int_t Predictor::LoadToyIBDSpec(Char_t* filename){
+Int_t Predictor::LoadToyIBDSpec(const Char_t* filename){
   
   cout << "Loading toy ibd spectra..." << endl;
 
@@ -426,10 +426,10 @@ void Predictor::LoadToyMCEntry(Int_t i, bool correct){
 }
 
 void Predictor::LoadBgSpec(TString *accspecname, 
-			   Char_t *li9specname, 
-			   Char_t *amcspecname,
-			   Char_t *fnspecname,
-			   Char_t *alnspecname){
+			   const Char_t *li9specname, 
+			   const Char_t *amcspecname,
+			   const Char_t *fnspecname,
+			   const Char_t *alnspecname){
   
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
@@ -976,7 +976,7 @@ void Predictor::MakeAllPredictions(double sin2theta13, double dm2, double s22t14
 }
 
 
-void Predictor::LoadEvisToEnuMatrix(Char_t *evis_to_enu_matrix_name){
+void Predictor::LoadEvisToEnuMatrix(const Char_t *evis_to_enu_matrix_name){
   ifstream matrix_file(evis_to_enu_matrix_name);
   if (!matrix_file.is_open()){
     cout << "Error: cannot find evis to enu convertion matrix " << evis_to_enu_matrix_name << endl;
@@ -992,7 +992,7 @@ void Predictor::LoadEvisToEnuMatrix(Char_t *evis_to_enu_matrix_name){
 }
 
 
-void Predictor::LoadCovMatrix(Char_t *covmatrixname_sig, Char_t *covmatrixname_bg){
+void Predictor::LoadCovMatrix(const Char_t *covmatrixname_sig, const Char_t *covmatrixname_bg){
 
   string dummyLine;
   string thead;

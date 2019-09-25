@@ -86,13 +86,13 @@ class Spectrum {
   // Initialize the spectrum
   void initialize(DataSet* data);
   // Load distances
-  void loadDistances(char *distancematrixname);
+  void loadDistances(const char *distancematrixname);
   // load bg spectra (they have different binning to the ones used by ShapeFit, which are loaded by Predictor)
   void loadBgSpecForToy(TString *accspecname, 
-			Char_t *li9specname, 
-			Char_t *amcspecname,
-			Char_t *fnspecname,
-			Char_t *alnspecname);
+			const Char_t *li9specname, 
+			const Char_t *amcspecname,
+			const Char_t *fnspecname,
+			const Char_t *alnspecname);
   void setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag, 
                        bool amc_flag, bool aln_flag);
   

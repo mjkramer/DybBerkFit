@@ -20,7 +20,7 @@ const int cov_matrix_dimension=16*Nstage*37; //37 evis bins
 
 Double_t M[cov_matrix_dimension][cov_matrix_dimension];
 
-void build_covmatrix(Char_t * toymc_filename = "./toymc/toySpectra/toySpectra_allerrors.root", Char_t * output_filename = "covmatrix.txt", Int_t bkg_flag = 0){
+void build_covmatrix(const Char_t * toymc_filename = "./toymc/toySpectra/toySpectra_allerrors.root", const Char_t * output_filename = "covmatrix.txt", Int_t bkg_flag = 0){
     
     cout<<"Dimension of cov matrix is "<<cov_matrix_dimension<<"x"<<cov_matrix_dimension<<endl;
   

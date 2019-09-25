@@ -22,17 +22,17 @@ class Predictor : public TObject {
   ~Predictor();
   //general stuff
   void EnterFluxCalculator(FluxCalculator *fluxcalc_in);
-  void LoadMainData(Char_t *mainmatrixname);//<-- if call this have to call LoadBgSpec as well as that is where corrections are applied
-  void LoadPredictedIBD(Char_t *nibdname);
+  void LoadMainData(const Char_t *mainmatrixname);//<-- if call this have to call LoadBgSpec as well as that is where corrections are applied
+  void LoadPredictedIBD(const Char_t *nibdname);
   void LoadIBDSpec(TString *ibdspecname);
-  Int_t LoadToyIBDSpec(Char_t *toyibdspecname);
+  Int_t LoadToyIBDSpec(const Char_t *toyibdspecname);
   void LoadToyMCEntry(Int_t i, bool correct=true);
   void LoadToyMCNominalSpec();
   void LoadBgSpec(TString *accspecname, 
-		  Char_t *li9specname, 
-		  Char_t *amcspecname,
-		  Char_t *fnspecname,
-		  Char_t *alnspecname);
+		  const Char_t *li9specname, 
+		  const Char_t *amcspecname,
+		  const Char_t *fnspecname,
+		  const Char_t *alnspecname);
   FluxCalculator *  GetFluxCalculator(){return fluxcalc;}
   
   void MakePrediction(double sin2theta13, double dm2, Double_t sin22t14, Double_t dm2_41, int tperiod, TimePeriodData &tperdat); //, PredSet *predout);//<--use dm2=-1 to get default value
@@ -55,7 +55,7 @@ class Predictor : public TObject {
   TH1F *GetCorrFnEvtsSpec(int istage, int idet);
   TH1F *GetCorrAlnEvtsSpec(int istage, int idet);
 
-  void LoadEvisToEnuMatrix(Char_t *evis_to_enu_matrix_name);
+  void LoadEvisToEnuMatrix(const Char_t *evis_to_enu_matrix_name);
 
   void SetStatFactor(Double_t fac); // set factor to artificailly increase statitstics, by reducing stat error by 1/sqrt(stat_factor)
    
@@ -69,7 +69,7 @@ class Predictor : public TObject {
 
 
   //Covariance matrix stuff
-  void LoadCovMatrix(Char_t *covmatrixname_sig, Char_t *covmatrixname_bg);
+  void LoadCovMatrix(const Char_t *covmatrixname_sig, const Char_t *covmatrixname_bg);
   void AddandScaleCovMatrix(Int_t type = -1);
   void InvertMatrix();
   void InvertRateMatrix();
@@ -233,6 +233,8 @@ class Predictor : public TObject {
  public:
   ClassDef(Predictor,1);
 
+private:
+  friend class OscProbTable;    // Only used by fit_shape_sterile_hybrid_scan
 };
 
 #endif

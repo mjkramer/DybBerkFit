@@ -49,11 +49,11 @@ class FluxCalculator : public TObject {
  public: 
   FluxCalculator();
   ~FluxCalculator();
-  FluxCalculator(Char_t *distancesfile, Char_t *weeklyfluxdataname, int nweeks_in);
-  FluxCalculator(Char_t *distancesfile, Char_t *superhistname);//<--this one reads superhists and thus can only work in inclusive mode
+  FluxCalculator(const Char_t *distancesfile, const Char_t *weeklyfluxdataname, int nweeks_in);
+  FluxCalculator(const Char_t *distancesfile, const Char_t *superhistname);//<--this one reads superhists and thus can only work in inclusive mode
   double GetDistance(int idet, int icore);
-  void LoadDistances(Char_t *distancesmatrixname);
-  void LoadWeeklyFlux(Char_t *weeklyfluxdataname, int nweeks);
+  void LoadDistances(const Char_t *distancesmatrixname);
+  void LoadWeeklyFlux(const Char_t *weeklyfluxdataname, int nweeks);
 
   std::map<int, TH1F*> CalculateFluxHistRow(int idet, double s22t13, int iweek, double dm2_ee=-1, double s22t14 = 0, double dm2_41 = -1, int term = -1);
   std::map<int, TH1F*> ExtrapolationFactorRow(int idet1, int idet2, double s22t13, int iweek, double dm2_ee=-1, double s22t14 = 0, double dm2_41 = -1);
@@ -66,7 +66,7 @@ class FluxCalculator : public TObject {
   //  double *SuperMatrixRow(int idet, double s22t13, int iweek, double dm2=-1);
   //void LoadSuperMatrix(Char_t *fluxmatrixname);  //<--- now discontinued
   //bool useSuperMatrix; //<-- now discontinued
-  void LoadSuperHistograms(Char_t *superhistsname);
+  void LoadSuperHistograms(const Char_t *superhistsname);
   bool useSuperHists;
   double PercContr[Ndetectors][Ncores];
 
