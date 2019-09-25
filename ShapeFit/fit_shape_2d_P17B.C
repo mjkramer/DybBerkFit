@@ -35,21 +35,21 @@ Double_t CalculateChi2(TH1F *h_s22t13,TH1F* h_data);
 void fit_shape_2d_P17B(Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
 		       TString sig_spectra_filename0 = "./Spectra/ibd_eprompt_shapes_6ad_LBNL.root",
 		       TString sig_spectra_filename1 = "./Spectra/ibd_eprompt_shapes_8ad_LBNL.root",
-               TString sig_spectra_filename2 = "./Spectra/ibd_eprompt_shapes_7ad_LBNL.root",
+           TString sig_spectra_filename2 = "./Spectra/ibd_eprompt_shapes_7ad_LBNL.root",
 		       TString acc_spectra_filename0 = "./Spectra/accidental_eprompt_shapes_6ad_LBNL.root",
 		       TString acc_spectra_filename1 = "./Spectra/accidental_eprompt_shapes_8ad_LBNL.root",
-               TString acc_spectra_filename2 = "./Spectra/accidental_eprompt_shapes_7ad_LBNL.root",
-               Char_t savefilename[256] = "./fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.4_inflated.root",
-		       Char_t input_filename0[256] = "./Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt",
-		       Char_t input_filename1[256] = "./Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt",
-               Char_t input_filename2[256] = "./Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt",
-		       Char_t fn_filename[256] = "../fn_spectrum/P15A_fn_spectrum.root",
-		       Char_t histogram_filename[256] = "./Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root",
+           TString acc_spectra_filename2 = "./Spectra/accidental_eprompt_shapes_7ad_LBNL.root",
+           const Char_t* savefilename = "./fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.4_inflated.root",
+		       const Char_t* input_filename0 = "./Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt",
+		       const Char_t* input_filename1 = "./Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt",
+           const Char_t* input_filename2 = "./Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt",
+		       const Char_t* fn_filename = "../fn_spectrum/P15A_fn_spectrum.root",
+		       const Char_t* histogram_filename = "./Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root",
 		       bool isMC = false,
-		       //Char_t sig_matrix_filename[256] = "",//covariance_matrices/matrix_sigsys.txt",
-		       //Char_t bg_matrix_filename[256] = ""){//covariance_matrices/matrix_bgsys.txt")
-               Char_t sig_matrix_filename[256] = "covariance_matrices/matrix_sigsys_2017Model_P17B.txt",
-               Char_t bg_matrix_filename[256] = "covariance_matrices/matrix_bgsys_2017Model_P17B.txt"){
+		       const Char_t* sig_matrix_filename = "covariance_matrices/matrix_sigsys.txt",
+           const Char_t* bg_matrix_filename = "covariance_matrices/matrix_bgsys.txt"){
+               // Char_t sig_matrix_filename[256] = "covariance_matrices/matrix_sigsys_2017Model_P17B.txt",
+               // Char_t bg_matrix_filename[256] = "covariance_matrices/matrix_bgsys_2017Model_P17B.txt"){
     
   
   
@@ -265,7 +265,7 @@ void fit_shape_2d_P17B(Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD,
     minu->GetParameter(1,fpar,ferr);
     bestdm2ee = fpar;
     Double_t best_pars[2] = {bests22t13,bestdm2ee};
-    Double_t * grad;
+    Double_t * grad = nullptr;  // not used by minuit_fcn
     
     minu->Eval(2,grad,minchi2,best_pars,0);
 
