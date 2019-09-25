@@ -12,7 +12,7 @@ FluxCalculator::FluxCalculator(){
 };
 
 //Mode with weekly periods 
-FluxCalculator::FluxCalculator(Char_t *distancesfile, Char_t *weeklyfluxdataname, int nweeks_in){
+FluxCalculator::FluxCalculator(const Char_t *distancesfile, const Char_t *weeklyfluxdataname, int nweeks_in){
   
   nweeks=nweeks_in;
   useSuperHists=false;
@@ -30,7 +30,7 @@ FluxCalculator::FluxCalculator(Char_t *distancesfile, Char_t *weeklyfluxdataname
 };
 
 //Mode with super-histograms
-FluxCalculator::FluxCalculator(Char_t *distancesfile, Char_t *superhistname){
+FluxCalculator::FluxCalculator(const Char_t *distancesfile, const Char_t *superhistname){
    
   nweeks=1;//<--have to use inclusive mode if use super-histograms
   useSuperHists=true;//<-- this mode is by definition the one with super-histograms
@@ -63,7 +63,7 @@ FluxCalculator::~FluxCalculator(){
   
 };
 
-void FluxCalculator::LoadDistances(Char_t *distancematrixname){
+void FluxCalculator::LoadDistances(const Char_t *distancematrixname){
 
   string dummyLine;
   string thead;
@@ -85,7 +85,7 @@ void FluxCalculator::LoadDistances(Char_t *distancematrixname){
   }
 }
 
-void FluxCalculator::LoadWeeklyFlux(Char_t *weeklyfluxdataname, int nweeks_in){
+void FluxCalculator::LoadWeeklyFlux(const Char_t *weeklyfluxdataname, int nweeks_in){
 
   WeeklyFluxData = new TFile(weeklyfluxdataname,"READ");
 
@@ -278,7 +278,7 @@ void FluxCalculator::OscSpecQuick(int idet, int icore, double s22t13, int iweek,
 }
 
 //Note: super-histograms are created with GenerateSuperHistograms.C. Super-histograms are the neutrino flux (binned in true neutrino energy) seen in one AD in an entire period (.e.g. 20 weeks), using the weekly efficiencies and livetimes to weigh each element in the sum. 
-void FluxCalculator::LoadSuperHistograms(Char_t *superhistsname){
+void FluxCalculator::LoadSuperHistograms(const Char_t *superhistsname){
 
   Char_t name1[1024];
   Char_t name2[1024];

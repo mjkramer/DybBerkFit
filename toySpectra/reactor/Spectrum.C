@@ -959,7 +959,7 @@ void Spectrum::correctNonLinearity(){
 }
 
 
-void Spectrum::loadDistances(char *distancematrixname){
+void Spectrum::loadDistances(const char *distancematrixname){
 
   string dummyLine;
   string thead;
@@ -984,10 +984,10 @@ void Spectrum::loadDistances(char *distancematrixname){
 }
 
 void Spectrum::loadBgSpecForToy(TString *accspecname, 
-				Char_t *li9specname, 
-				Char_t *amcspecname,
-				Char_t *fnspecname,
-				Char_t *alnspecname){
+				const Char_t *li9specname, 
+				const Char_t *amcspecname,
+				const Char_t *fnspecname,
+				const Char_t *alnspecname){
   
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
