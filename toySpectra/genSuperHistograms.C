@@ -14,7 +14,7 @@
 
 void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nominal.txt",
                         //TString output_filename="../ShapeFit/Flux/SuperHistograms_P17B_p15a_fine_huber-french.root"){
-                        TString output_filename="../ShapeFit/Flux/SuperHistograms_P17B_2017Model_fine_huber-french_IHEP_official.root"){
+                        TString output_filename="../ShapeFit/Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root"){
   
   TString output_supermatrix_filename = "SuperMatrix_P15A_P15Aperiod_toy.txt";
   
@@ -30,7 +30,7 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   Predictor *myPred = new Predictor();
  
   //Char_t Theta13InputsLocation[2][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt","../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad_p14a.txt"};
-  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_IHEP.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_IHEP.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_IHEP.txt"};
+  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
 
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
@@ -44,7 +44,7 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   spectrumNorm->loadDistances("./unblinded_baseline.txt");                    
   spectrumNorm->initialize(mydata);
   //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-    TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_IHEP_BCWbin.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_IHEP_BCWbin.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_IHEP_BCWbin.root"};
+    TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
 
   spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
 				 "../li9_spectrum/8he9li_nominal_spectrum.root",
