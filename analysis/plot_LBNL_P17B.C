@@ -4,8 +4,10 @@
   gStyle->SetTitleFont(62, "XY");
   gStyle->SetLegendFont(62);
   gROOT->ForceStyle();
-  const Int_t nS2T = 101;
-  const Int_t nDM2 = 101;
+  const Int_t nS2T = 101;       // IHEP-official
+  const Int_t nDM2 = 101;       // IHEP-official
+  // const Int_t nS2T = 31;        // mine
+  // const Int_t nDM2 = 31;        // mine
 
   Double_t chi2_map[nDM2][nS2T];
   Double_t chi2_s2t[nS2T];
@@ -17,41 +19,33 @@
 
   Double_t dm_corr = 0.; // 5.17e-5;
 
-  Double_t s2t_min = 0.06;
-  Double_t s2t_max = 0.11;
-  Double_t dm2_min = 2.1e-3 - dm_corr;
-  Double_t dm2_max = 2.9e-3 - dm_corr;
+  Double_t s2t_min = 0.06;      // IHEP-official
+  Double_t s2t_max = 0.11;      // IHEP-official
+  Double_t dm2_min = 2.1e-3 - dm_corr; // IHEP-official
+  Double_t dm2_max = 2.9e-3 - dm_corr; // IHEP-official
+  // Double_t s2t_min = 0.07;      // mine
+  // Double_t s2t_max = 0.10;      // mine
+  // Double_t dm2_min = 2.1e-3 - dm_corr; // mine
+  // Double_t dm2_max = 2.8e-3 - dm_corr; // mine
 
   Double_t s2t_step = (s2t_max - s2t_min) / (nS2T - 1);
   Double_t dm2_step = (dm2_max - dm2_min) / (nDM2 - 1);
 
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_P17B_LBNL_BCWbin.root","OPEN"); TFile*
-  // bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_SCNLModel_P17B_LBNL_BCWbin.root","OPEN"); TFile*
-  // bestfit_file = new TFile("../fit_shape_2d_SCNLModel_P17B_LBNL.root","OPEN");
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_P17B_BCW_BCWbin.root","OPEN"); TFile*
-  // bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_postP15A_LBNL_BCWbin.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_LBNL_BCWbin.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_SCNLModel_P17B_LBNL_BCWbin.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_SCNLModel_P17B_LBNL.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_BCW_BCWbin.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_postP15A_LBNL_BCWbin.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_LBNL_0.2_inflated.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_inverted.root","OPEN");
+  // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_statonly.root","OPEN");
 
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_P17B_LBNL_0.2_inflated.root","OPEN");
-
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_inverted.root","OPEN");
-  // TFile* bestfit_file = new
-  // TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_statonly.root","OPEN");
-
-  TFile *bestfit_file =
-      new TFile("../ShapeFit/fit_result_files/"
-                "fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root",
-                "OPEN");
-  // TFile* bestfit_file = new
-  // TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root","OPEN");
-  // TFile* bestfit_file = new
-  // TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
+  // TFile *bestfit_file = new TFile("../ShapeFit/fit_result_files/" "fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root", "OPEN");
+  // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root","OPEN");
+  // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
+  TFile* bestfit_file = new TFile("/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP_BCWbin.root","OPEN"); // official
+  
 
   TFile *fout = new TFile("./LBNL_contour_P17B.root", "recreate");
 
