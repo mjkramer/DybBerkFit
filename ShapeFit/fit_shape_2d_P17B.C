@@ -15,8 +15,12 @@
 #include "TMath.h"
 #include "TGraph.h"
 #include "Predictor.h"
+#include "Binning.h"
+#include "Config.h"
 #include "TTree.h"
 #include "TMinuit.h"
+
+using namespace Config;
 
 Double_t final_covmatrix[4][16*3*37][16*3*37];  //4 nModes, 16 MaxPredictions, 3 Nstages, 37 bins
 Double_t final_covmatrix_sum[4][16*37][16*37];
@@ -32,27 +36,11 @@ void minuit_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *x, Int_t ifla
 
 Double_t CalculateChi2(TH1F *h_s22t13,TH1F* h_data);
 
-void fit_shape_2d_P17B(Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
-		       TString sig_spectra_filename0 = "./Spectra/ibd_eprompt_shapes_6ad_LBNL.root",
-		       TString sig_spectra_filename1 = "./Spectra/ibd_eprompt_shapes_8ad_LBNL.root",
-           TString sig_spectra_filename2 = "./Spectra/ibd_eprompt_shapes_7ad_LBNL.root",
-		       TString acc_spectra_filename0 = "./Spectra/accidental_eprompt_shapes_6ad_LBNL.root",
-		       TString acc_spectra_filename1 = "./Spectra/accidental_eprompt_shapes_8ad_LBNL.root",
-           TString acc_spectra_filename2 = "./Spectra/accidental_eprompt_shapes_7ad_LBNL.root",
-           const Char_t* savefilename = "./fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root",
-		       const Char_t* input_filename0 = "./Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt",
-		       const Char_t* input_filename1 = "./Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt",
-           const Char_t* input_filename2 = "./Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt",
-		       const Char_t* fn_filename = "../fn_spectrum/P15A_fn_spectrum.root",
-		       const Char_t* histogram_filename = "./Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root",
-		       bool isMC = false,
-		       const Char_t* sig_matrix_filename = "covariance_matrices/matrix_sigsys.txt",
-           const Char_t* bg_matrix_filename = "covariance_matrices/matrix_bgsys.txt"){
-               // Char_t sig_matrix_filename[256] = "covariance_matrices/matrix_sigsys_2017Model_P17B.txt",
-               // Char_t bg_matrix_filename[256] = "covariance_matrices/matrix_bgsys_2017Model_P17B.txt"){
-    
-  
-  
+
+void fit_shape_2d_P17B(const char* savefilename = "./fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root",
+                       Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
+                       bool isMC = false)
+{
   TString sig_spectra_filename[3] = {sig_spectra_filename0,sig_spectra_filename1,sig_spectra_filename2};
   TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
   Char_t Theta13InputsLocation[3][1024];
@@ -83,7 +71,7 @@ void fit_shape_2d_P17B(Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD,
 
   pred->SetStage(PeriodFlag);
 
-  FluxCalculator* fluxcalc = new FluxCalculator("./Distances/unblinded_baseline.txt",histogram_filename);//<--flux calculator in super-hist mode 
+  FluxCalculator* fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);//<--flux calculator in super-hist mode 
 
   pred->EnterFluxCalculator(fluxcalc);
 
@@ -91,37 +79,27 @@ void fit_shape_2d_P17B(Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD,
     pred->LoadMainData(Theta13InputsLocation[istage]); 
   } 
 
-  pred->LoadPredictedIBD("./PredictedIBD/PredictedIBD_P17B_2017Model_fine_huber-french.root");
+  pred->LoadPredictedIBD(predicted_ibd_filename);
 
   pred->LoadIBDSpec(sig_spectra_filename);
     
   pred->LoadBgSpec(AccidentalSpectrumLocation,
-                   "../li9_spectrum/8he9li_nominal_spectrum.root",
-                   "../amc_spectrum/amc_spectrum.root",
+                   li9_filename,
+                   amc_filename,
                    fn_filename,
-                   "../alpha-n-spectrum/result-DocDB9667.root");//<---load bg afterwards since here is when correct events
+                   aln_filename);//<---load bg afterwards since here is when correct events
   
   //pred->SetStatFactor(stat_factor);
   //pred->Set8ADStatFactor(extra_days);
-  
-  const Int_t n_evis_bins = 37;
-  Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < n_evis_bins-1; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
-  }
-  evis_bins[n_evis_bins] = 12.0;
-  
-  const Int_t n_enu_bins = 156;
-  Double_t enu_bins[n_enu_bins+1]; // testing fine bins
-  for (Int_t i = 0; i < n_enu_bins+1; i++){
-    enu_bins[i] = 0.05 * i + 1.8;
-  }
+
+  const int n_evis_bins = Binning::n_evis();
+  double* evis_bins = Binning::evis();
+  double* enu_bins = Binning::enu();
   
   pred->SetEvisBins(n_evis_bins,evis_bins);
-  pred->SetEnuBins(n_enu_bins,enu_bins);
+  pred->SetEnuBins(Binning::n_enu(),enu_bins);
   
-  pred->LoadEvisToEnuMatrix("./matrix_evis_to_enu_fine_2017Model_P17B.txt");
+  pred->LoadEvisToEnuMatrix(response_filename);
    // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
   
   pred->LoadCovMatrix(sig_matrix_filename,bg_matrix_filename);

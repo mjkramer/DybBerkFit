@@ -10,10 +10,11 @@
   gROOT->ProcessLine( (load + prefix + "/PredSet.cc+").Data() );
   gROOT->ProcessLine( (load + prefix + "/TimePeriodData.cc+").Data() );
   gROOT->ProcessLine( (load + prefix + "/Predictor.cc+").Data() );
+  gROOT->ProcessLine( (load + prefix + "/Binning.cc+").Data() );
+  gROOT->ProcessLine( (load + prefix + "/DataSet.cc+").Data() );
 
-  TString prefix = "./quickFit";  
-  gROOT->ProcessLine( (include + prefix).Data() ); 
-  gROOT->ProcessLine( (load + prefix + "/DataSet.C+").Data() );
+  // TString prefix = "./quickFit";  
+  // gROOT->ProcessLine( (include + prefix).Data() ); 
   //gROOT->ProcessLine( (load + prefix + "/FitSummary.C+").Data() );
   //gROOT->ProcessLine( (load + prefix + "/PhysicsModel.C+").Data() );
   //gROOT->ProcessLine( (load + prefix + "/PoissonModel.C+").Data() );

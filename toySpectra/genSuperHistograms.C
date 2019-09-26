@@ -10,13 +10,15 @@
 
 #include "DataSet.h"
 #include "Spectrum.h"
+#include "Config.h"
+
+using namespace Config;
 
 
-void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nominal.txt",
-                        //TString output_filename="../ShapeFit/Flux/SuperHistograms_P17B_p15a_fine_huber-french.root"){
-                        TString output_filename="../ShapeFit/Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root"){
+void genSuperHistograms()
+{
   
-  TString output_supermatrix_filename = "SuperMatrix_P15A_P15Aperiod_toy.txt";
+  // TString output_supermatrix_filename = "SuperMatrix_P15A_P15Aperiod_toy.txt";
   
 
   TH1F * h[Nstage][Ndetectors][Ncores];
@@ -24,13 +26,12 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   
   // Create Expectations
   DataSet *mydata = new DataSet();
-  mydata->load(dataset_filename.Data());
+  mydata->load(nominal_dataset_filename);
 
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
  
-  //Char_t Theta13InputsLocation[2][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt","../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad_p14a.txt"};
-  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
@@ -41,17 +42,16 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   Spectrum *spectrumNorm = new Spectrum();
   spectrumNorm->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNorm->loadDistances("./unblinded_baseline.txt");                    
+  spectrumNorm->loadDistances(baselines_filename);                    
   spectrumNorm->initialize(mydata);
   //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-    TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
+  TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
 
   spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-				 "../li9_spectrum/8he9li_nominal_spectrum.root",
-                                 "../amc_spectrum/amc_spectrum.root",
-                                 "../fn_spectrum/P15A_fn_spectrum_IHEP.root",
-                                 "../alpha-n-spectrum/result-DocDB9667.root");
-  
+                                 li9_filename,
+                                 amc_filename,
+                                 fn_filename,
+                                 aln_filename);
 
   // load distances hare as well to construct traditional supermatrix
   
@@ -62,7 +62,7 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   float d2,d1,l2,l1,l4,l3;
   //-->Distances  
   cout << " Distances ++++++++++++++++++++++++++++++++++++++" << endl;
-  ifstream disfile("./unblinded_baseline.txt");
+  ifstream disfile(baselines_filename);
   getline(disfile, dummyLine);
   while(disfile >> thead >> d1 >> d2 >> l1 >> l2 >> l3 >> l4){
 
@@ -83,7 +83,7 @@ void genSuperHistograms(TString dataset_filename = "./data_file/dyb_data_v1_nomi
   
   
   //Prepare destination file
-  TFile *outfile = new TFile(output_filename.Data(),"RECREATE");
+  TFile *outfile = new TFile(histogram_filename, "RECREATE");
 
   Char_t name[1024];
   for(int istage=0;istage<Nstage;++istage){

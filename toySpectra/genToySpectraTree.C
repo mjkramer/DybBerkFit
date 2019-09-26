@@ -6,35 +6,22 @@
 #include "TTree.h"
 #include "DataSet.h"
 #include "Spectrum.h"
+#include "Config.h"
+#include "Binning.h"
 #include "TRandom3.h"
 
+using namespace Config;
 
-
-void genToySpectraTree(TString nominal_dataset_filename = "./data_file/dyb_data_v1_nominal.txt",
-                       TString dataset_filename = "./data_file/dyb_data_v1_allsys_and_stat.txt",
-                       TString output_filename="../outputs/toySpectra_allsys_and_stat_3periods.root",
-                       Double_t  s2t13 =0.084,
-                       Double_t  dm2ee = 0.00248,
-                       Double_t  s2t14 = -1,
-                       Double_t  dm241 = -1){
-                       // Double_t  s2t14 = 0.9,
-                       // Double_t  dm241 = 0.021){
-
-
+void genToySpectraTree(TString dataset_filename, TString output_filename,
+                       double s2t13 = -1, double dm2ee = -1, double s2t14 = -1, double dm241 = -1)
+{
   int nToys = 1000;
   // string opt="_allerrors";
 
   // // define output histograms
 
-  //  const Int_t n_evis_bins = 52;
-  const Int_t n_evis_bins = 37;
-  Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < n_evis_bins-1; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
-  }
-  evis_bins[n_evis_bins] = 12.0;
-
+  const int n_evis_bins = Binning::n_evis();
+  double* evis_bins = Binning::evis();
 
   Char_t name[1024];
   TH1F *h_nominal_ad[Nstage][Ndetectors];
@@ -61,29 +48,32 @@ void genToySpectraTree(TString nominal_dataset_filename = "./data_file/dyb_data_
   if (s2t13 >= 0){
     mydata->setDouble("sinSq2Theta13",s2t13);
     mydata_nominal->setDouble("sinSq2Theta13",s2t13);
-  }
+  } else
+    s2t13 = mydata_nominal->getDouble("sinSq2Theta13");
 
   if (dm2ee > 0){
     mydata->setDouble("deltaMSqee",dm2ee);
     mydata_nominal->setDouble("deltaMSqee",dm2ee);
-  }
+  } else
+    dm2ee = mydata_nominal->getDouble("deltaMSqee");
 
   if (s2t14 >= 0){
     mydata->setDouble("sinSq2Theta14",s2t14);
     mydata_nominal->setDouble("sinSq2Theta14",s2t14);
-  }
+  } else
+    s2t14 = mydata_nominal->getDouble("sinSq2Theta14");
 
   if (dm241 > 0){
     mydata->setDouble("deltaMSq41",dm241);
     mydata_nominal->setDouble("deltaMSq41",dm241);
-  }
+  } else
+    dm241 = mydata_nominal->getDouble("deltaMSq41");
 
   
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
 
-  //Char_t Theta13InputsLocation[2][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt","../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad_p14a.txt"};
-    Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
@@ -98,30 +88,29 @@ void genToySpectraTree(TString nominal_dataset_filename = "./data_file/dyb_data_
     
   spectrumNormNominal->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNormNominal->loadDistances("./unblinded_baseline.txt");                    
+  spectrumNormNominal->loadDistances(baselines_filename);
   spectrumNormNominal->initialize(mydata_nominal);
 
-  //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-  TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
+  TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
  
   spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        "../li9_spectrum/8he9li_nominal_spectrum.root",
-                                        "../amc_spectrum/amc_spectrum.root",
-                                        "../fn_spectrum/P15A_fn_spectrum.root",
-                                        "../alpha-n-spectrum/result-DocDB9667.root");
+                                        li9_filename,
+                                        amc_filename,
+                                        fn_filename,
+                                        aln_filename);
 
 
   // Create Spectrum for toy
   Spectrum *spectrumNorm = new Spectrum();
   spectrumNorm->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNorm->loadDistances("./unblinded_baseline.txt");                    
+  spectrumNorm->loadDistances(baselines_filename);                    
   spectrumNorm->initialize(mydata);
   spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                 "../li9_spectrum/8he9li_nominal_spectrum.root",
-                                 "../amc_spectrum/amc_spectrum.root",
-                                 "../fn_spectrum/P15A_fn_spectrum.root",
-                                 "../alpha-n-spectrum/result-DocDB9667.root");
+                                 li9_filename,
+                                 amc_filename,
+                                 fn_filename,
+                                 aln_filename);
 
 
 
@@ -184,7 +173,7 @@ void genToySpectraTree(TString nominal_dataset_filename = "./data_file/dyb_data_
     spectrumNorm->updateBgDetected();
       
       //this part is added to inflate low energy bin uncertainty
-      double uncertainty=0.1;
+      double uncertainty = Config::lowBinInflation;
       double rand_bin[8][3]; //8 detectors and 3 bins
       for(int idet=0; idet<Ndetectors; ++idet){
           for(int ibin=0; ibin<3; ++ibin){

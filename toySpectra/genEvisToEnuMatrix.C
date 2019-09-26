@@ -6,19 +6,15 @@
 #include "TCanvas.h"
 #include "TTree.h"
 
-
 #include "DataSet.h"
 #include "Spectrum.h"
+#include "Config.h"
+#include "Binning.h"
+
+using namespace Config;
 
 
-void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data_v1_nominal_noosc.txt",
-                        TString output_filename="../outputs/evis_to_enu_fine_2017Model_p17b.root",
-                        //CHANGE BINNING IF NAME IS WITH BCWbin
-                        //do not forget change binning scheme accordingly to the name
-			Double_t  s2t13 = -1,
-			Double_t  dm2ee = -1,
-			Double_t  s2t14 = -1,
-			Double_t  dm241 = -1){
+void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2t14 = -1, Double_t  dm241 = -1){
 
   //TString nominal_dataset_filename = "./data_file_unified_nl_p12e_unblinded/dyb_data_v1_nominal_noosc.txt",
 
@@ -29,23 +25,8 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
 
   //  const Int_t n_evis_bins = 52;
     
-  const Int_t n_evis_bins = 37;
-  Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < n_evis_bins-1; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
-  }
-  evis_bins[n_evis_bins] = 12.0;
-    
-    //in case of BCW binning
-   // const Int_t n_evis_bins = 26;
-   //  Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-   //  evis_bins[0] = 0.7;
-   //  for (Int_t i = 0; i < n_evis_bins-1; i++){
-   //      evis_bins[i+1] = 0.25 *i + 1.3;
-   //  }
-   //  evis_bins[n_evis_bins] = 12.0;
-
+  const Int_t n_evis_bins = Binning::n_evis();
+  const double* evis_bins = Binning::evis();
 
   Char_t name[1024];
   TH1F *h_nominal_ad[Ndetectors];
@@ -61,31 +42,34 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
   
   // Create Nominal (i.e. no random variation) Expectations
   DataSet *mydata_nominal = new DataSet();
-  mydata_nominal->load(nominal_dataset_filename);
+  mydata_nominal->load(nominal_noosc_dataset_filename);
 
   // Change oscillation parameters for testing
   if (s2t13 >= 0){
     mydata_nominal->setDouble("sinSq2Theta13",s2t13);
-  }
+  } else
+    s2t13 = mydata_nominal->getDouble("sinSq2Theta13");
 
   if (dm2ee > 0){
     mydata_nominal->setDouble("deltaMSqee",dm2ee);
-  }
+  } else
+    dm2ee = mydata_nominal->getDouble("deltaMSqee");
 
   if (s2t14 >= 0){
     mydata_nominal->setDouble("sinSq2Theta14",s2t14);
-  }
+  } else
+    s2t14 = mydata_nominal->getDouble("sinSq2Theta14");
 
   if (dm241 > 0){
     mydata_nominal->setDouble("deltaMSq41",dm241);
-  }
+  } else
+    dm241 = mydata_nominal->getDouble("deltaMSq41");
 
   
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
-  //myPred->LoadMainData("../ShapeFit/Inputs/Theta13-inputs_32week_inclusive.txt"); 
 
-  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
   }
@@ -94,21 +78,19 @@ void genEvisToEnuMatrix(TString nominal_dataset_filename = "./data_file/dyb_data
   Spectrum *spectrumNormNominal = new Spectrum();
   spectrumNormNominal->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNormNominal->loadDistances("./unblinded_baseline.txt");                    
+  spectrumNormNominal->loadDistances(baselines_filename);                    
   spectrumNormNominal->initialize(mydata_nominal);
 
-  TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
-  
-    spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                          "../li9_spectrum/8he9li_nominal_spectrum.root",
-                                          "../amc_spectrum/amc_spectrum.root",
-                                          "../fn_spectrum/P15A_fn_spectrum_IHEP.root",
-                                          "../alpha-n-spectrum/result-DocDB9667.root");
+  TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
 
-
+  spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
+                                        li9_filename,
+                                        amc_filename,
+                                        fn_filename,
+                                        aln_filename);
   
   //Prepare destination file
-  TFile *outfile = new TFile(output_filename.Data(),"RECREATE");
+  TFile *outfile = new TFile(response_root_filename, "RECREATE");
 
   
   //Generate nominal spectrum

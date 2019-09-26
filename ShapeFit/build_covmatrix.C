@@ -13,33 +13,36 @@
 #include "TMath.h"
 #include "TGraph.h"
 #include "Predictor.h"
+#include "Config.h"
+#include "Binning.h"
+#include "DataSet.h"
 #include "TTree.h"
 
+using namespace Config;
 
 const int cov_matrix_dimension=16*Nstage*37; //37 evis bins
 
 Double_t M[cov_matrix_dimension][cov_matrix_dimension];
 
-void build_covmatrix(const Char_t * toymc_filename = "./toymc/toySpectra/toySpectra_allerrors.root", const Char_t * output_filename = "covmatrix.txt", Int_t bkg_flag = 0){
+void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filename, Int_t bkg_flag){
     
     cout<<"Dimension of cov matrix is "<<cov_matrix_dimension<<"x"<<cov_matrix_dimension<<endl;
   
   // Create Predictor
   Predictor *myPred = new Predictor();
   
-  FluxCalculator* fluxcalc = new FluxCalculator("./Distances/unblinded_baseline.txt","./Flux/SuperHistograms_P17B_2017Model_fine_huber-french.root");//<--flux calculator in super-hist mode
+  FluxCalculator* fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);//<--flux calculator in super-hist mode
 
   
   myPred->EnterFluxCalculator(fluxcalc);
 
-  //Char_t Theta13InputsLocation[2][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt","../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad_p14a.txt"};
-  Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
   for(int istage=0;istage<Nstage;istage++){
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
   }
   
-  myPred->LoadPredictedIBD("./PredictedIBD/PredictedIBD_P17B_2017Model_fine_huber-french.root");
+  myPred->LoadPredictedIBD(predicted_ibd_filename);
 
   Int_t ntoys = myPred->LoadToyIBDSpec(toymc_filename);
   cout << "number of toy samples: " << ntoys << endl;
@@ -47,46 +50,30 @@ void build_covmatrix(const Char_t * toymc_filename = "./toymc/toySpectra/toySpec
   
   myPred->LoadToyMCEntry(0,false);
 
-  //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-    TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
+  TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
  
   myPred->LoadBgSpec(AccidentalSpectrumLocation,
-                     "../li9_spectrum/8he9li_nominal_spectrum.root",
-                     "../amc_spectrum/amc_spectrum.root",
-                     "../fn_spectrum/P15A_fn_spectrum.root",
-                     "../alpha-n-spectrum/result-DocDB9667.root");//<---load bg afterwards since here is when correct events
+                     li9_filename,
+                     amc_filename,
+                     fn_filename,
+                     aln_filename);
+
+  const Int_t n_evis_bins = Binning::n_evis();
+  double* evis_bins = Binning::evis();
   
-  const Int_t n_evis_bins = 37;
-  Double_t evis_bins[38]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < 36; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
-  }
-  evis_bins[37] = 12.0;
-  
-  
-  const Int_t n_enu_bins = 156;
-  Double_t enu_bins[n_enu_bins+1]; // testing fine bins
-  for (Int_t i = 0; i < n_enu_bins+1; i++){
-    enu_bins[i] = 0.05 * i + 1.8;
-  }
-  
-  /*
-  const Int_t n_enu_bins = 39;
-  Double_t enu_bins[39+1]; // 39 bins between 1.8 and 9.6 MeV
-  for (Int_t i = 0; i < 39+1; i++){
-    enu_bins[i] = 0.2 * i + 1.8;
-    }*/
-  
+  const Int_t n_enu_bins = Binning::n_enu();
+  double* enu_bins = Binning::enu();
 
   myPred->SetEvisBins(n_evis_bins,evis_bins);
   myPred->SetEnuBins(n_enu_bins,enu_bins);
 
-  myPred->LoadEvisToEnuMatrix("./matrix_evis_to_enu_fine_2017Model_P17B.txt");
+  myPred->LoadEvisToEnuMatrix(response_filename);
+
+  DataSet *mydata_nominal = new DataSet();
+  mydata_nominal->load(nominal_dataset_filename);
+  double sinSq2Theta13 = mydata_nominal->getDouble("sinSq2Theta13");
+  double deltam2_ee_default = mydata_nominal->getDouble("deltaMSqee");
    
-  Double_t sinSq2Theta13 = 0.084; //Match value in dyb_data_v1_nominal.txt
-  Double_t deltam2_ee_default=2.48e-3;//[eV2] Match value in dyb_data_v1_nominal.txt
-  
   //Double_t sinSq2Theta13 = 0.0;
   //Double_t hierarchy=1;//-1 for inverted
   //Double_t deltam2_32_default=2.41e-3;//eV2

@@ -6,37 +6,21 @@
 #include "TTree.h"
 #include "DataSet.h"
 #include "Spectrum.h"
+#include "Config.h"
+#include "Binning.h"
 
+using namespace Config;
+
+// note that mixing angles here are ZERO, not nominal
 void genPredictedIBD(Double_t  s2t13 = 0,
-		     Double_t  dm2ee = -1,
-             //TString output_filename="../ShapeFit/PredictedIBD/PredictedIBD_bestfit_P17B.root",
-		     // TString output_filename="../ShapeFit/PredictedIBD/PredictedIBD_P17B_2017Model_fine_huber-french_IHEP_official.root",
-             TString output_filename="../ShapeFit/PredictedIBD/PredictedIBD_P17B_2017Model_fine_huber-french.root",
-		     TString nominal_dataset_filename = "./data_file/dyb_data_v1_nominal.txt",
-		     TString dataset_filename = "./data_file/dyb_data_v1_nominal.txt",
-		     Double_t  s2t14 = 0,
-		     Double_t  dm241 = -1){
+                     Double_t  dm2ee = -1,
+                     const char* dataset_filename = nominal_dataset_filename,
+                     Double_t  s2t14 = 0,
+                     Double_t  dm241 = -1){
  
- 
-    //  const Int_t n_evis_bins = 52;
-    
-    
-    const Int_t n_evis_bins = 240;
-    Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-    evis_bins[0] = 0.0;
-    for (Int_t i = 0; i < n_evis_bins-1; i++){
-        evis_bins[i+1] = 0.05 *i + 0.05;
-    }
-    evis_bins[n_evis_bins] = 12.0;
-    /*
-    const Int_t n_evis_bins = 26;
-    Double_t evis_bins[n_evis_bins+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-    evis_bins[0] = 0.7;
-    for (Int_t i = 0; i < n_evis_bins-1; i++){
-        evis_bins[i+1] = 0.25*i + 1.3;
-    }
-    evis_bins[n_evis_bins] = 12.0;*/
-    
+  // XXX fine binning, why?
+    const int n_evis_bins = Binning::n_evis_fine();
+    const double* evis_bins = Binning::evis_fine();
     
     Char_t name[1024];
     TH1F *h_nominal_ad[Nstage][Ndetectors];
@@ -53,7 +37,7 @@ void genPredictedIBD(Double_t  s2t13 = 0,
     
     // Create Expectations
     DataSet *mydata = new DataSet();
-    mydata->load(dataset_filename.Data());
+    mydata->load(dataset_filename);
     
     // Create Nominal (i.e. no random variation) Expectations
     DataSet *mydata_nominal = new DataSet();
@@ -85,8 +69,7 @@ void genPredictedIBD(Double_t  s2t13 = 0,
     // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
     Predictor *myPred = new Predictor();
     
-    //Char_t Theta13InputsLocation[2][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt","../ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad_p14a.txt"};
-    Char_t Theta13InputsLocation[3][1024] = {"../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_6ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad_LBNL.txt","../ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_7ad_LBNL.txt"};
+    const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
     
     cout<<"There are "<<Nstage<<" stages"<<endl;
     
@@ -100,21 +83,20 @@ void genPredictedIBD(Double_t  s2t13 = 0,
     Spectrum *spectrumNormNominal = new Spectrum();
     spectrumNormNominal->passPredictor(myPred);
     //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-    spectrumNormNominal->loadDistances("./unblinded_baseline.txt");
+    spectrumNormNominal->loadDistances(baselines_filename);
     spectrumNormNominal->initialize(mydata_nominal);
     
-    //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-    TString AccidentalSpectrumLocation[3] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_LBNL.root","../ShapeFit/Spectra/accidental_eprompt_shapes_7ad_LBNL.root"};
+    TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
     
     spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                          "../li9_spectrum/8he9li_nominal_spectrum.root",
-                                          "../amc_spectrum/amc_spectrum.root",
-                                          "../fn_spectrum/P15A_fn_spectrum_IHEP.root",
-                                          "../alpha-n-spectrum/result-DocDB9667.root");
-    
+                                          li9_filename,
+                                          amc_filename,
+                                          fn_filename,
+                                          aln_filename);
+
     
     //Prepare destination file
-    TFile *outfile = new TFile(output_filename.Data(),"RECREATE");
+    TFile *outfile = new TFile(predicted_ibd_filename, "RECREATE");
     
     //Generate nominal spectrum
     // cout << "-------------------- Nominal Spectrum -------------------" << endl;

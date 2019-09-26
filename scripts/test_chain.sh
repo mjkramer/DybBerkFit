@@ -52,7 +52,7 @@ pushd toySpectra
 ./clean.sh
 root -b -q LoadClasses.C genEvisToEnuMatrix.C+
 cd ../ShapeFit
-root -b -q make_evis_to_enu_matrix_fine_P17B.C
+root -b -q LoadClasses.C make_evis_to_enu_matrix_fine_P17B.C+
 popd
 
 pushd toySpectra
