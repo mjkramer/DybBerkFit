@@ -1,23 +1,25 @@
+#include "Config.h"
+#include "Binning.h"
+
+#include <fstream>
+#include <iostream>
+#include <TString.h>
+#include <TFile.h>
+#include <TH2F.h>
+#include <TH1D.h>
+
+using namespace Config;
+
 void make_evis_to_enu_matrix_fine_P17B(){
-  TString input_file = "../outputs/evis_to_enu_fine_2017Model_p17b.root";
-  TString output_file = "matrix_evis_to_enu_fine_2017Model_P17B.txt";
-  TString output_file_rateonly = "matrix_evis_to_enu_rateonly_fine_2017_Model_P17B.txt";
-  const Int_t n_evis_bins = 37;
-   
-  Double_t evis_bins[38]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < 36; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
-  }
-  evis_bins[37] = 12.0;
+  TString input_file = response_root_filename;
+  TString output_file = response_filename;
+  TString output_file_rateonly = response_filename_rateonly;
 
-  const Int_t n_enu_bins = 156;
-  
-  Double_t enu_bins[156+1]; // 156 bins between 1.8 and 9.6 MeV
-  for (Int_t i = 0; i < 156+1; i++){
-    enu_bins[i] = 0.05 * i + 1.8;
-  }
+  const Int_t n_evis_bins = Binning::n_evis();
+  const double* evis_bins = Binning::evis();
 
+  const Int_t n_enu_bins = Binning::n_enu();
+  const double* enu_bins = Binning::enu();
   
   //  TH1F * h_enu_tmp = new TH1F("h_enu_tmp","h_enu_tmp",39,enu_bins);
   

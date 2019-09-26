@@ -7,4 +7,6 @@
   gROOT->ProcessLine(".L Ranger.cc+");
   //gROOT->ProcessLine(".L ExtrapTable.cc+");
   gROOT->ProcessLine(".L OscProbTable.cc+");
+  gROOT->ProcessLine(".L Binning.cc+");
+  gROOT->ProcessLine(".L DataSet.cc+");
 }

@@ -46,10 +46,9 @@ void rungenToySpectraTree(int x){
   //for (Int_t i = 0; i < nopts; i++){
   //for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
     //  for (Int_t i = 22; i < 23; i++){
-    TString nominal_dataset_filename = "data_file/dyb_data_v1_nominal.txt";
     TString dataset_filename = "data_file/" + dataset_name_base + options[i] + ".txt";
     TString output_filename = "../outputs/toySpectra_" + options[i] + ".root";
     cout << dataset_filename << "\t" << output_filename << endl;
-    genToySpectraTree(nominal_dataset_filename,dataset_filename,output_filename);
+    genToySpectraTree(dataset_filename,output_filename);
     //}
 }
