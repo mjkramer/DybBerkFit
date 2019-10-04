@@ -4,7 +4,7 @@ void rungenToySpectraTree(int x){
   gROOT->ProcessLine(".L genToySpectraTree.C+");
    // gROOT->ProcessLine(".L genToySpectraTree_postP15A.C+");
   
-  const Int_t nopts = 18;
+  const Int_t nopts = 19;
   TString options[nopts] = {
     "allsys",//1
     "sigsys",//2
