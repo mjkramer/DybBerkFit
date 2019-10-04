@@ -3,6 +3,7 @@
 namespace Config {
 
 const bool useBcwBinning = true;
+const double lowBinInflation = 0; // was 0.1 originally
 
 // XXX
 const char* fit_result_filename = "./fit_result_files/fit_shape_2d_2017Model_P17B_IHEP.root";
@@ -48,19 +49,19 @@ const char* reactor_covmatrix_filename = "../reactor_covmatrix/p15a/nNu_Mcov_com
 const char* unified_nl_2015_filename = "unified_nl_data/energymodel_old_v1.root"; // Updated non-linearity model 2017
 // const char* unified_nl_2015_filename = "unified_nl_data/energymodel_new_v1.root"; // Updated non-linearity model 2017 with SCNL correction included
 
+// ------------------------------ UNUSED ------------------------------
+
 // NB: "final" is actually old
-const char* unified_nl_final_filename = "unified_nl_data/nl_models_final.root"; // NOT USED
+const char* unified_nl_final_filename = "unified_nl_data/nl_models_final.root";
 
-const char* lbnl_positron_data_filename = "lbnl_nl_data/lbnl_positron_nl.txt"; // NOT USED
+const char* lbnl_positron_data_filename = "lbnl_nl_data/lbnl_positron_nl.txt";
 
-const char* abinitio_spectra_filename = "../abinitio_spectra/v2-v4/nuSpec_Reactor.txt"; // NOT USED
+const char* abinitio_spectra_filename = "../abinitio_spectra/v2-v4/nuSpec_Reactor.txt";
 
-const char* bcw_flux_filename =  "../reactor_covmatrix/bcw/covarMatrix_rawibd.root"; // NOT USED
+const char* bcw_flux_filename =  "../reactor_covmatrix/bcw/covarMatrix_rawibd.root";
 
-const char* bcw_positron_data_filename = "bcw_nl_data/positron.dat"; // NOT USED
-const char* bcw_elec_data_filename = "bcw_nl_data/par.dat"; // NOT USED
-const char* bcw_ele_err_filename = "bcw_nl_data/ele_err.root"; // NOT USED
-
-const double lowBinInflation = 0; // was 0.1 originally
+const char* bcw_positron_data_filename = "bcw_nl_data/positron.dat";
+const char* bcw_elec_data_filename = "bcw_nl_data/par.dat";
+const char* bcw_ele_err_filename = "bcw_nl_data/ele_err.root";
 
 }
