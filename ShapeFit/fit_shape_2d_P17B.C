@@ -138,15 +138,21 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   Double_t bestdm2ee=0;
   //  PredSet bestpred;
   
-  //const Int_t nsteps = 1;
-  const Int_t nsteps = 31;
-  Double_t s22t13start=0.07;
-  Double_t s22t13end=0.10;
+  // const Int_t nsteps = 31;
+  // Double_t s22t13start=0.07;
+  // Double_t s22t13end=0.10;
 
-  //const Int_t nsteps_dm2 = 1;
-  const Int_t nsteps_dm2 = 31  ;
+  // const Int_t nsteps_dm2 = 31  ;
+  // Double_t dm2eestart=2.1e-3;
+  // Double_t dm2eeend=2.8e-3;
+
+  const Int_t nsteps = 101;
+  Double_t s22t13start=0.06;
+  Double_t s22t13end=0.11;
+
+  const Int_t nsteps_dm2 = 101;
   Double_t dm2eestart=2.1e-3;
-  Double_t dm2eeend=2.8e-3;
+  Double_t dm2eeend=2.9e-3;
 
   Double_t chi2result[nsteps_dm2][nsteps];
   Double_t dchi2result[nsteps_dm2][nsteps];
