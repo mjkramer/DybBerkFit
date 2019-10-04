@@ -1,4 +1,8 @@
+#pragma once
+
 namespace Config {
+
+const bool useBcwBinning = true;
 
 // XXX
 const char* fit_result_filename = "./fit_result_files/fit_shape_2d_2017Model_P17B_IHEP.root";
