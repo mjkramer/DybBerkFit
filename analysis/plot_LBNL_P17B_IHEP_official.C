@@ -1,5 +1,6 @@
 #include "../ShapeFit/Config.h"
 
+void plot_LBNL_P17B_IHEP_official()
 {
   gStyle->SetPalette(1);
   gStyle->SetLabelFont(62, "XY");
