@@ -7,6 +7,22 @@ namespace Config {
 const bool useBcwBinning = true;
 const double lowBinInflation = 0; // was 0.1 originally
 
+// chi2 map binning
+const Int_t nsteps = 101;
+const Double_t s22t13start=0.06;
+const Double_t s22t13end=0.11;
+const Int_t nsteps_dm2 = 101;
+const Double_t dm2eestart=2.1e-3;
+const Double_t dm2eeend=2.9e-3;
+
+// const Int_t nsteps = 31;
+// Double_t s22t13start=0.07;
+// Double_t s22t13end=0.10;
+
+// const Int_t nsteps_dm2 = 31  ;
+// Double_t dm2eestart=2.1e-3;
+// Double_t dm2eeend=2.8e-3;
+
 // XXX
 const char* fit_result_filename = "../ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP.root";
 

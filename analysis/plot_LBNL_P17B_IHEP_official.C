@@ -6,8 +6,8 @@
   gStyle->SetTitleFont(62, "XY");
   gStyle->SetLegendFont(62);
   gROOT->ForceStyle();
-  const Int_t nS2T = 101;       // IHEP-official
-  const Int_t nDM2 = 101;       // IHEP-official
+  const Int_t nS2T = Config::nsteps;
+  const Int_t nDM2 = Config::nsteps_dm2;
   // const Int_t nS2T = 31;        // mine
   // const Int_t nDM2 = 31;        // mine
 
@@ -21,10 +21,14 @@
 
   Double_t dm_corr = 0.; // 5.17e-5;
 
-  Double_t s2t_min = 0.06;      // IHEP-official
-  Double_t s2t_max = 0.11;      // IHEP-official
-  Double_t dm2_min = 2.1e-3 - dm_corr; // IHEP-official
-  Double_t dm2_max = 2.9e-3 - dm_corr; // IHEP-official
+  Double_t s2t_min = Config::s22t13start;
+  Double_t s2t_max = Config::s22t13end;
+  Double_t dm2_min = Config::dm2eestart;
+  Double_t dm2_max = Config::dm2eeend;
+  // Double_t s2t_min = 0.06;      // IHEP-official
+  // Double_t s2t_max = 0.11;      // IHEP-official
+  // Double_t dm2_min = 2.1e-3 - dm_corr; // IHEP-official
+  // Double_t dm2_max = 2.9e-3 - dm_corr; // IHEP-official
   // Double_t s2t_min = 0.07;      // mine
   // Double_t s2t_max = 0.10;      // mine
   // Double_t dm2_min = 2.1e-3 - dm_corr; // mine
@@ -47,7 +51,7 @@
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root","OPEN");
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
   // TFile* bestfit_file = new TFile("/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP_BCWbin.root","OPEN"); // official
-  TFile* bestfit_file = new TFile(Config::fit_result_filename, "OPEN"); // official
+  TFile* bestfit_file = new TFile(Config::fit_result_filename, "OPEN");
   
 
   TFile *fout = new TFile("./IHEP_contour_P17B.root", "recreate");
