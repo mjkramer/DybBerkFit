@@ -16,8 +16,6 @@ using namespace Config;
 
 void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2t14 = -1, Double_t  dm241 = -1){
 
-  //TString nominal_dataset_filename = "./data_file_unified_nl_p12e_unblinded/dyb_data_v1_nominal_noosc.txt",
-
   int nToys = 0;
   // string opt="_allerrors";
 

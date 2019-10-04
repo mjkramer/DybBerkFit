@@ -17,10 +17,6 @@ using namespace Config;
 
 void genSuperHistograms()
 {
-  
-  // TString output_supermatrix_filename = "SuperMatrix_P15A_P15Aperiod_toy.txt";
-  
-
   TH1F * h[Nstage][Ndetectors][Ncores];
   
   

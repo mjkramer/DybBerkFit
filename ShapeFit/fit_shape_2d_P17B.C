@@ -37,7 +37,7 @@ void minuit_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *x, Int_t ifla
 Double_t CalculateChi2(TH1F *h_s22t13,TH1F* h_data);
 
 
-void fit_shape_2d_P17B(const char* savefilename = "./fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root",
+void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
                        Int_t PeriodFlag = -1,//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
                        bool isMC = false)
 {
