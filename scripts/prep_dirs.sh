@@ -18,3 +18,5 @@ ln -s ../ReactorPowerCalculator/isotope_spectra_by_Beda reactor_covmatrix/p17b_u
 
 mkdir ShapeFit/Distances
 ln -s ../../toySpectra/unblinded_baseline.txt ShapeFit/Distances/
+
+mkdir ../analysis/pics
