@@ -5,6 +5,7 @@
 #include "IsotopeTable.h"
 #include "CrossSectionTable.h"
 #include "CoreSpectrum.h"
+#include "Config.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -22,6 +23,7 @@
 #include "assert.h"
 
 using namespace std;
+using namespace Config;
 
 Spectrum::Spectrum()
   : m_eMin(0),
@@ -1555,36 +1557,18 @@ void Spectrum::initialize(DataSet* data)
     for (Int_t istage=0;istage<Nstage;++istage){
       m_corespectrum[istage] = new CoreSpectrum();
       
-      // Bool_t decomp_result = m_corespectrum->loadSpectra("../reactor_covmatrix/p12c_blinded/combined/nNu_Nom_combined.txt",
-      //                                                    "../reactor_covmatrix/p12c_blinded/combined/nNu_Mcov_combined.txt");
-      
-      //Bool_t decomp_result 
-      // = m_corespectrum[istage]->loadSpectra(data->getString("reactorNominalSpectraFilename"),
-      //				      data->getString("reactorSpectraCovMatrixFilename"));
-      //Very ugly hack to load the correct unblinded 6AD and blinded 8AD data!!! NEEDS FIXING
-
-      //decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p15a/reactor_P15A_full_blinded_SNF_nonEq.txt",
-      //							  "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
-
-      //decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p15a/reactor_P15A_P14Aperiod_SNF_nonEq.txt",
-      //							  "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
-
-      
       if(istage==0){ //Load 6AD Spectrum
-	//decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p17b_p15a/reactor_P17B_P15A_6AD_SNF_nonEq.txt",							    "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
-          decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p17b_unblinded/reactor_P17B_6AD_SNF_nonEq.txt",
-                                                              "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
+        decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 6),
+                                                            reactor_covmatrix_filename);
       } 
       if(istage==1){ //Load 8AD Spectrum
-	//decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p17b_p15a/reactor_P17B_P15A_8AD_SNF_nonEq.txt",							    "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
-          decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p17b_unblinded/reactor_P17B_8AD_SNF_nonEq.txt",
-                                                              "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
+        decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 8),
+                                                            reactor_covmatrix_filename);
       }
         
         if(istage==2){ //Load 7AD Spectrum
-            //decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p15a/reactor_P15A_full_blinded_8AD_SNF_nonEq.txt",
-            decomp_result = m_corespectrum[istage]->loadSpectra("../reactor_covmatrix/p17b_unblinded/reactor_P17B_7AD_SNF_nonEq.txt",
-                                                                "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt");
+          decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 7),
+                                                              reactor_covmatrix_filename);
         }
       
 
@@ -1601,10 +1585,10 @@ void Spectrum::initialize(DataSet* data)
       if (m_useBcwFluxUncertainty > 0){
 
 	cout << "Loading BCW flux covariance matrix at "
-	     << "../reactor_covmatrix/bcw/covarMatrix_rawibd.root"
+	     << bcw_flux_filename
 	     << endl;
 	Bool_t decomp_result_bcw 
-	  = m_corespectrum[istage]->loadCovMatrixBCW("../reactor_covmatrix/bcw/covarMatrix_rawibd.root");
+	  = m_corespectrum[istage]->loadCovMatrixBCW(bcw_flux_filename);
 	if (!decomp_result_bcw){
 	  cout << "Failed to load BCW flux matrix! Exiting" << endl;
 	  exit(0);
@@ -1616,7 +1600,7 @@ void Spectrum::initialize(DataSet* data)
   }else if (m_useAbInitioSpectra){
     for (Int_t istage=0;istage<Nstage;++istage){
       m_corespectrum[istage] = new CoreSpectrum();
-      m_corespectrum[istage] ->loadAbInitioSpectra("../abinitio_spectra/v2-v4/nuSpec_Reactor.txt");
+      m_corespectrum[istage] ->loadAbInitioSpectra(abinitio_spectra_filename);
       m_corespectrum[istage]->loadCrossSectionTable(data->getString("crossSectionFilename"));
     }
   }    
@@ -1866,14 +1850,14 @@ void Spectrum::initialize(DataSet* data)
     /// Further updated to the "final" BCW model (Apr. 1, 2013)
     
     
-    ifstream bcw_positron_data("bcw_nl_data/positron.dat");
+    ifstream bcw_positron_data(bcw_positron_data_filename);
     
     for (Int_t i = 0; i < n_bcw_positron_nl; i++){
       bcw_positron_data >> m_bcw_positron_nl_e[i] >> m_bcw_positron_nl_fac[i];
     }
     bcw_positron_data.close();
     
-    ifstream bcw_elec_data("bcw_nl_data/par.dat");
+    ifstream bcw_elec_data(bcw_elec_data_filename);
     
     for (Int_t i = 0; i < 3; i++){
       bcw_elec_data >> m_bcw_elec_nl_par_nominal[i]  >> m_bcw_elec_nl_par_error[i];
@@ -1881,7 +1865,7 @@ void Spectrum::initialize(DataSet* data)
     }
     bcw_elec_data.close();
     
-    TFile *bcw_ele_err_file = new TFile("bcw_nl_data/ele_err.root");
+    TFile *bcw_ele_err_file = new TFile(bcw_ele_err_filename);
     g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
     g_bcw_elec_nl_error[1] = (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
     bcw_ele_err_file->Close();
@@ -1912,7 +1896,7 @@ void Spectrum::initialize(DataSet* data)
 
     /// Settting for the LBNL non-linearity function. Mar. 24, 2013
     
-    ifstream lbnl_positron_data("lbnl_nl_data/lbnl_positron_nl.txt");
+    ifstream lbnl_positron_data(lbnl_positron_data_filename);
     if (!lbnl_positron_data.is_open()) {
       cout << "Error: cannot find LBNL non-linearity curve!!!" << endl;
       exit(0);
@@ -1969,15 +1953,13 @@ void Spectrum::initialize(DataSet* data)
     
     
     if (m_use2015NonLinearModel > 0){
-      //unified_nl_filename = "unified_nl_data/consModel_450itr.root"; // Updated non-linearity model 2015//
-      unified_nl_filename = "unified_nl_data/energymodel_old_v1.root"; // Updated non-linearity model 2017
-    //unified_nl_filename = "unified_nl_data/energymodel_new_v1.root"; // Updated non-linearity model 2017 with SCNL correction included
+      unified_nl_filename = unified_nl_2015_filename;
       nominal_graph_name = "nominal";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
         pull_graph_name[i] = Form("pull%d",i);
       }
     }else{
-      unified_nl_filename = "unified_nl_data/nl_models_final.root";
+      unified_nl_filename = unified_nl_final_filename;
       nominal_graph_name = "positron_0";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
         pull_graph_name[i] = Form("positron_%d",i+1);

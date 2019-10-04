@@ -1,3 +1,5 @@
+#include "../ShapeFit/Config.h"
+
 {
   gStyle->SetPalette(1);
   gStyle->SetLabelFont(62, "XY");
@@ -44,10 +46,11 @@
   // TFile *bestfit_file = new TFile("../ShapeFit/fit_result_files/" "fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root", "OPEN");
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root","OPEN");
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
-  TFile* bestfit_file = new TFile("/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP_BCWbin.root","OPEN"); // official
+  // TFile* bestfit_file = new TFile("/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP_BCWbin.root","OPEN"); // official
+  TFile* bestfit_file = new TFile(Config::fit_result_filename, "OPEN"); // official
   
 
-  TFile *fout = new TFile("./LBNL_contour_P17B.root", "recreate");
+  TFile *fout = new TFile("./IHEP_contour_P17B.root", "recreate");
 
   TH2D *hchi2_map =
       new TH2D("hchi2_map", "hchi2_map", nS2T, s2t_min - 0.5 * s2t_step,

@@ -36,13 +36,7 @@ void run_build_covmatrix(int x = 1){
     "bgsys", // 9
   };
   
-  //for (Int_t i = 0; i < nopts_sig; i++){
   if (i < nopts_sig){
-    //TString toymc_filename = "../outputs/toySpectra_" + options_sig[i] + "_2017Model_p17b.root";
-    //TString covmatrix_filename = "covariance_matrices/matrix_" + options_sig[i] + "_2017Model_P17B.txt";
-      
-      // TString toymc_filename = "../outputs/toySpectra_" + options_sig[i] + "_2017Model_p17b_0.2_inflated.root";
-      // TString covmatrix_filename = "covariance_matrices/matrix_" + options_sig[i] + "_2017Model_P17B_0.2_inflated.txt";
       
     TString toymc_filename = "../outputs/toySpectra_" + options_sig[i] + ".root";
     TString covmatrix_filename = "covariance_matrices/matrix_" + options_sig[i] + ".txt";
@@ -51,13 +45,7 @@ void run_build_covmatrix(int x = 1){
     build_covmatrix(toymc_filename.Data(),covmatrix_filename.Data(),0);
   }else{
   
-    //for (Int_t i = 0; i < nopts_bkg; i++){
     Int_t iii = i - nopts_sig;
-    //TString toymc_filename = "../outputs/toySpectra_" + options_bkg[iii] + "_2017Model_p17b.root";
-    //TString covmatrix_filename = "covariance_matrices/matrix_" + options_bkg[iii] + "_2017Model_P17B.txt";
-      
-      // TString toymc_filename = "../outputs/toySpectra_" + options_bkg[iii] + "_2017Model_p17b_0.2_inflated.root";
-      // TString covmatrix_filename = "covariance_matrices/matrix_" + options_bkg[iii] + "_2017Model_P17B_0.2_inflated.txt";
       
     TString toymc_filename = "../outputs/toySpectra_" + options_bkg[iii] + ".root";
     TString covmatrix_filename = "covariance_matrices/matrix_" + options_bkg[iii] + ".txt";
