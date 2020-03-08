@@ -1,0 +1,290 @@
+* Questions for Henoch
+- [X] What's up with "x+2" in ReactorTheoreticalPrediction_P15A_8AD.py?
+    Related to taking the midpoint of the 5 bins we avg over
+- [ ] Why do we only use the "D1" (?) SNF spectrum?
+- [X] Should we change line 176 of make_combined_spectra.C to:
+#+begin_src c++
+	    + snf_fraction * flux_snf[0][i] * get_ibd_xsec(enu[i]) /flux_snf_total[0]*flux_wo_snf_total_ave;
+#+end_src
+Actually Yasu's version seems correct since the above will give us the number of
+/observed/ (i.e. xsec-weighted) events. We report the raw flux, so need to
+divide out the xsec.
+- [ ] Difference between reactor/fissionIsotopeSpectra_Huber_v0.txt and
+      DBS/p15a_reactor/Files/EnChuan_fissionIsotopeSpectra_Huber_Fit.txt
+    Former not used?
+* Generating tags
+#+begin_src bash
+ctags-exuberant -e -R .
+#+end_src
+
+* Misc
+OscProbTable (and hence Ranger) are only(?) referenced by ShapeFit/fit_shape_sterile_hybrid_scan.C
+
+As well as by ShapeFit/LoadClasses.C
+
+How is PredictedIBD generated?
+
+Inputs:
+
+ShapeFit/Flux/superhistograms : gen by genSuperHistograms.C, used by FluxCalculator
+ShapeFit/PredictedIBD/PredictedIBD_asdf.root : gen by genToySpectraTree???? used by Predictor
+
+* Reactor weekly information
+See Henoch's mywork/DayaBaySpectrum/p15a_reactor (WeeklyAvg.dat, Matt's weekly_livetime files) see also p14a_uinblind8AD_isotope -- Yasu files
+The output files from ^ go into Theta13Analysis/reactor_covmatrix (Unblinded6AD.txt etc.)
+Which is used by quickFit/reactor/Spectrum.C
+
+Where is SNF and NE added in?
+reactor_covmatrix/make_combined_spectrum.C (has Wei's numbers from DayaBaySpectrum/reactor)
+cf. reactor_covmatrix/p15a/isotope_spectra
+
+* What we need to add to Doxygen?
+
+reactor_covmatrix?
+DayaBaySpectrum/p15a_reactor?
+
+* My current understanding
+Raw inputs:
+
+weekly_livetime (from Matt) --> DayaBaySpectrum/p15a_reactor --> reactor_covmatrix/Unblinded6AD.txt etc. --> 
+
+* Henoch's email
+1. Update ToySpectra as you want
+2. Generate toy MC in order to generate covariance matrix
+    1. open genToySpectraTree.C  and check the background files are correct
+    2. open rungenToySpectraTree.C and double check the input and
+destination files
+    3. execute "root rungenToySpectraTree.C"
+
+3. Generate evis-to-enu matrix
+***Note: So far I've been using the evis-to-enu matrix generated from the P12E period***
+
+matrix_evis_to_enu_rateonly_unified_fine_p12e_unblinded_noosc.txt (Rate only fit)
+matrix_evis_to_enu_unified_fine_p12e_unblinded.txt (Rate + Shape fit)
+matrix_evis_to_enu_unified_fine_p12e_unblinded_noosc.txt (For generating Covariance matrix)
+
+4. (Not needed unless flux input file from Christine is changed)
+    1. execute "genSuperHistograms.C"
+5. Generate covariance matrices
+    1. Double check background file and the default oscillation
+parameters in build_covmatrix.C
+    2. Double check input and output file names in run_build_covmatrix.C
+    3. Execute run_build_covmatrix.sh
+    4. cd covariance_matrices
+    
+By default this should create a covariance matrix for all signal systematic, and a covariance matrix for all background systematic.
+
+6. Fit!
+    1. The current fit code is:
+Rate+Shape:
+fit_shape_2d_6.C
+fit_shape_2d_8.C
+fit_shape_2d_6_8.C
+
+Rate Only:
+fit_rateonly_6.C
+fit_rateonly_8.C
+fit_rateonly_6_8.C
+
+    2. Double check all input files…. .
+        1. Super histogram
+        2. Theta13 input file (txt file)
+        3. Background file
+        4. Enu to evis conversion file
+    3. run whatever fit macros….
+
+The 6, 8 and 6_8 corresponds doing the fit on the 6AD period only, 8AD period only and 6AD+8AD periods combined. The codes are very similar, in calculating the chi2 there is a flag where 0=6AD, 1=8AD, -1=6AD+8AD.
+* Log of commands for P15A test-fit
+** Prepare flux predictions
+*** Uncorrected prediction
+In DayaBaySpectrum/p15a_reactor:
+#+begin_src bash
+python ReactorTheoreticalPrediction_P15A_6AD.py
+python ReactorTheoreticalPrediction_P15A_8AD.py
+#+end_src
+Output (in output/; symlinked to /reactor_covmatrix/p15a/isotope_spectra):
+#+begin_quote
+reactor_P15A_6AD.txt        reactor_P15A_6AD_U235.txt  reactor_P15A_8AD_Pu239.txt  reactor_P15A_8AD_U238.txt
+reactor_P15A_6AD_Pu239.txt  reactor_P15A_6AD_U238.txt  reactor_P15A_8AD_Pu241.txt
+reactor_P15A_6AD_Pu241.txt  reactor_P15A_8AD.txt       reactor_P15A_8AD_U235.txt
+#+end_quote
+*** Prediction w/ NE/SNF
+In reactor_covmatrix/p15a:
+#+begin_src bash
+root -b -q make_combined_spectra.C
+#+end_src
+Output (here):
+#+begin_quote
+reactor_P15A_6AD_SNF_nonEq.txt reactor_P15A_8AD_SNF_nonEq.txt
+#+end_quote
+** Generate "data files" to configure toy MC
+Already done, but if needed:
+In toySpectra/data_file:
+#+begin_src bash
+./generate_data_file.py
+# ./generate_data_file_extra.py
+#+end_src
+Note: The "extra" configs, which don't seem to be in use, are reactor_only,
+det_only, allsys_wo_reactor, allsys_wo_det, and
+{nominal,allsys,sigsys,reactor_only,allsys_wo_det}_bcwflux
+** Generate toy samples
+We need the sigsys and bgsys samples in order to generate the covmatrix.
+I had to edit runGenToySpectraTree to enable bgsys
+In toySpectra:
+#+begin_src bash
+root -l 'rungenToySpectraTree.C(3)'
+root -l 'rungenToySpectraTree.C(4)'
+#+end_src
+Note: Used my "old" ROOT 5.34.38. CINT segfaults at the end because yeah.
+** Generate evis-to-enu matrix
+Seems like we just need matrix_evis_to_enu_fine.txt. Had to modify
+genEvisToEnuMatrix.C to restore LBNL binning from "MaximRequest" binning.
+In toySpectra, within ROOT (export LBNL_FIT_DEBUG=1):
+#+begin_src c++
+root -b -q LoadClasses.C genEvisToEnuMatrix.C+
+#+end_src
+Then, in ShapeFit:
+#+begin_src bash
+root -b -q make_evis_to_enu_matrix_fine.C
+#+end_src
+** Generate super histograms
+In toySpectra:
+#+begin_src bash
+root -b -q LoadClasses.C genSuperHistograms.C+
+#+end_src
+** Generate PredictedIBD
+In toySpectra:
+#+begin_src bash
+root -b -q LoadClasses.C genPredictedIBD.C+
+#+end_src
+** Build covariance matrices
+In ShapeFit:
+#+begin_src bash
+root -b -q 'run_build_covmatrix.C(9)' # sigsys
+root -b -q 'run_build_covmatrix.C(18)' # bgsys
+#+end_src
+NOTE There will be scary "Ay caramba" warnings about the discrepancies between the spectra rates (from toy MC) and text rates (from data). This is fine; it's just the reactor antineutrino anomaly (???). If these warnings appear when we're actually performing a fit, then we have a real issue.
+** Fit!
+In ShapeFit:
+#+begin_src bash
+root -b -q LoadClasses.C fit_shape_2d_P15A.C+
+#+end_src
+* Stuff I had to copy over
+...from Henoch to the "pristine" tree (henochw.bak)
+** For Spectrum.C
+*** Defined in Spectrum.C
+- reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt
+- toySpectra/unified_nl_data/consModel_450itr.root
+*** Defined in data_file
+- toySpectra/IavDistortion/iavMatrix_P14A.root
+** In genToySpectraTree.C
+- toySpectra/unblinded_baseline.txt
+- ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_6ad.txt
+- ShapeFit/Inputs/Theta13-inputs_P15A_inclusive_8ad.txt
+- ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root
+- ShapeFit/Spectra/accidental_eprompt_shapes_8ad.root
+** For fit_shape_2d_P15A.C
+- ShapeFit/Spectra/ibd_eprompt_shapes_6ad_LBNL.root
+- ShapeFit/Spectra/ibd_eprompt_shapes_8ad_LBNL.root
+* Stuff to provide for a new fit:
+- ShapeFit/Inputs/Theta13-inputs_P17B_inclusive_8ad.txt
+- ShapeFit/Spectra/accidental_eprompt_shapes_8ad.root
+- ShapeFit/Spectra/ibd_eprompt_shapes_8ad_LBNL.root
+- toySpectra/data_file/dyb_data_v1_nominal.txt
+  (if generating a new covmatrix at updated theta/delta)
+* Things to check
+- Differences in osc params for noosc vs nominal data files
+- Why in genToySpectraTree, we multiply by binWidth for signal spectrum but not for bkg? Looks OK, see test_binning.C. Bkg spectrum is a true histogram
+  whereas Sig spectrum uses /MeV units. Should confirm in Spectrum.C.
+* Log of commands for P17B test-fit
+Done in "beda.test", cloned from "beda.mine".
+** Prepare directories
+#+begin_src bash
+scripts/prep_dirs.sh
+#+end_src
+** Provide input files
+- "Theta13" file (sig/bkg rates, efficiencies, livetimes, ...)
+- IBD spectra (see Beda's prep scripts in ShapeFit/Spectra)
+- Accidental spectra (ditto)
+- Replace dyb_data_v1_nominal.txt (if generating a new covmatrix)
+*** P17B example inputs
+#+begin_src bash
+scripts/install_example.sh
+#+end_src
+** Set environment variables
+#+begin_src bash
+export LBNL_FTR_BINNING=LBNL # or BCW
+#+end_src
+** Prepare flux predictions
+XXX Update day-array sizes in Produce_Isotope_Spectra_XYZ.C
+*** Uncorrected prediction
+In ReactorPowerCalculator:
+XXX We don't know whether to use BCW core spectra (seemingly the default for Beda) or the LBNL spectra (as for P15A). I personally (re)set the default to LBNL for now; the below will use LBNL. Update: Toy MC doesn't like the LBNL binning, using BCW option=1 below.
+#+begin_src bash
+root -b -q 'Produce_Isotope_SpectraP17B_unblinded.C(1)'
+#+end_src
+*** Prediction w/ NE/SNF
+In ReactorPowerCalculator/isotope_spectra_by_Beda:
+#+begin_src bash
+root -b -q make_combined_spectra_P17B_unblinded.C
+#+end_src
+** Generate "data files" to configure toy MC
+In toySpectra/data_file:
+#+begin_src bash
+./generate_data_file.py
+# ./generate_data_file_extra.py
+#+end_src
+Note: The "extra" configs, which don't seem to be in use, are reactor_only,
+det_only, allsys_wo_reactor, allsys_wo_det, and
+{nominal,allsys,sigsys,reactor_only,allsys_wo_det}_bcwflux
+** Generate toy samples
+We need the sigsys and bgsys samples in order to generate the covmatrix.
+I uncommented allsys just to get the numbers to line up.
+In toySpectra:
+#+begin_src bash
+root -l 'rungenToySpectraTree.C(2)'
+root -l 'rungenToySpectraTree.C(3)'
+#+end_src
+** Generate evis-to-enu matrix
+Seems like we just need matrix_evis_to_enu_fine.txt. Had to modify
+genEvisToEnuMatrix.C to restore LBNL binning (37 evis) from BCW binning (26 evis).
+In toySpectra:
+#+begin_src c++
+root -b -q LoadClasses.C genEvisToEnuMatrix.C+
+#+end_src
+Then, in ShapeFit:
+#+begin_src bash
+root -b -q make_evis_to_enu_matrix_fine_P17B.C
+#+end_src
+** Generate super histograms
+In toySpectra:
+#+begin_src bash
+root -b -q LoadClasses.C genSuperHistograms.C+
+#+end_src
+** Generate PredictedIBD
+In toySpectra:
+#+begin_src bash
+root -b -q LoadClasses.C genPredictedIBD.C+
+#+end_src
+XXX Should we use rungenPredictedIBD instead?
+** Build covariance matrices
+In ShapeFit:
+#+begin_src bash
+root -b -q 'run_build_covmatrix.C(9)' # sigsys
+root -b -q 'run_build_covmatrix.C(21)' # bgsys
+#+end_src
+NOTE There will be scary "Ay caramba" warnings about the discrepancies between the spectra rates (from toy MC) and text rates (from data). This is fine; it's just the reactor antineutrino anomaly (???). If these warnings appear when we're actually performing a fit, then we have a real issue.
+** Fit!
+In ShapeFit:
+#+begin_src bash
+root -b -q LoadClasses.C fit_shape_2d_P17B.C+
+#+end_src
+* Fiterating
+- Set t13/dm2 in data_file
+- Set t13 for genPredictedIBD
+- ...?
+* Things to consider
+- Consistent random seed?
+* Headscratchers
+- Why does genPredictedIBD use a theta of zero whereas genToySpectraTree uses nominal?
+- What were the consequences of genPredictedIBD using fine evis binning previously?
