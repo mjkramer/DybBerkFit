@@ -79,12 +79,12 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     myPred->LoadMainData(Theta13InputsLocation[istage]); 
   }
 
-    cout<<"Data loaded"<<endl;
+  cout<<"Data loaded"<<endl;
     
   // Create nominal Spectrum 
   Spectrum *spectrumNormNominal = new Spectrum();
     
-    cout<<"Something with spectrum done"<<endl;
+  cout<<"Something with spectrum done"<<endl;
     
   spectrumNormNominal->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
@@ -146,16 +146,16 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
       h_nominal_ad[istage][idet]->Reset();
       for(int ibin=0;ibin<spectrumNormNominal->nSamples();++ibin){
 	
-	h_nominal_ad[istage][idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
-					 spectrumNormNominal->positronDetectedArray(istage,idet)[ibin]*spectrumNormNominal->binWidth()
-					 );
-	 if(istage==2) cout << "The added positron at energy " << spectrumNormNominal->energyArray(idet)[ibin] << " is " << spectrumNormNominal->positronDetectedArray(istage,idet)[ibin] << endl;//tmp
+        h_nominal_ad[istage][idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
+                                         spectrumNormNominal->positronDetectedArray(istage,idet)[ibin]*spectrumNormNominal->binWidth()
+                                         );
+        if(istage==2) cout << "The added positron at energy " << spectrumNormNominal->energyArray(idet)[ibin] << " is " << spectrumNormNominal->positronDetectedArray(istage,idet)[ibin] << endl;//tmp
       }//ibin loop
       for(int ibin=0;ibin<spectrumNormNominal->nSamplesBkg();++ibin){
-	h_nominal_ad[istage][idet]->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
-					 spectrumNormNominal->bgDetectedArray(istage,idet)[ibin]
-					 );
-	if(istage==2) cout << "The added bg at energy " << spectrumNormNominal->energyArray(idet)[ibin] << " is " << spectrumNormNominal->bgDetectedArray(istage,idet)[ibin] << endl;//tmp
+        h_nominal_ad[istage][idet]->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
+                                         spectrumNormNominal->bgDetectedArray(istage,idet)[ibin]
+                                         );
+        if(istage==2) cout << "The added bg at energy " << spectrumNormNominal->energyArray(idet)[ibin] << " is " << spectrumNormNominal->bgDetectedArray(istage,idet)[ibin] << endl;//tmp
       }
       
       
@@ -163,7 +163,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     }
   }
     
-    TRandom3* generator=new TRandom3();
+  TRandom3* generator=new TRandom3();
   
   //Generate toys
   spectrumNorm->setRandomSeed(1);
@@ -172,46 +172,47 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     spectrumNorm->updateAntinu();
     spectrumNorm->updateBgDetected();
       
-      //this part is added to inflate low energy bin uncertainty
-      double uncertainty = Config::lowBinInflation;
-      double rand_bin[8][3]; //8 detectors and 3 bins
-      for(int idet=0; idet<Ndetectors; ++idet){
-          for(int ibin=0; ibin<3; ++ibin){
-              rand_bin[idet][ibin]=generator->Gaus(0.,uncertainty);
-              if(rand_bin[idet][ibin]<-1.) rand_bin[idet][ibin]=-1.;
-              cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;
-          }
+    //this part is added to inflate low energy bin uncertainty
+    double uncertainty = Config::lowBinInflation;
+    // TODO: Wrap in `if (uncertainty)`
+    double rand_bin[8][3]; //8 detectors and 3 bins
+    for(int idet=0; idet<Ndetectors; ++idet){
+      for(int ibin=0; ibin<3; ++ibin){
+        rand_bin[idet][ibin]=generator->Gaus(0.,uncertainty);
+        if(rand_bin[idet][ibin]<-1.) rand_bin[idet][ibin]=-1.;
+        cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;
       }
+    }
       
     
     for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
-	h_ad[istage][idet]->Reset();
-	for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
-	  h_ad[istage][idet]->Fill(spectrumNorm->energyArray(idet)[ibin],
-				   spectrumNorm->positronDetectedArray(istage,idet)[ibin]*spectrumNorm->binWidth()
-				   );
-	  //cout << "The added positron at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->positronDetectedArray(idet)[ibin] << endl;//tmp
+        h_ad[istage][idet]->Reset();
+        for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
+          h_ad[istage][idet]->Fill(spectrumNorm->energyArray(idet)[ibin],
+                                   spectrumNorm->positronDetectedArray(istage,idet)[ibin]*spectrumNorm->binWidth()
+                                   );
+          //cout << "The added positron at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->positronDetectedArray(idet)[ibin] << endl;//tmp
 	  
-	}//ibin loop
-	for(int ibin=0;ibin<spectrumNorm->nSamplesBkg();++ibin){
-	  h_ad[istage][idet]->Fill(spectrumNorm->energyArrayBkg(idet)[ibin],
-				   spectrumNorm->bgDetectedArray(istage,idet)[ibin]
-				   );
-	  //cout << "The added bg at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->bgDetectedArray(idet)[ibin] << endl;//tmp
+        }//ibin loop
+        for(int ibin=0;ibin<spectrumNorm->nSamplesBkg();++ibin){
+          h_ad[istage][idet]->Fill(spectrumNorm->energyArrayBkg(idet)[ibin],
+                                   spectrumNorm->bgDetectedArray(istage,idet)[ibin]
+                                   );
+          //cout << "The added bg at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->bgDetectedArray(idet)[ibin] << endl;//tmp
 	  
-	}//ibin loop
+        }//ibin loop
           
           
         
           
           
-          for(int ibin=0;ibin<3;++ibin){
-              float bincontent=h_ad[istage][idet]->GetBinContent(ibin+1);
-              h_ad[istage][idet]->SetBinContent(ibin+1,bincontent*(1.+rand_bin[idet][ibin]));
-          }
+        for(int ibin=0;ibin<3;++ibin){
+          float bincontent=h_ad[istage][idet]->GetBinContent(ibin+1);
+          h_ad[istage][idet]->SetBinContent(ibin+1,bincontent*(1.+rand_bin[idet][ibin]));
+        }
 	
-	//cout << "AD" << idet+1 << ": " << h_ad[idet]->Integral() << endl;//tmp
+        //cout << "AD" << idet+1 << ": " << h_ad[idet]->Integral() << endl;//tmp
 	
       }//idet loop
     }//istage loop
