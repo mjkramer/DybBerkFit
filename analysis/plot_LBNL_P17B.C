@@ -50,7 +50,7 @@ void plot_LBNL_P17B()
   // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_inverted.root","OPEN");
   // TFile* bestfit_file = new TFile("../fit_shape_2d_2017Model_P17B_IHEP_BCWbin_statonly.root","OPEN");
 
-  TFile *bestfit_file = new TFile("../ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root", "OPEN");
+  TFile *bestfit_file = new TFile("../ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root", "OPEN");
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL_0.1_inflated.root","OPEN");
   // TFile* bestfit_file = new TFile("/global/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_LBNL.root","OPEN");
   // TFile* bestfit_file = new TFile("/project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/fit_shape_2d_2017Model_P17B_IHEP_BCWbin.root","OPEN"); // official
