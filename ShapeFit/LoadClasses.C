@@ -1,12 +1,20 @@
+void LoadFile(const char* fname)
 {
-  gROOT->ProcessLine(".L OscCalc.cc+");
-  gROOT->ProcessLine(".L FluxCalculator.cc+");
-  gROOT->ProcessLine(".L PredSet.cc+");
-  gROOT->ProcessLine(".L TimePeriodData.cc+");
-  gROOT->ProcessLine(".L Predictor.cc+");
-  // gROOT->ProcessLine(".L Ranger.cc+");
-  //gROOT->ProcessLine(".L ExtrapTable.cc+");
-  // gROOT->ProcessLine(".L OscProbTable.cc+");
-  gROOT->ProcessLine(".L Binning.cc+");
-  gROOT->ProcessLine(".L DataSet.cc+");
+  const char* suffix = gSystem->Getenv("LBNL_FIT_DEBUG") ? "g" : "";
+  const char* line = Form(".L %s+%s", fname, suffix);
+  gROOT->ProcessLine(line);
+}
+
+void LoadClasses()
+{
+  LoadFile("OscCalc.cc");
+  LoadFile("FluxCalculator.cc");
+  LoadFile("PredSet.cc");
+  LoadFile("TimePeriodData.cc");
+  LoadFile("Predictor.cc");
+  // LoadFile("Ranger.cc");
+  // LoadFile("ExtrapTable.cc");
+  // LoadFile("OscProbTable.cc");
+  LoadFile("Binning.cc");
+  LoadFile("DataSet.cc");
 }
