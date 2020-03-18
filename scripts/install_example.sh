@@ -8,7 +8,7 @@ makelink() {
     dir=$1; shift
 
     for stage in 6ad 8ad 7ad; do
-        ln -rs example/$tag/${base}_${stage}_*.$ext ShapeFit/$dir/${base}_$stage.$ext
+        ln -rs example/$tag/${base}_${stage}*.$ext ShapeFit/$dir/${base}_$stage.$ext
     done
 }
 
