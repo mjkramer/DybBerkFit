@@ -2,6 +2,8 @@
 
 void plot_LBNL_P17B_IHEP_official()
 {
+  system("mkdir -p pics");
+
   gStyle->SetPalette(1);
   gStyle->SetLabelFont(62, "XY");
   gStyle->SetTitleFont(62, "XY");
