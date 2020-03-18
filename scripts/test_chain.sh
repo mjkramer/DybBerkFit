@@ -29,7 +29,7 @@ EOF
 
 # precompile
 
-echo "Using IHEP fast-n spectrum (see Config.h)"
+# echo "Using IHEP fast-n spectrum (see Config.h)"
 
 pushd ReactorPowerCalculator
 root -b -q 'Produce_Isotope_SpectraP17B_unblinded.C(1)'
