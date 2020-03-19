@@ -41,7 +41,7 @@ private:
   int m_nDimCovMatrix; // dimension of the covariance matrix
 
   double L[MAX_ISOTOPE_ID][MAX_ISOTOPE_ID];
-  
+
   bool isIsotopeTableLoaded;
   bool isIsotopeCovMatrixLoaded;
   TRandom3 * ran ;

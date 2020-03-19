@@ -8,7 +8,7 @@ PredSet::PredSet(){
     }
   }
   h_comb = new TH1F();
-  
+
 };
 
 PredSet::~PredSet(){
@@ -22,5 +22,3 @@ PredSet::~PredSet(){
   delete h_comb;
 
 };
-
-

@@ -44,9 +44,9 @@ const double Dmax=3.5e-3;
 // This class calculates flux matrix elements and extrapolation factors
 //jpochoa, May 2012
 
-class FluxCalculator : public TObject { 
+class FluxCalculator : public TObject {
 
-public: 
+public:
   FluxCalculator();
   ~FluxCalculator();
   FluxCalculator(const Char_t *distancesfile, const Char_t *weeklyfluxdataname, int nweeks_in);
@@ -70,11 +70,11 @@ public:
   bool useSuperHists;
   double PercContr[Ndetectors][Ncores];
 
-  
+
   //-->speeding up the code (to go to slow but precise replace OscSpecIntQuick by OscSpecInt in .cc file)
   TH1F* OscSpecQuick(int idet, int icore, double s22t13, int iweek, double dm2);
   void OscSpecQuick(int idet, int icore, double s22t13, int iweek, double dm2, TH1F* hout);
-  
+
   int nweeks;
 
 private:
@@ -85,7 +85,7 @@ private:
 
   Double_t Distance[Ndetectors][Ncores];//<---indices are ADs,Cores (D1, D2, L1, L2, L3, L4)
   TFile *WeeklyFluxData;
-  Char_t filename[1024];  
+  Char_t filename[1024];
   TH1F *FluxSpec;
   //std::map<int, TH1F*> fluxmap;
 
@@ -98,7 +98,7 @@ private:
   TH1F *hout_near;
 
   Bool_t FirstTime;
-  
+
 public:
   ClassDef(FluxCalculator,1);
 

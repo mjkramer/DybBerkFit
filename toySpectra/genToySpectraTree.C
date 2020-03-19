@@ -26,7 +26,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   Char_t name[1024];
   TH1F *h_nominal_ad[Nstage][Ndetectors];
   TH1F *h_ad[Nstage][Ndetectors];
-  for(int istage=0;istage<Nstage;++istage){ 
+  for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       cout << "Creating histogram for Stage# " << istage+1 << ": AD# " << idet+1 << endl;
       sprintf(name,"h_stage%i_ad%i",istage+1,idet+1);
@@ -39,7 +39,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   // Create Expectations
   DataSet *mydata = new DataSet();
   mydata->load(dataset_filename.Data());
-   
+
   // Create Nominal (i.e. no random variation) Expectations
   DataSet *mydata_nominal = new DataSet();
   mydata_nominal->load(nominal_dataset_filename);
@@ -69,30 +69,30 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   } else
     dm241 = mydata_nominal->getDouble("deltaMSq41");
 
-  
+
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
 
   const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
   for(int istage=0;istage<Nstage;istage++){
-    myPred->LoadMainData(Theta13InputsLocation[istage]); 
+    myPred->LoadMainData(Theta13InputsLocation[istage]);
   }
 
   cout<<"Data loaded"<<endl;
-    
-  // Create nominal Spectrum 
+
+  // Create nominal Spectrum
   Spectrum *spectrumNormNominal = new Spectrum();
-    
+
   cout<<"Something with spectrum done"<<endl;
-    
+
   spectrumNormNominal->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
   spectrumNormNominal->loadDistances(baselines_filename);
   spectrumNormNominal->initialize(mydata_nominal);
 
   TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
- 
+
   spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
                                         li9_filename,
                                         amc_filename,
@@ -104,7 +104,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   Spectrum *spectrumNorm = new Spectrum();
   spectrumNorm->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNorm->loadDistances(baselines_filename);                    
+  spectrumNorm->loadDistances(baselines_filename);
   spectrumNorm->initialize(mydata);
   spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
                                  li9_filename,
@@ -114,8 +114,8 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
 
 
-  
-  
+
+
   //Prepare destination file
   TFile *outfile = new TFile(output_filename.Data(),"RECREATE");
 
@@ -127,7 +127,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   tree_true_pars->Fill();
 
   TTree *tree = new TTree("tr","toy spectra");
-  
+
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       sprintf(name,"h_stage%i_ad%i",istage+1,idet+1);
@@ -135,7 +135,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     }
   }
 
-  
+
   //Generate nominal spectrum
   // cout << "-------------------- Nominal Spectrum -------------------" << endl;
   spectrumNormNominal->updateAntinu();
@@ -145,7 +145,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     for(int idet=0;idet<Ndetectors;++idet){
       h_nominal_ad[istage][idet]->Reset();
       for(int ibin=0;ibin<spectrumNormNominal->nSamples();++ibin){
-	
+
         h_nominal_ad[istage][idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
                                          spectrumNormNominal->positronDetectedArray(istage,idet)[ibin]*spectrumNormNominal->binWidth()
                                          );
@@ -157,21 +157,21 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
                                          );
         if(istage==2) cout << "The added bg at energy " << spectrumNormNominal->energyArray(idet)[ibin] << " is " << spectrumNormNominal->bgDetectedArray(istage,idet)[ibin] << endl;//tmp
       }
-      
-      
+
+
       //cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
     }
   }
-    
+
   TRandom3* generator=new TRandom3();
-  
+
   //Generate toys
   spectrumNorm->setRandomSeed(1);
   for(int itoy=0; itoy<nToys;itoy++){
     cout << "-------------------- Generating toy " << itoy << "-------------------" << endl;
     spectrumNorm->updateAntinu();
     spectrumNorm->updateBgDetected();
-      
+
     //this part is added to inflate low energy bin uncertainty
     double uncertainty = Config::lowBinInflation;
     // TODO: Wrap in `if (uncertainty)`
@@ -183,8 +183,8 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
         cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;
       }
     }
-      
-    
+
+
     for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
         h_ad[istage][idet]->Reset();
@@ -193,33 +193,33 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
                                    spectrumNorm->positronDetectedArray(istage,idet)[ibin]*spectrumNorm->binWidth()
                                    );
           //cout << "The added positron at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->positronDetectedArray(idet)[ibin] << endl;//tmp
-	  
+
         }//ibin loop
         for(int ibin=0;ibin<spectrumNorm->nSamplesBkg();++ibin){
           h_ad[istage][idet]->Fill(spectrumNorm->energyArrayBkg(idet)[ibin],
                                    spectrumNorm->bgDetectedArray(istage,idet)[ibin]
                                    );
           //cout << "The added bg at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->bgDetectedArray(idet)[ibin] << endl;//tmp
-	  
+
         }//ibin loop
-          
-          
-        
-          
-          
+
+
+
+
+
         for(int ibin=0;ibin<3;++ibin){
           float bincontent=h_ad[istage][idet]->GetBinContent(ibin+1);
           h_ad[istage][idet]->SetBinContent(ibin+1,bincontent*(1.+rand_bin[idet][ibin]));
         }
-	
+
         //cout << "AD" << idet+1 << ": " << h_ad[idet]->Integral() << endl;//tmp
-	
+
       }//idet loop
     }//istage loop
     tree->Fill();
-    
+
   }//itoy loop
-  
+
   outfile->cd();
 
   for(int istage=0;istage<Nstage;++istage){
@@ -230,7 +230,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
   outfile->Write();
   outfile->Close();
-  
+
   gDirectory->Delete("*");
 
 }//end of genToySpectraTree

@@ -36,7 +36,7 @@ int week_counter=0;
 void LoadLiveTime(){
   FILE* spectrum_file=fopen("dbd_livetime_P17B.txt","r");
   int day_counter=0;
-    
+
   int iday=-1;
   int ieh=-1;
   float temp_livetime=-1.;
@@ -45,7 +45,7 @@ void LoadLiveTime(){
   bool do_read=true;
   while(1){
     float average_day_livetime=0.;
-        
+
     if(do_read){
       fscanf(spectrum_file,"%d %d %f",&iday,&ieh,&temp_livetime);
       average_day_livetime+=temp_livetime;
@@ -55,11 +55,11 @@ void LoadLiveTime(){
       if(ieh!=2) cout<<"Problem with hall"<<endl;
       fscanf(spectrum_file,"%d %d %f",&iday,&ieh,&temp_livetime);
       if(ieh!=3) cout<<"Problem with hall"<<endl;
-            
 
-            
+
+
       //cout<<iday<<" "<<day_counter<<" "<<week_counter<<" "<<week_counter*7-iday<<endl;
-            
+
       average_day_livetime+=temp_livetime;
       average_day_livetime=average_day_livetime/3.;
     }
@@ -70,7 +70,7 @@ void LoadLiveTime(){
       weekly_average_livetime=0;
       break;
     }
-        
+
     if(real_dat_counter!=iday){
       //cout<<"   "<<weekly_average_livetime<<endl;
       weekly_average_livetime+=0.;
@@ -85,8 +85,8 @@ void LoadLiveTime(){
       do_read=true;
     }
     //cout<<day_counter<<" "<<iday+1<<" "<<real_dat_counter<<endl;
-        
-        
+
+
     if(day_counter%7==0){
       cout<<"   "<<weekly_average_livetime<<endl;
       weekly_livetime[week_counter]=weekly_average_livetime/(7.*86400.);
@@ -95,10 +95,10 @@ void LoadLiveTime(){
       week_counter++;
       day_counter=0;
     }
-        
+
     real_dat_counter++;
   }
-    
+
   for(int iweek=0; iweek<week_counter; ++iweek) cout<<"Weekly livetime for week "<<iweek<<" is "<<weekly_livetime[iweek]<<endl;
 }
 
@@ -151,12 +151,12 @@ void ReadCoreSpectra(int option=1){
   if(option==3) sprintf(filepath,"./BCW/fissionIsotopeSpectra_ILL_Muller_Fit.txt");
   if(option==4) sprintf(filepath,"./LBNL_Spectra/fissionIsotopeSpectra_Huber_v0.txt");
   cout<<filepath<<endl;
-    
+
   FILE* input_spectrum_file=fopen(filepath,"r");
   if(input_spectrum_file == NULL) cout<<"file's not open"<<endl;
   float temp_energy=-1;
   float temp_spect[4];
-    
+
   char dummy_str4[128];
   /*if(option==0)*/ for(int i=0; i<8;++i) fgets(dummy_str4,128, input_spectrum_file);
   //cout<<dummy_str4<<endl;
@@ -205,8 +205,8 @@ void ReadWeeklyAvg(){
     cout<<isotope_num-1<<" "<<MeV_per_fission[isotope_num-1]<<endl;
   }
   fclose(energy_per_fission);
-    
-    
+
+
   FILE* power_fission_frac_file=fopen("./WeeklyAvg/WeeklyAvg_P15A_v1_from_Henoch.txt","r");
   int week=-1;
   int core=-1;
@@ -225,17 +225,17 @@ void ReadWeeklyAvg(){
 
     fscanf(power_fission_frac_file,"%f %f %f %f %f",&frac_power,&f_frac_u235,&f_frac_u238,&f_frac_pu239,&f_frac_pu241);
     //cout<<dummy_str<<" "<<dummy_str2<<" "<<start_sec<<endl;
-        
-        
+
+
     if(feof(power_fission_frac_file)) break;
     //cout<<week<<" "<<core<<" "<<frac_power<<" "<<f_frac_u235<<" "<<f_frac_u238<<" "<<f_frac_pu239<<" "<<f_frac_pu241<<endl;
     frac_power_array[core-1][week]=frac_power;
-        
+
     f_frac_array[core-1][week][0]=f_frac_u235;
     f_frac_array[core-1][week][1]=f_frac_u238;
     f_frac_array[core-1][week][2]=f_frac_pu239;
     f_frac_array[core-1][week][3]=f_frac_pu241;
-        
+
     f_average_energy_per_fission[core-1][week]=0.;
     for(int iisotope=0; iisotope<4; ++iisotope) f_average_energy_per_fission[core-1][week]+=MeV_per_fission[iisotope]*f_frac_array[core-1][week][iisotope];
     cout<<"Average energy per fission "<<f_average_energy_per_fission[core-1][week]<<endl;
@@ -246,9 +246,9 @@ void ReadWeeklyAvg(){
     if(core==1) nweeks_unblinded++; //count only once per list of cores
   }
 
-    
+
   fclose(power_fission_frac_file);
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     float tot_stage_livetime=0.;
     for(int icore=0; icore<Ncores; ++icore){
@@ -269,9 +269,9 @@ void ReadWeeklyAvg(){
         average_power_times_fission_frac[istage][icore][iisotope]=average_power_times_fission_frac[istage][icore][iisotope]/tot_stage_livetime;
       }
     }
-        
+
   }
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     cout<<"Stage "<<istage+1<<":"<<endl;
     cout<<"Average power (fraction of nominal): ";
@@ -279,7 +279,7 @@ void ReadWeeklyAvg(){
       cout<<average_power[istage][icore]<<" ";
     }
     cout<<endl;
-        
+
     for(int iisotope=0; iisotope<4; ++iisotope){
       if(iisotope==0) cout<<"Average U235 fission fraction: ";
       if(iisotope==1) cout<<"Average U238 fission fraction: ";
@@ -299,7 +299,7 @@ void ReadWeeklyAvg(){
       cout<<control_sum<<" ";
     }
     cout<<endl<<endl;
-        
+
   }
 }
 
@@ -310,7 +310,7 @@ float array_beda_spectra[Nstages][Ncores][4][220];
 void ProduceSpectraDwyer(int option=0){
   ReadCoreSpectra(option);
   ReadWeeklyAvg();
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     for(int icore=0; icore<Ncores; ++icore){
       for(int iisotope=0; iisotope<4; ++iisotope){
@@ -320,18 +320,18 @@ void ProduceSpectraDwyer(int option=0){
       }
     }
   }
-    
+
   float weekly_livetime_sum[Nstages];
   for(int istage=0; istage<Nstages; ++istage) weekly_livetime_sum[istage]=0.;
-    
+
   cout<<"There are "<<week_counter<<" weeks"<<endl;
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     for(int iweek=0; iweek<week_counter; ++iweek){
       if(iweek>=start_week[istage] && iweek<=end_week[istage]) weekly_livetime_sum[istage]+=weekly_livetime[iweek];
     }
   }
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     for(int icore=0; icore<Ncores; ++icore){
       for(int iweek=0; iweek<nweeks_unblinded; ++iweek){
@@ -345,7 +345,7 @@ void ProduceSpectraDwyer(int option=0){
       }
     }
   }
-    
+
   float blinded_f_frac_array[4]={0.64,0.08,0.25,0.03};
   for(int istage=0; istage<Nstages; ++istage){ //for blinded flux
     for(int icore=0; icore<Ncores; ++icore){
@@ -360,10 +360,10 @@ void ProduceSpectraDwyer(int option=0){
       }
     }
   }
-    
-    
+
+
   for(int istage=0; istage<Nstages; ++istage) cout<<"Weekly livetime is "<<weekly_livetime_sum[istage]<<endl;
-    
+
   for(int istage=0; istage<Nstages; ++istage){
     for(int icore=0; icore<Ncores; ++icore){
       for(int iisotope=0; iisotope<4; ++iisotope){
@@ -384,7 +384,7 @@ TGraph* gr_henoch_spectra[6][4];
 void PrintSpectra(){
   ReadHenochSpectra(); //for energy binning
   ProduceSpectraDwyer();
-    
+
   string period[Nstages]={"6AD","8AD","7AD"};
   string isotope[4]={"_U235","_U238","_Pu239","_Pu241"};
   string base="./isotope_spectra_by_Beda/reactor_P17B_";
@@ -401,5 +401,3 @@ void PrintSpectra(){
     }
   }
 }
-
-

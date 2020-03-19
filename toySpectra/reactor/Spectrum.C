@@ -37,14 +37,14 @@ Spectrum::Spectrum()
     m_detectorResolution(0)
 {
   m_osccalc = new OscCalc();
-  
 
-  
+
+
   m_randomizeIsotopeFraction = -1;
   m_randomizeReactorPower = -1;
   m_randomizeIavDistortion = -1;
 
-  
+
   // latest value from doc-9401-v7
   m_detectorEfficiency_Dt = 0.9870;
   m_detectorEfficiency_Ep = 0.9981;
@@ -66,7 +66,7 @@ Spectrum::Spectrum()
   UseChristineModel = true;
 
   // Caution: These reactor power and their errors are NOT used if we chose to use Chistine's covariance matrix
-  
+
   // FIXME: hard-coded reactor power.
   // It's an average of first 140 days of data
   for (Int_t istage = 0; istage < Nstage;istage++){
@@ -84,15 +84,15 @@ Spectrum::Spectrum()
       }
     }
   }
- 
-  for (Int_t istage = 0; istage < Nstage;istage++){ 
+
+  for (Int_t istage = 0; istage < Nstage;istage++){
     for (int i = 0; i < Ncores; i++){
       m_reactorPower[istage][i] = m_nominalReactorPower[istage][i];
     }
   }
 
-  // FIXME: hard-coded reactor power uncertainty (relative). 
-  for (Int_t istage = 0; istage < Nstage;istage++){  
+  // FIXME: hard-coded reactor power uncertainty (relative).
+  for (Int_t istage = 0; istage < Nstage;istage++){
     m_reactorPowerError[istage][0] = 0.005;
     m_reactorPowerError[istage][1] = 0.005;
     m_reactorPowerError[istage][2] = 0.005;
@@ -102,10 +102,10 @@ Spectrum::Spectrum()
   }
 
   m_iav_error = 0.04; // nominal value: 4%, based on Bryce's document
-  
 
 
-  
+
+
   ///////////////////////////////////////////////////////////////////
 
   reso_func = new TF1("reso_func",reso_func_bcw,0,20,3);
@@ -121,12 +121,12 @@ Spectrum::Spectrum()
   //  enu_to_epositron_func = new TF1("enu_to_epositron_func",this,&Spectrum::enu_to_epositron,0,20,1,"Spectrum","enu_to_epositron");
   enu_to_epositron_func = new TF1("enu_to_epositron_func",enu_to_epositron,0,20,1);
   enu_to_epositron_func->SetParameter(0,-2);
-  
+
   //  enu_to_epositron_func = new TF1("enu_to_epositron_func",&Spectrum::enu_to_epositron_0th,0,20,0,"Spectrum","enu_to_epositron_0th");
-  
+
   ///////////////////////////////////////////////////////////////////
 
-  
+
 
   // dy default, all backgrounds are included into the spectra.
   m_removeAccBg = false;
@@ -135,12 +135,12 @@ Spectrum::Spectrum()
   m_removeAmcBg = false;
   m_removeAlnBg = false;
 
-  
+
 }
 
 Spectrum::~Spectrum()
 {
-  if(m_osccalc){ 
+  if(m_osccalc){
     delete m_osccalc;
     m_osccalc = 0;
   }
@@ -286,8 +286,8 @@ void Spectrum::setOscillation(double sinSq2Th12, double sinSq2Th13,
   m_sinSq2Th12 = sinSq2Th12;
   m_sinSq2Th13 = sinSq2Th13;
   m_deltaMSq21 = deltaMSq21;
-  m_deltaMSqee = deltaMSqee;  
-  
+  m_deltaMSqee = deltaMSqee;
+
   m_osccalc->SetDeltaM2_ee(deltaMSqee);
 
   m_osccalc->SetDeltaM2_21(deltaMSq21);
@@ -300,7 +300,7 @@ void Spectrum::setRandomSolarOscPars()
 
   m_sinSq2Th12 = m_sinSq2Th12_nominal + m_sinSq2Th12_error * ran->Gaus(0,1);
   m_deltaMSq21 = m_deltaMSq21_nominal + m_deltaMSq21_error * ran->Gaus(0,1);
-  
+
   m_osccalc->SetDeltaM2_ee(m_deltaMSqee);//<--just in case
 
   m_osccalc->SetDeltaM2_21(m_deltaMSq21);
@@ -312,7 +312,7 @@ void Spectrum::setRandomDm2ee()
 {
 
   m_deltaMSqee = m_deltaMSqee_nominal + m_deltaMSqee_error * ran->Gaus(0,1);
-  
+
   m_osccalc->SetDeltaM2_ee(m_deltaMSqee);
   m_osccalc->SetDeltaM2_21(m_deltaMSq21);//<--just in case
   m_osccalc->SetTheta12(TMath::ASin(sqrt(m_sinSq2Th12))*0.5);//<--just in case
@@ -337,9 +337,9 @@ void Spectrum::setEnergyScale(double alpha, double beta)
   for(int idx=0; idx<m_nSamples; idx++){
   if(m_energy[idx]==0) continue;
   m_survivalProbability[idx] =
-  m_oscillation->survivalProbability(m_energy[idx], 
+  m_oscillation->survivalProbability(m_energy[idx],
   m_detectorDistance[][]*conv_km_to_m);
-  m_antiNuSpectrum[idx] = (m_survivalProbability[idx] 
+  m_antiNuSpectrum[idx] = (m_survivalProbability[idx]
   * m_antiNuSpectrumNoOsc[idx]);
   totalCounts += m_antiNuSpectrum[idx] * m_binWidth;
   }
@@ -353,7 +353,7 @@ void Spectrum::updateAntinu(int icore_select)
 
   double avgEnergyPerFission[Nstage][Ncores] = {{0}};
 
-  
+
   if (UseChristineModel || m_useAbInitioSpectra > 0){
     if (m_randomizeCoreSpectra > 0){
       for(int istage=0;istage<Nstage;istage++){
@@ -370,35 +370,35 @@ void Spectrum::updateAntinu(int icore_select)
      for(int istage=0;istage<Nstage;++istage)
      for(int icore=0;icore<Ncores;++icore)
      m_isotopes[istage][icore]->setRandomFissionFraction();
-    
+
      for(int istage=0;istage<Nstage;++istage){
      for(int icore=0;icore<Ncores;++icore){
      avgEnergyPerFission[istage][icore] = 0;
-	
-     for(int isoIdx=1; isoIdx<5; isoIdx++){ 
+
+     for(int isoIdx=1; isoIdx<5; isoIdx++){
      // avgEnergyPerFission += (m_isotopes->nominalFissionFraction(isoIdx)
-     // 		    * m_isotopes->meanEnergyPerFission(isoIdx));
+     //         * m_isotopes->meanEnergyPerFission(isoIdx));
      avgEnergyPerFission[istage][icore] += (m_isotopes[istage][icore]->FissionFraction(isoIdx)
      * m_isotopes[istage][icore]->meanEnergyPerFission(isoIdx));
      }
      }
      }
      }*/
-  
-  
+
+
   if (m_randomizeReactorPower > 0)
     this->setRandomReactorPower();
-  
+
   if (m_randomizeSolarOscPars > 0)
     this->setRandomSolarOscPars();
 
   if (m_randomizeDm2ee > 0)
     this->setRandomDm2ee();
-  
+
   double conv_mev_per_s_gw =  6.2415e21;
   double conv_km2_per_cm2 = 1.0000e-10;
   double conv_s_per_year = 24*60*60*365.;
-  double conv_km_to_m = 1000.; 
+  double conv_km_to_m = 1000.;
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0; idet<Ndetectors; idet++){
       double totalCounts = 0;
@@ -406,29 +406,29 @@ void Spectrum::updateAntinu(int icore_select)
         m_energy[idet][idx] = (0.5+idx)*m_binWidth+m_eMin;
         m_antiNuSpectrum[istage][idet][idx] = 0;
         m_antiNuSpectrumNoOsc[istage][idet][idx] = 0;
-      
+
         for(int icore=0;icore<Ncores;++icore){
           if (icore_select >=0 && icore != icore_select)
             continue; // select only one core if specified.
-	
+
           float oscproba=1;
           if(m_energy[idx]!=0){
             //oscproba=m_osccalc->OscProb(m_detectorDistance[idet][icore]*conv_km_to_m, m_energy[idet][idx], m_sinSq2Th13);
             double Elow=m_energy[idet][idx]-m_binWidth*0.5;
             double Ehigh=m_energy[idet][idx]+m_binWidth*0.5;
-            // super ad-hock introduction of baseline smearing. 
+            // super ad-hock introduction of baseline smearing.
             double Lwidth = 0.0; // in km
-            double Llow=m_detectorDistance[idet][icore] - Lwidth; 
+            double Llow=m_detectorDistance[idet][icore] - Lwidth;
             double Lhigh=m_detectorDistance[idet][icore] + Lwidth;
             // double prob_bef = m_osccalc->OscProbInt(m_detectorDistance[idet][icore]*conv_km_to_m,Elow,m_sinSq2Th13);
             // double prob_aft = m_osccalc->OscProbInt(m_detectorDistance[idet][icore]*conv_km_to_m,Ehigh,m_sinSq2Th13);
             double prob_bef = m_osccalc->OscProbInt(Lhigh*conv_km_to_m,Elow,m_sinSq2Th13);
             double prob_aft = m_osccalc->OscProbInt(Llow*conv_km_to_m,Ehigh,m_sinSq2Th13);
-            //	  oscproba = (prob_bef - prob_aft)/(m_detectorDistance[idet][icore]*conv_km_to_m/Elow - m_detectorDistance[idet][icore]*conv_km_to_m/Ehigh);
+            //    oscproba = (prob_bef - prob_aft)/(m_detectorDistance[idet][icore]*conv_km_to_m/Elow - m_detectorDistance[idet][icore]*conv_km_to_m/Ehigh);
             oscproba = (prob_bef - prob_aft)/(Lhigh*conv_km_to_m/Elow - Llow*conv_km_to_m/Ehigh);
             // this integration assumes flat distribution in L/E space
           }
-        
+
           if (UseChristineModel || m_useAbInitioSpectra > 0){
 
             // YN: Adding BCW flux uncertainty
@@ -438,9 +438,9 @@ void Spectrum::updateAntinu(int icore_select)
             }else{
               flux = m_corespectrum[istage]->IBDSpectrum(icore,m_energy[idet][idx]);
             }
-              
 
-	  
+
+
             m_antiNuSpectrum[istage][idet][idx] += (m_reactorPower[istage][icore]/m_nominalReactorPower[istage][icore]
                                                     * m_runningTime[istage][idet]
                                                     * m_detectorSize[idet]
@@ -450,14 +450,14 @@ void Spectrum::updateAntinu(int icore_select)
                                                     * flux
                                                     * m_detectorEfficiency[istage][idet]
                                                     * conv_km2_per_cm2
-                                                    * conv_s_per_year			      
-                                                    / (4 * TMath::Pi() 
+                                                    * conv_s_per_year
+                                                    / (4 * TMath::Pi()
                                                        * m_detectorDistance[idet][icore]
                                                        * m_detectorDistance[idet][icore])
                                                     * oscproba
                                                     );
-          
-          
+
+
             // for producing the superhistogram, we don't need to apply detector efficiencies, etc
             m_antiNuSpectrumNoOsc[istage][idet][idx] += (m_reactorPower[istage][icore]/m_nominalReactorPower[istage][icore]
                                                          * m_runningTime[istage][1]  //changed to 1 since AD1 was taken from analysis
@@ -466,14 +466,14 @@ void Spectrum::updateAntinu(int icore_select)
                                                          // * m_corespectrum->antiNuSpectrum(icore,m_energy[idet][idx])
                                                          // * m_xsec->inverseBetaDecay(m_energy[idet][idx])
                                                          * flux
-                                                         * conv_s_per_year			      
+                                                         * conv_s_per_year
                                                          );
-          
-          
+
+
           }/*else{
 
 for(int isoIdx=1; isoIdx<5; isoIdx++){
-          
+
 m_antiNuSpectrum[idet][idx] += (m_runningTime[idet]
 * m_detectorSize[idet]
 * m_targetProtonsPerKton
@@ -484,15 +484,15 @@ m_antiNuSpectrum[idet][idx] += (m_runningTime[idet]
 * m_detectorEfficiency[idet]
 * conv_mev_per_s_gw
 * conv_km2_per_cm2
-* conv_s_per_year			      
-/ (4 * TMath::Pi() 
+* conv_s_per_year
+/ (4 * TMath::Pi()
 * m_detectorDistance[idet][icore]
 *m_detectorDistance[idet][icore])
 / avgEnergyPerFission[icore]
 * oscproba
 );
-            
-            
+
+
 // for producing the superhistogram, we don't need to apply detector efficiencies, etc
 m_antiNuSpectrumNoOsc[idet][idx] += (m_runningTime[0]
 * m_detectorSize[0]
@@ -503,7 +503,7 @@ m_antiNuSpectrumNoOsc[idet][idx] += (m_runningTime[0]
 m_energy[idet][idx])
 * m_xsec->inverseBetaDecay(m_energy[idet][idx])
 * conv_mev_per_s_gw
-* conv_s_per_year			      
+* conv_s_per_year
 / avgEnergyPerFission[icore]
 );
 }//isotope loop
@@ -515,12 +515,12 @@ m_energy[idet][idx])
     }//detector loop
   }//Stage loop
   //this->updateOscillation();
-  
+
   this->updatePositronTrue();
-  
+
 }
 
-  
+
 //  void Spectrum::updatePositronTrue(int eNuIdx_select)
 void Spectrum::updatePositronTrue(double eNu_min, double eNu_max)
 {
@@ -532,14 +532,14 @@ void Spectrum::updatePositronTrue(double eNu_min, double eNu_max)
     this->setRandomIavDistortion();
   }
 
-  
 
-  /////////////// 
+
+  ///////////////
   for(int istage=0; istage<Nstage; istage++){
     for(int idet=0; idet<Ndetectors; idet++){
       double totalCounts = 0;
-      
-      // // OLD code that simply shift energy by 0.8 MeV    
+
+      // // OLD code that simply shift energy by 0.8 MeV
       // int offset = (int)(0.8 / m_binWidth);
       // for(int idx=0; idx<m_nSamples; idx++){
       //   int eNuIdx = (int)(idx + offset);
@@ -551,14 +551,14 @@ void Spectrum::updatePositronTrue(double eNu_min, double eNu_max)
       //     m_positronTrueSpectrum[idet][idx] = 0;
       //     continue;
       //   }
-      
+
       //   m_positronTrueSpectrum[idet][idx] = m_antiNuSpectrum[idet][eNuIdx];
       //   totalCounts += m_positronTrueSpectrum[idet][idx] * m_binWidth;
       // }
-      
-      
+
+
       for(int idx=0; idx<m_nSamples; idx++){
-	
+
         double e_positron = m_energy[idet][idx];
         if (e_positron < 1.022){
           m_positronTrueSpectrum[istage][idet][idx] = 0;
@@ -579,7 +579,7 @@ void Spectrum::updatePositronTrue(double eNu_min, double eNu_max)
         int sign = 1;
         double dE = e_nu - (0.5 + e_nu_Idx)*m_binWidth;
         if (dE < 0) sign = -1;
-	
+
         if(e_nu_Idx==m_nSamples-1){
           dNdE = m_antiNuSpectrum[istage][idet][e_nu_Idx];
         }else{
@@ -589,41 +589,41 @@ void Spectrum::updatePositronTrue(double eNu_min, double eNu_max)
             +(1 - TMath::Abs(dE)/m_binWidth)
             * m_antiNuSpectrum[istage][idet][e_nu_Idx];
         }
-	
+
         m_positronTrueSpectrum[istage][idet][idx] = dNdE / binScaling;
       }
-      
-      // ///////////////  
-      
+
+      // ///////////////
+
       //cout << "Updated total positron true counts: " << totalCounts << endl;
-      
+
       // Apply IAV correction
       for(int idx=0; idx<m_nSamples; idx++){
         m_positronIavDistortedSpectrum[istage][idet][idx] = 0;
       }
       for(int idx=0; idx<m_nSamples; idx++){
         for(int jdx=0; jdx<idx+1; jdx++){
-          m_positronIavDistortedSpectrum[istage][idet][jdx] 
+          m_positronIavDistortedSpectrum[istage][idet][jdx]
             += m_iav_corr[idet][idx][jdx] * m_positronTrueSpectrum[istage][idet][idx];
         }
         //      cout << m_positronIAVDistortedSpectrum[idet][idx] << endl;
-        // m_positronIavDistortedSpectrum[idet][idx] 
+        // m_positronIavDistortedSpectrum[idet][idx]
         //   = m_positronTrueSpectrum[idet][idx];
       }
-      
-      
+
+
     }
   }
-  
+
   this->updatePositronDetected();
 }
 
 void Spectrum::updatePositronDetected()
 {
   // Updated detected positron spectrum
-  //   Convert positron true energy to detected energy using 
+  //   Convert positron true energy to detected energy using
   //   simple detector response model
-  
+
   // randomize various parameters if specified
   if (m_randomizeScintiNonLinear > 0){
     if (m_useIhepNonLinearModel > 0)
@@ -639,26 +639,26 @@ void Spectrum::updatePositronDetected()
   }
   if (m_randomizeElecNonLinear > 0)
     this->setRandomElecNonLinear();
-  
+
   if (m_randomizeResolution > 0)
     this->setRandomResolution();
-  
+
   if (m_randomizeRelativeEnergyScale > 0)
     this->setRandomRelativeEnergyScale();
-  
+
   if (m_randomizeAbsoluteEnergyScale > 0)
     this->setRandomAbsoluteEnergyScale();
 
 
   if (m_randomizeRelativeEnergyOffset > 0)
     this->setRandomRelativeEnergyOffset();
-  
+
   if (m_randomizeAbsoluteEnergyOffset > 0)
     this->setRandomAbsoluteEnergyOffset();
 
   if (m_randomizeDetectorEfficiency > 0)
     this->setRandomDetectorEfficiency(); // this must be called after relative energy scale uncertainty
-  
+
 
   for(int istage=0; istage<Nstage; istage++){
     for(int idet=0; idet<Ndetectors; idet++){
@@ -667,7 +667,7 @@ void Spectrum::updatePositronDetected()
       double totalCounts = 0;
       if (m_useIhepNonLinearModel || m_useBcwNonLinearModel || m_useLbnlNonLinearModel || m_useUnifiedNonLinearModel ||  m_use2015NonLinearModel){
         if (m_useIhepNonLinearModel){
-        
+
           // reset non-linear parameters
           nl_func->SetParameters(m_ihep_nl_par[0],
                                  m_ihep_nl_par[1],
@@ -687,8 +687,8 @@ void Spectrum::updatePositronDetected()
                                  m_abs_eoffset + m_rel_eoffset[istage][idet]
                                  );
 
-        
-        
+
+
         } else if (m_useLbnlNonLinearModel){
           nl_func->SetParameters(m_lbnl_nl_par[0],
                                  m_lbnl_nl_par[1],
@@ -701,13 +701,13 @@ void Spectrum::updatePositronDetected()
           for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
             nl_func->SetParameter(i,m_unified_nl_par[i]);
           }
-        
+
           nl_func->SetParameter(m_num_unified_nl_pars, m_abs_escale * m_rel_escale[idet]);
           nl_func->SetParameter(m_num_unified_nl_pars+1, m_abs_eoffset + m_rel_eoffset[istage][idet]);
-        
+
         }
-      
-      
+
+
         for(int idx=0; idx<m_nSamples; idx++){
           double energy_nl = m_energy[idet][idx];
           double energy_true = nl_func->GetX(energy_nl);
@@ -716,7 +716,7 @@ void Spectrum::updatePositronDetected()
             m_positronNLSpectrum[istage][idet][idx] = 0;
             continue;
           }
-        
+
           double binScaling = nl_func->Derivative(energy_true);
           double dNdE = 0;
           int sign = 1;
@@ -741,27 +741,27 @@ void Spectrum::updatePositronDetected()
               * m_positronIavDistortedSpectrum[istage][idet][eTrueIdx];
           }
           //        cout << energy_nl << "\t" << energy_true << "\t" << dNdE/binScaling << endl;
-        
+
           m_positronNLSpectrum[istage][idet][idx] = dNdE / binScaling;
           //        m_positronNLSpectrum[idet][idx] = m_positronIavDistortedSpectrum[idet][idx];
           totalCounts += m_positronNLSpectrum[istage][idet][idx] * m_binWidth;
 
           // cout << energy_true << "\t" << energy_nl << "\t"
           //      << dNdE << "\t" << binScaling << endl;
-        
+
         }
-      
-      
+
+
       }else{
-      
+
         // Original formula:
         // E_NL = (1 - alpha/(E_true*E_true)) * beta * E_true
         // Alpha: non-liner effect at low energy
         // Beta: overall energy scale
-      
+
         double alpha = m_alpha;
         double beta = m_abs_escale * m_rel_escale[idet];
-      
+
         if(beta==1.0 && alpha==0.0){
           for(int idx=0; idx<m_nSamples; idx++){
             m_positronNLSpectrum[istage][idet][idx] = m_positronIavDistortedSpectrum[istage][idet][idx];
@@ -771,7 +771,7 @@ void Spectrum::updatePositronDetected()
           for(int idx=0; idx<m_nSamples; idx++){
             double energy_nl = m_energy[idet][idx];
             double energy_true = 0.5*((energy_nl/beta)
-                                      + TMath::Sqrt(4*alpha 
+                                      + TMath::Sqrt(4*alpha
                                                     + ((energy_nl*energy_nl)
                                                        /(beta*beta))));
             int eTrueIdx = (int)((energy_true-m_eMin)/m_binWidth);
@@ -779,7 +779,7 @@ void Spectrum::updatePositronDetected()
               m_positronNLSpectrum[istage][idet][idx] = 0;
               continue;
             }
-        
+
             double binScaling = (1 + alpha/(energy_true*energy_true))*beta;
             double dNdE = 0;
             double dEtrue = energy_true - eTrueIdx*m_binWidth;
@@ -796,10 +796,10 @@ void Spectrum::updatePositronDetected()
             totalCounts += m_positronNLSpectrum[istage][idet][idx] * m_binWidth;
             //m_positronDetectedSpectrum[idx] = m_positronNLSpectrum[idx];
           }
-          //cout << "Updated total positron NL counts: " << totalCounts << endl;  
+          //cout << "Updated total positron NL counts: " << totalCounts << endl;
         }
       }
-    
+
 
       // Second: Apply detector resolution
       totalCounts = 0;
@@ -841,7 +841,7 @@ void Spectrum::updatePositronDetected()
   }
 
   // Finally add statistical fluctuation
-  
+
   if (m_statisticalFluctuation){
     for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
@@ -859,12 +859,12 @@ void Spectrum::correctNonLinearity(){
 
   for(int istage=0; istage<Nstage; istage++){
     for(int idet=0; idet<Ndetectors; idet++){
-      
+
       // First: Apply detector non-linear energy scale
       double totalCounts = 0;
       if (m_useIhepNonLinearModel || m_useBcwNonLinearModel || m_useLbnlNonLinearModel || m_useUnifiedNonLinearModel ||  m_use2015NonLinearModel){
         if (m_useIhepNonLinearModel){
-        
+
           // reset non-linear parameters
           nl_func->SetParameters(m_ihep_nl_par_nominal[0],
                                  m_ihep_nl_par_nominal[1],
@@ -883,9 +883,9 @@ void Spectrum::correctNonLinearity(){
                                  m_abs_escale_nominal * m_rel_escale_nominal[idet],
                                  0
                                  );
-	
-        
-        
+
+
+
         } else if (m_useLbnlNonLinearModel){
           nl_func->SetParameters(m_lbnl_nl_par_nominal[0],
                                  m_lbnl_nl_par_nominal[1],
@@ -898,13 +898,13 @@ void Spectrum::correctNonLinearity(){
           for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
             nl_func->SetParameter(i,m_unified_nl_par_nominal[i]);
           }
-        
+
           nl_func->SetParameter(m_num_unified_nl_pars, m_abs_escale_nominal * m_rel_escale_nominal[idet]);
           nl_func->SetParameter(m_num_unified_nl_pars+1, 0);
-        
+
         }
-      
-      
+
+
         for(int idx=0; idx<m_nSamples; idx++){
           double energy_true = m_energy[idet][idx];
           double energy_det = nl_func->Eval(energy_true);
@@ -912,17 +912,17 @@ void Spectrum::correctNonLinearity(){
           int eDetIdx = (int)((energy_det-m_eMin)/m_binWidth);
           if(eDetIdx<0 || eDetIdx>=m_nSamples){
             m_positronNLCorrectedSpectrum[istage][idet][idx] = 0;
-            m_bgNLCorrectedSpectrum[istage][idet][idx]= 0;  	    
+            m_bgNLCorrectedSpectrum[istage][idet][idx]= 0;
             continue;
           }
-        
+
           double binScaling = nl_func->Derivative(energy_true);
 
           double dNdE = 0;
           int sign = 1;
           double dEdet = energy_det- (0.5 + eDetIdx)*m_binWidth;
           if (dEdet < 0) sign = -1;
-	
+
           if(eDetIdx==m_nSamples-1){
             dNdE = m_positronDetectedSpectrum[istage][idet][eDetIdx];
           }else{
@@ -932,7 +932,7 @@ void Spectrum::correctNonLinearity(){
               +(1 - TMath::Abs(dEdet)/m_binWidth)
               * m_positronDetectedSpectrum[istage][idet][eDetIdx];
           }
-        
+
           m_positronNLCorrectedSpectrum[istage][idet][idx] = dNdE * binScaling;
           totalCounts += m_positronNLCorrectedSpectrum[istage][idet][idx] * m_binWidth;
 
@@ -946,17 +946,17 @@ void Spectrum::correctNonLinearity(){
               +(1 - TMath::Abs(dEdet)/m_binWidth)
               * m_bgDetectedSpectrum[istage][idet][eDetIdx];
           }
-        
+
           m_bgNLCorrectedSpectrum[istage][idet][idx] = dNdE * binScaling;
-	  
+
         }
-      
-      
+
+
       }else{
         // Not supported at this moment!
       }
     }
-    
+
   }
 }
 
@@ -966,7 +966,7 @@ void Spectrum::loadDistances(const char *distancematrixname){
   string dummyLine;
   string thead;
   float d2,d1,l2,l1,l4,l3;
-  //-->Distances  
+  //-->Distances
   cout << " Distances ++++++++++++++++++++++++++++++++++++++" << endl;
   ifstream disfile(distancematrixname);
   getline(disfile, dummyLine);
@@ -982,15 +982,15 @@ void Spectrum::loadDistances(const char *distancematrixname){
     m_detectorDistance[adnum-1][4]=l3*0.001;
     m_detectorDistance[adnum-1][5]=l4*0.001;
   }
-  
+
 }
 
-void Spectrum::loadBgSpecForToy(TString *accspecname, 
-                                const Char_t *li9specname, 
+void Spectrum::loadBgSpecForToy(TString *accspecname,
+                                const Char_t *li9specname,
                                 const Char_t *amcspecname,
                                 const Char_t *fnspecname,
                                 const Char_t *alnspecname){
-  
+
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
   TDirectory * dir = gDirectory;
@@ -1001,48 +1001,48 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
     accspec[istage] = new TFile(accspecname[istage].Data(),"READ");
     dir->cd();
     for(int idet=0;idet<Ndetectors;++idet){
-      
+
       sprintf(name,"h_accidental_eprompt_fine_inclusive_eh%d_ad%d",detConfigEH[idet],detConfigAD[idet]);
-      
+
       Char_t name2[1024];
       sprintf(name2,"CorrAccEvtsSpec_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
-      
+
       CorrAccEvtsSpec[istage][idet] = (TH1F*)accspec[istage]->Get(name)->Clone(name2);
-      
+
       //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
-      
+
     }
   }
-  
-  //-->I stopped here 
+
+  //-->I stopped here
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
-      
+
       for (Int_t ibin = 0; ibin < CorrAccEvtsSpec[istage][idet]->GetNbinsX();ibin++){
         CorrAccEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
       }
-      
+
       if (CorrAccEvtsSpec[istage][idet]->Integral() > 0)
         CorrAccEvtsSpec[istage][idet]->Scale(pred->tdper[istage].AccEvts[idet]/CorrAccEvtsSpec[istage][idet]->Integral());
     }
     accspec[istage]->Close();
   }
-  
+
   cout << "--> loaded accidental spectra" << endl;
-  
+
   //(li9/he8)
   TFile *li9spec = new TFile(li9specname,"READ");
   dir->cd();
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
-    
-      sprintf(name,"CorrLi9EvtsSpec_ad%d",idet);   
+
+      sprintf(name,"CorrLi9EvtsSpec_ad%d",idet);
       CorrLi9EvtsSpec[istage][idet] = (TH1F*)li9spec->Get("h_nominal")->Clone(name);
-    
+
       for (Int_t ibin = 0; ibin < CorrLi9EvtsSpec[istage][idet]->GetNbinsX();ibin++){
-        CorrLi9EvtsSpec[istage][idet]->SetBinError(ibin+1,0);        
+        CorrLi9EvtsSpec[istage][idet]->SetBinError(ibin+1,0);
       }
-    
+
       CorrLi9EvtsSpec[istage][idet]->Scale(pred->tdper[istage].Li9Evts[idet]/CorrLi9EvtsSpec[istage][idet]->Integral());
     }
   }
@@ -1057,40 +1057,40 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       sprintf(name,"CorrAmcEvtsSpec_ad%d",idet);
-      amcfunc = (TF1*)amcspec->Get("expo");  
+      amcfunc = (TF1*)amcspec->Get("expo");
       amcfunc->SetRange(0.7,9.0);
       CorrAmcEvtsSpec[istage][idet] = (TH1F*)CorrLi9EvtsSpec[istage][idet]->Clone(name);
-      CorrAmcEvtsSpec[istage][idet]->Reset();   
-      CorrAmcEvtsSpec[istage][idet]->Add(amcfunc);   
-      
-      //old 
+      CorrAmcEvtsSpec[istage][idet]->Reset();
+      CorrAmcEvtsSpec[istage][idet]->Add(amcfunc);
+
+      //old
       //CorrAmcEvtsSpec[idet] = (TH1F*)amcspec->Get("h_toy")->Clone(name);
-    
+
       for (Int_t ibin = 0; ibin < CorrAmcEvtsSpec[istage][idet]->GetNbinsX();ibin++){
-        CorrAmcEvtsSpec[istage][idet]->SetBinError(ibin+1,0);        
+        CorrAmcEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
       }
-    
+
       CorrAmcEvtsSpec[istage][idet]->Scale(pred->tdper[istage].AmcEvts[idet]/CorrAmcEvtsSpec[istage][idet]->Integral(1,CorrAmcEvtsSpec[istage][idet]->GetXaxis()->GetNbins()));
 
     }
   }
   amcspec->Close();
   cout << "--> loaded AmC spectra" << endl;
-  
+
   //(fn)
   TFile *fnspec = new TFile(fnspecname,"READ");
   dir->cd();
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
-    
-      sprintf(name,"CorrFnEvtsSpec_ad%d",idet);  
+
+      sprintf(name,"CorrFnEvtsSpec_ad%d",idet);
       Char_t nameFn[1024];
       sprintf(nameFn,"h_%dAD_fn_fine",idet+1);
- 
+
       CorrFnEvtsSpec[istage][idet] = (TH1F*)fnspec->Get(nameFn)->Clone(name);
-    
+
       for (Int_t ibin = 0; ibin < CorrFnEvtsSpec[istage][idet]->GetNbinsX();ibin++){
-        CorrFnEvtsSpec[istage][idet]->SetBinError(ibin+1,0);        
+        CorrFnEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
       }
       CorrFnEvtsSpec[istage][idet]->Scale(pred->tdper[istage].FnEvts[idet]/CorrFnEvtsSpec[istage][idet]->Integral());
     }
@@ -1104,17 +1104,17 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
   dir->cd();
 
   for(int istage=0;istage<Nstage;++istage){
-    for(int idet=0;idet<Ndetectors;++idet){   
-      
-      sprintf(name,"CorrAlnEvtsSpec_ad%d",idet); 
+    for(int idet=0;idet<Ndetectors;++idet){
+
+      sprintf(name,"CorrAlnEvtsSpec_ad%d",idet);
       CorrAlnEvtsSpec[istage][idet] = (TH1F*)CorrLi9EvtsSpec[istage][idet]->Clone(name);
       CorrAlnEvtsSpec[istage][idet]->Reset();
-          
+
       Char_t alnhistname[1024];
       sprintf(alnhistname,"AD%i;1",AlphaAD[idet]);//<-- the file has also a TCanvas with the same name (Ugly fix to use proper alpha-n)
-      
+
       TH1F *htemp = (TH1F*)alnspec->Get(alnhistname)->Clone(name);
-      
+
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
         //Only want spectrum if between 0.7 to 12 MeV
         if (htemp->GetXaxis()->GetBinCenter(ibin+1) > 0.7 && htemp->GetXaxis()->GetBinCenter(ibin+1) < 12.0)
@@ -1125,9 +1125,9 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
 
       //assign zero errors
       for (Int_t ibin = 0; ibin < CorrAlnEvtsSpec[istage][idet]->GetNbinsX();ibin++){
-        CorrAlnEvtsSpec[istage][idet]->SetBinError(ibin+1,0); 
+        CorrAlnEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
       }
-      
+
       CorrAlnEvtsSpec[istage][idet]->Scale(pred->tdper[istage].AlnEvts[idet]/CorrAlnEvtsSpec[istage][idet]->Integral());
     }
   }
@@ -1143,7 +1143,7 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
         * pred->tdper[istage].DMCEff[idet]
         * pred->tdper[istage].Livetime[idet]
         * pred->tdper[istage].TargetMass[idet]/pred->tdper[istage].TargetMass[0];
-    
+
       CorrAccEvtsSpec[istage][idet]->Scale(factor);
       CorrAmcEvtsSpec[istage][idet]->Scale(factor);
       CorrLi9EvtsSpec[istage][idet]->Scale(factor);
@@ -1168,12 +1168,12 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       m_energy_bkg[idet][idx] = (0.5+idx)*m_binWidthBkg+m_eMin;
     }
   }
-  
-  this->updateBgDetected();  
+
+  this->updateBgDetected();
 
 }//end of LoadBgSpec
 
-void Spectrum::setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag, 
+void Spectrum::setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag,
                                bool amc_flag, bool aln_flag){
   m_removeAccBg = acc_flag;
   m_removeLi9Bg = li9_flag;
@@ -1182,12 +1182,12 @@ void Spectrum::setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag,
   m_removeAlnBg = aln_flag;
 
   this->updateBgDetected();
-  
+
 }
 
 void Spectrum::updateBgDetected(){
 
-  //Make a temporary copy of bg histograms which will have the fluctuations (do not forget to delete or will have memory leak!) 
+  //Make a temporary copy of bg histograms which will have the fluctuations (do not forget to delete or will have memory leak!)
   TH1F *CopyAccEvtsSpec[Nstage][Ndetectors];
   TH1F *CopyAmcEvtsSpec[Nstage][Ndetectors];
   TH1F *CopyAlnEvtsSpec[Nstage][Ndetectors];
@@ -1209,7 +1209,7 @@ void Spectrum::updateBgDetected(){
     }
   }
   // ****************************************************
-  // Variation (i.e. scale whole bg spectra up/down by systematic error) 
+  // Variation (i.e. scale whole bg spectra up/down by systematic error)
   // ****************************************************
   //define and initialize
   double scale_factor_acc[Nstage][Ndetectors];
@@ -1225,25 +1225,25 @@ void Spectrum::updateBgDetected(){
       scale_factor_amc[istage][idet]=1;
       scale_factor_li9[istage][idet]=1;
       scale_factor_fn[istage][idet]=1;
-      scale_factor_aln[istage][idet]=1;    
+      scale_factor_aln[istage][idet]=1;
     }
   }
   // Fluctuate each background depending on how it makes the most sense
   // 1) For accidentals, fluctuate each AD independenlty
   // 2) For li9 and fn, fluctuate ADs in same site with same factor
-  // 3) For amc, fluctuate all ADs in a correlated way 
-  // 4) For alpha-n, for now fluctuating all ADs independently 
+  // 3) For amc, fluctuate all ADs in a correlated way
+  // 4) For alpha-n, for now fluctuating all ADs independently
 
   //Accidental and alpha-n are entirely uncorrelated
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
-      if(m_varyAccBg>0){     
+      if(m_varyAccBg>0){
         if(pred->tdper[istage].AccEvts[idet]>0)
           scale_factor_acc[istage][idet]=(1+pred->tdper[istage].AccErr[idet]*1./pred->tdper[istage].AccEvts[idet]*ran->Gaus(0,1));
         else
           scale_factor_acc[istage][idet]=0;
       }
-     
+
       if(m_varyAlnBg>0){
         if(pred->tdper[istage].AlnEvts[idet]>0)
           scale_factor_aln[istage][idet]=(1+pred->tdper[istage].AlnErr[idet]*1./pred->tdper[istage].AlnEvts[idet]*ran->Gaus(0,1));
@@ -1252,7 +1252,7 @@ void Spectrum::updateBgDetected(){
       }
     }
   }
- 
+
   //amc are treated completely correlated
   corr_random[0] = ran->Gaus(0,1);
   for(int istage=0;istage<Nstage;++istage){
@@ -1281,27 +1281,27 @@ void Spectrum::updateBgDetected(){
       }
     }
   }
- 
+
   //fn are correlated between detectors in the same hall
   for (int ihall=0;ihall<Nhalls;++ihall){
     corr_random[ihall] = ran->Gaus(0,1);
   }
- 
+
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       if(m_varyFnBg>0){
         if(pred->tdper[istage].FnEvts[idet]>0)
           scale_factor_fn[istage][idet]=(1+pred->tdper[istage].FnErr[idet]*1./pred->tdper[istage].FnEvts[idet]*corr_random[detConfigEH[idet]-1]);
         else
-          scale_factor_fn[istage][idet]=0;	
+          scale_factor_fn[istage][idet]=0;
       }
     }
   }
- 
+
   // force set background contribution to 0 if the flag is set
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
-    
+
       if (m_removeAccBg)
         scale_factor_acc[istage][idet] = 0;
       if (m_removeAlnBg)
@@ -1312,13 +1312,13 @@ void Spectrum::updateBgDetected(){
         scale_factor_li9[istage][idet] = 0;
       if (m_removeFnBg)
         scale_factor_fn[istage][idet] = 0;
-     
+
     }
   }
 
   // *******************************************************
   // Distortion (i.e. distorting shape without affecting rate)
-  // concerning correlations: 
+  // concerning correlations:
   // - accidentals: fluctuate shape of all ADs together
   // - amc: fluctuate shape of all ADs together
   // - li9: fluctuate shape of all ADs together
@@ -1347,7 +1347,7 @@ void Spectrum::updateBgDetected(){
         CopyAmcEvtsSpec[istage][idet]->Add(amccopy);
         if (CopyAmcEvtsSpec[istage][idet]->Integral() > 0)
           CopyAmcEvtsSpec[istage][idet]->Scale(CorrAmcEvtsSpec[istage][idet]->Integral()*1./CopyAmcEvtsSpec[istage][idet]->Integral());
-	
+
       }
     }
     delete amccopy;
@@ -1358,10 +1358,10 @@ void Spectrum::updateBgDetected(){
     m_tree_distortLi9Bg->GetEntry(ientry);
 
     TH1F * func_li = (TH1F*)m_func_distortLi9Bg->Clone();
-   
-    for(int istage=0;istage<Nstage;++istage){   
+
+    for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
-	
+
         CopyLi9EvtsSpec[istage][idet]->Multiply(func_li);
         if (CopyLi9EvtsSpec[istage][idet]->Integral() > 0)
           CopyLi9EvtsSpec[istage][idet]->Scale(CorrLi9EvtsSpec[istage][idet]->Integral()*1./CopyLi9EvtsSpec[istage][idet]->Integral());
@@ -1414,8 +1414,8 @@ void Spectrum::updateBgDetected(){
     }
     delete func_aln;
   }
-  
-  
+
+
   // ********************************************************
   // Returning the bg spectra
   // ********************************************************
@@ -1428,9 +1428,9 @@ void Spectrum::updateBgDetected(){
         m_bgDetectedSpectrum[istage][idet][ibin]+=scale_factor_amc[istage][idet]*CopyAmcEvtsSpec[istage][idet]->GetBinContent(ibin+1);
         m_bgDetectedSpectrum[istage][idet][ibin]+=scale_factor_li9[istage][idet]*CopyLi9EvtsSpec[istage][idet]->GetBinContent(ibin+1);
         m_bgDetectedSpectrum[istage][idet][ibin]+=scale_factor_fn[istage][idet]*CopyFnEvtsSpec[istage][idet]->GetBinContent(ibin+1);
-        m_bgDetectedSpectrum[istage][idet][ibin]+=scale_factor_aln[istage][idet]*CopyAlnEvtsSpec[istage][idet]->GetBinContent(ibin+1);     
+        m_bgDetectedSpectrum[istage][idet][ibin]+=scale_factor_aln[istage][idet]*CopyAlnEvtsSpec[istage][idet]->GetBinContent(ibin+1);
       }
-      
+
       delete CopyAccEvtsSpec[istage][idet];
       delete CopyAmcEvtsSpec[istage][idet];
       delete CopyLi9EvtsSpec[istage][idet];
@@ -1438,8 +1438,8 @@ void Spectrum::updateBgDetected(){
       delete CopyAlnEvtsSpec[istage][idet];
     }
   }
-  
-  if (m_statisticalFluctuation){ 
+
+  if (m_statisticalFluctuation){
     for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
         for(int ibin=0;ibin<m_nSamplesBkg;++ibin){
@@ -1450,8 +1450,8 @@ void Spectrum::updateBgDetected(){
       }
     }
   }
-  
-  
+
+
 }
 
 
@@ -1486,17 +1486,17 @@ void Spectrum::loadIavCorrection(const char *iavcorrectionname){
     }
   }
   f->Close();
-  
+
   /*Remove IAV here
     for(int i=0;i<240;i++){ // i: true positron energy bin; j: distorted energy bin
     for(int j=0;j<i+1-11;j++){
 
     m_iav_corr_orig[i][j] = 0;
- 
+
     }
 
     }*/
-  
+
   Double_t rescale_fac = 240.0/(Double_t)m_nSamples;
 
   // rescale IAV correction into finer binning
@@ -1514,11 +1514,11 @@ void Spectrum::loadIavCorrection(const char *iavcorrectionname){
       }
     }
   }
-  
+
   for(int idet=0;idet<Ndetectors;idet++){
     for(int i=0;i<m_nSamples;i++){ // i: true positron energy bin; j: distorted energy bin
       m_iav_frac[idet][i] = m_nominal_iav_frac[i];
-      for(int j=0;j<m_nSamples;j++){ 
+      for(int j=0;j<m_nSamples;j++){
         m_iav_corr[idet][i][j] = m_nominal_iav_corr[i][j];
       }
     }
@@ -1551,62 +1551,62 @@ void Spectrum::initialize(DataSet* data)
   if (m_useAbInitioSpectra > 0)
     UseChristineModel = false;
 
-  
+
   if (UseChristineModel){
     Bool_t decomp_result;
     for (Int_t istage=0;istage<Nstage;++istage){
       m_corespectrum[istage] = new CoreSpectrum();
-      
+
       if(istage==0){ //Load 6AD Spectrum
         decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 6),
                                                             reactor_covmatrix_filename);
-      } 
+      }
       if(istage==1){ //Load 8AD Spectrum
         decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 8),
                                                             reactor_covmatrix_filename);
       }
-        
+
       if(istage==2){ //Load 7AD Spectrum
         decomp_result = m_corespectrum[istage]->loadSpectra(Form(reactor_spectrum_filename_template, 7),
                                                             reactor_covmatrix_filename);
       }
-      
+
 
       if (!decomp_result){
         cout << "Failed to load flux matrix! Exiting" << endl;
         exit(0);
       }
 
-      
+
       m_corespectrum[istage]->loadCrossSectionTable(data->getString("crossSectionFilename"));
 
       // YN: Reading BCW flux uncertainty
-      
+
       if (m_useBcwFluxUncertainty > 0){
 
         cout << "Loading BCW flux covariance matrix at "
              << bcw_flux_filename
              << endl;
-        Bool_t decomp_result_bcw 
+        Bool_t decomp_result_bcw
           = m_corespectrum[istage]->loadCovMatrixBCW(bcw_flux_filename);
         if (!decomp_result_bcw){
           cout << "Failed to load BCW flux matrix! Exiting" << endl;
           exit(0);
         }
       }
-      
+
     }
-    
+
   }else if (m_useAbInitioSpectra){
     for (Int_t istage=0;istage<Nstage;++istage){
       m_corespectrum[istage] = new CoreSpectrum();
       m_corespectrum[istage] ->loadAbInitioSpectra(abinitio_spectra_filename);
       m_corespectrum[istage]->loadCrossSectionTable(data->getString("crossSectionFilename"));
     }
-  }    
-  
-  
-  /*else{   
+  }
+
+
+  /*else{
     for (Int_t istage=0;istage<Nstage;++istage){
     for (int icore = 0; icore < Ncores; icore++){
     m_isotopes[istage][icore] = new IsotopeTable();
@@ -1616,7 +1616,7 @@ void Spectrum::initialize(DataSet* data)
     }
     }
     }*/
-  
+
   m_eMin = data->getDouble("minimumEnergy");
   m_eMax = data->getDouble("maximumEnergy");
   m_nSamples = int(data->getDouble("nSpectrumSamples"));
@@ -1645,25 +1645,25 @@ void Spectrum::initialize(DataSet* data)
   }
 
   // FIXME: hard_coded energy offset uncertainty (currently, set to 0.08 MeV)
-  m_abs_eoffset = 0.0; 
+  m_abs_eoffset = 0.0;
   m_abs_eoffset_error = 0.08; //  (MeV)
 
   for (Int_t istage=0;istage<Nstage;++istage){
     for (Int_t idet = 0; idet < Ndetectors; idet++){
-      m_rel_eoffset[istage][idet] = 0.0; 
+      m_rel_eoffset[istage][idet] = 0.0;
     }
   }
   m_rel_eoffset_error = 0.013; //  (MeV)
 
-  
+
   m_iav_error = data->getDouble("detectorIavThicknessError");
-  
+
   m_detectorResolution = data->getDouble("detectorResolution")/100.; // Pct
   m_detectorResolution_error = data->getDouble("detectorResolutionError")/100.; //Pct
   m_detectorResolution_error_uncorr = data->getDouble("detectorResolutionErrorUncorr")/100.; //Pct
 
   m_detectorResolution_nominal = m_detectorResolution;
-  
+
   // m_detectorEfficiency = data->getDouble("detectorEfficiency");
   // m_runningTime = data->getDouble("runningTime");
   // m_detectorSize = data->getDouble("detectorSize");
@@ -1689,7 +1689,7 @@ void Spectrum::initialize(DataSet* data)
 
   m_randomizeSolarOscPars = data->getDouble("randomizeSolarOscPars");
   m_randomizeDm2ee = data->getDouble("randomizeDm2ee");
-  
+
   m_randomizeIsotopeFraction = data->getDouble("randomizeIsotopeFraction");
   m_randomizeReactorPower = data->getDouble("randomizeReactorPower");
   m_randomizeIavDistortion = data->getDouble("randomizeIavDistortion");
@@ -1727,7 +1727,7 @@ void Spectrum::initialize(DataSet* data)
   m_distortAlnBg = data->getDouble("distortAlnBg");
 
   m_statisticalFluctuation =  data->getDouble("statisticalFluctuation");
-  
+
   m_useIhepNonLinearModel = data->getDouble("useIhepNonLinearModel");
 
   m_useBcwNonLinearModel = data->getDouble("useBcwNonLinearModel");
@@ -1740,7 +1740,7 @@ void Spectrum::initialize(DataSet* data)
 
   m_correlateUnifiedNonlinearPars = data->getDouble("correlateUnifiedNonlinearPars");
 
-  
+
   m_osccalc->SetDeltaM2_ee(m_deltaMSqee);
   m_osccalc->SetDeltaM2_21(m_deltaMSq21);
   //  m_osccalc->SetTheta13(TMath::ASin(sqrt(m_sinSq2Th13))*0.5);
@@ -1751,9 +1751,9 @@ void Spectrum::initialize(DataSet* data)
 
 
 
-  
 
-  if (m_useIhepNonLinearModel > 0){ 
+
+  if (m_useIhepNonLinearModel > 0){
     cout << "Using IHEP non-linearity model." << endl;
 
 
@@ -1768,7 +1768,7 @@ void Spectrum::initialize(DataSet* data)
     m_ihep_nl_par_nominal[2] = 1.81;
     m_ihep_nl_par_nominal[3] = 0.0000;
     m_ihep_nl_par_nominal[4] = 0.933; // magic factor for 0.511 MeV gamma non-linearlity factor, read from Soren's slides
-  
+
     // parameter for the peak charge
     // m_ihep_nl_par_nominal[0] = 1.078;
     // m_ihep_nl_par_nominal[1] = 0.24;
@@ -1783,7 +1783,7 @@ void Spectrum::initialize(DataSet* data)
     m_ihep_nl_par_error[4] = 0.01;  // from 68Ge energy scale uncertainty
 
     // hard-coded covariance matrix for IHEP non-linear model.
-  
+
     for (Int_t i = 0; i < 5; i++){
       for (Int_t j = 0; j < 5; j++){
         if (i == j)
@@ -1796,20 +1796,20 @@ void Spectrum::initialize(DataSet* data)
     m_ihep_nl_par_covmatrix[1][2] = 1/sqrt(2);
     m_ihep_nl_par_covmatrix[2][1] = 1/sqrt(2); // manually put the covariance between p1 and p2
 
-  
+
     TMatrixD covmatrix(5,5,&m_ihep_nl_par_covmatrix[0][0]);
 
     // cout << "Covariance matrix for IHEP non-liner parameters:" << endl;
     // covmatrix.Print();
-  
+
     TDecompChol chol(covmatrix);
     chol.Decompose();
-  
+
     TMatrixD cmat(chol.GetU());
     //  cmat.Print();
     TMatrixD tcmat(cmat.Transpose(cmat));
     // std::cout << "Cholesky matrix---------" << std::endl;
-    // tcmat.Print();      
+    // tcmat.Print();
 
     double * tmp_matrix = tcmat.GetMatrixArray();
 
@@ -1821,8 +1821,8 @@ void Spectrum::initialize(DataSet* data)
       //    cout << endl;
     }
 
-  
-  
+
+
     for (Int_t i = 0; i < 5; i++){
       m_ihep_nl_par[i] = m_ihep_nl_par_nominal[i];
     }
@@ -1842,29 +1842,29 @@ void Spectrum::initialize(DataSet* data)
 
   }else if  (m_useBcwNonLinearModel > 0){
     cout << "Using BCW non-linearity model." << endl;
-    
+
     ///////////////////////////////////////////////////////////////////
-    
+
     /// Settting for the new BCW non-linearity function. Feb. 20, 2013
     /// Updated to the new BCW model (Mar.26, 2013)
     /// Further updated to the "final" BCW model (Apr. 1, 2013)
-    
-    
+
+
     ifstream bcw_positron_data(bcw_positron_data_filename);
-    
+
     for (Int_t i = 0; i < n_bcw_positron_nl; i++){
       bcw_positron_data >> m_bcw_positron_nl_e[i] >> m_bcw_positron_nl_fac[i];
     }
     bcw_positron_data.close();
-    
+
     ifstream bcw_elec_data(bcw_elec_data_filename);
-    
+
     for (Int_t i = 0; i < 3; i++){
       bcw_elec_data >> m_bcw_elec_nl_par_nominal[i]  >> m_bcw_elec_nl_par_error[i];
       m_bcw_elec_nl_par[i] = m_bcw_elec_nl_par_nominal[i];
     }
     bcw_elec_data.close();
-    
+
     TFile *bcw_ele_err_file = new TFile(bcw_ele_err_filename);
     g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
     g_bcw_elec_nl_error[1] = (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
@@ -1874,10 +1874,10 @@ void Spectrum::initialize(DataSet* data)
       m_bcw_elec_nl_par[i] = m_bcw_elec_nl_par_nominal[i];
       m_bcw_elec_nl_par_error[i] = 1;
     }
-  
+
 
     ///////////// End of BCW non-linear parameter setting //////////////////
-    
+
 
     nl_func = new TF1("nl_func",this,&Spectrum::nl_func_bcw,0,12,7,"Spectrum","nl_func_bcw");
     nl_func->SetParameters(m_bcw_elec_nl_par[0],
@@ -1888,22 +1888,22 @@ void Spectrum::initialize(DataSet* data)
                            1.0,
                            0.0);
 
-    
+
   }else if  (m_useLbnlNonLinearModel > 0){
     cout << "Using LBNL non-linearity model." << endl;
 
 
 
     /// Settting for the LBNL non-linearity function. Mar. 24, 2013
-    
+
     ifstream lbnl_positron_data(lbnl_positron_data_filename);
     if (!lbnl_positron_data.is_open()) {
       cout << "Error: cannot find LBNL non-linearity curve!!!" << endl;
       exit(0);
     }
-    
+
     Double_t total_err;
-    
+
     for (Int_t i = 0; i < 300; i++){
       lbnl_positron_data >> m_lbnl_positron_nl_e[i] >> m_lbnl_positron_nl_fac[i] >> total_err
                          >> m_lbnl_positron_nl_err[0][i]
@@ -1919,10 +1919,10 @@ void Spectrum::initialize(DataSet* data)
       m_lbnl_nl_par_nominal[i] = 0;
       m_lbnl_nl_par_error[i] = 1.0;
     }
-    
+
     ///////////// End of LBNL non-linear parameter setting //////////////////
 
-    
+
     nl_func = new TF1("nl_func",nl_func_lbnl,0,12,5);
     nl_func->SetParameters(m_lbnl_nl_par[0],
                            m_lbnl_nl_par[1],
@@ -1936,22 +1936,22 @@ void Spectrum::initialize(DataSet* data)
       cout << "Using UNIFIED non-linearity model." << endl;
     else
       cout << "Using UNIFIED non-linearity model (2015 update)." << endl;
-    
-    
-    
-    
+
+
+
+
     /// Settting for the unified Non-linearity model summarized by Soeren.
-    
-    
+
+
     TString unified_nl_filename;
-    
+
     m_num_unified_nl_pars = 4; // 5 marginal curves in the final inflated model
-    
+
     TString nominal_graph_name;
     //    TString pull_graph_name[m_num_unified_nl_pars];
     TString pull_graph_name[10];
-    
-    
+
+
     if (m_use2015NonLinearModel > 0){
       unified_nl_filename = unified_nl_2015_filename;
       nominal_graph_name = "nominal";
@@ -1965,8 +1965,8 @@ void Spectrum::initialize(DataSet* data)
         pull_graph_name[i] = Form("positron_%d",i+1);
       }
     }
-    
-  
+
+
     for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
       m_unified_nl_par[i] = 0.0;
       m_unified_nl_par_nominal[i] = 0.0;
@@ -2002,7 +2002,7 @@ void Spectrum::initialize(DataSet* data)
     }
 
 
-    
+
     nl_func = new TF1("nl_func",this,&Spectrum::nl_func_unified,0,12,m_num_unified_nl_pars+2,"Spectrum","nl_func_unified");
 
     for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
@@ -2012,13 +2012,13 @@ void Spectrum::initialize(DataSet* data)
     for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
       nl_func->SetParameter(i,m_unified_nl_par[i]);
     }
-    
+
     nl_func->SetParameter(m_num_unified_nl_pars, 1.0);
     nl_func->SetParameter(m_num_unified_nl_pars+1, 0.0);
 
 
     TMatrixD covmatrix_unified(10,10);
-    
+
     //Read covariance matrix
     if (m_correlateUnifiedNonlinearPars){
       TFile * f_covmatrix = new TFile(data->getString("NonlinearCovmatrixFilename"));
@@ -2039,23 +2039,23 @@ void Spectrum::initialize(DataSet* data)
         }
       }
     }
-    
+
     covmatrix_unified.SetMatrixArray(&m_unified_nl_par_covmatrix[0][0]);
     covmatrix_unified.ResizeTo(m_num_unified_nl_pars,m_num_unified_nl_pars);
     cout << "Covariance matrix for UNIFIED non-liner parameters:" << endl;
     covmatrix_unified.Print();
-    
+
     TDecompChol chol_unified(covmatrix_unified);
     chol_unified.Decompose();
-    
+
     TMatrixD cmat_unified(chol_unified.GetU());
     //  cmat.Print();
     TMatrixD tcmat_unified(cmat_unified.Transpose(cmat_unified));
     // std::cout << "Cholesky matrix---------" << std::endl;
-    // tcmat.Print();      
-    
+    // tcmat.Print();
+
     double * tmp_matrix_unified = tcmat_unified.GetMatrixArray();
-    
+
     for (int i = 0; i < m_num_unified_nl_pars; i++){
       for (int j = 0; j < m_num_unified_nl_pars; j++){
         m_unified_nl_par_covmatrix_l[i][j] = tmp_matrix_unified[i*m_num_unified_nl_pars + j];
@@ -2063,14 +2063,14 @@ void Spectrum::initialize(DataSet* data)
       }
       //    cout << endl;
     }
-     
+
     // for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
     //   m_unified_nl_par[i] = m_unified_nl_par_nominal[i];
     // }
-     
+
   }
 
-  
+
   this->updateAntinu();
 }
 
@@ -2085,16 +2085,16 @@ void Spectrum::rebin(int nCombine)
           m_antiNuSpectrum[istage][idet][newBinIdx] = m_antiNuSpectrum[istage][idet][idx]/nCombine;
           m_positronIavDistortedSpectrum[istage][idet][newBinIdx] = m_positronIavDistortedSpectrum[istage][idet][idx]/nCombine;
           m_positronNLSpectrum[istage][idet][newBinIdx] = m_positronNLSpectrum[istage][idet][idx]/nCombine;
-          m_positronDetectedSpectrum[istage][idet][newBinIdx] = 
+          m_positronDetectedSpectrum[istage][idet][newBinIdx] =
             m_positronDetectedSpectrum[istage][idet][idx]/nCombine;
         }else{
           m_antiNuSpectrum[istage][idet][newBinIdx] += m_antiNuSpectrum[istage][idet][idx]/nCombine;
           m_positronTrueSpectrum[istage][idet][newBinIdx] += m_positronTrueSpectrum[istage][idet][idx]/nCombine;
           m_positronIavDistortedSpectrum[istage][idet][newBinIdx] += m_positronIavDistortedSpectrum[istage][idet][idx]/nCombine;
           m_positronNLSpectrum[istage][idet][newBinIdx] += m_positronNLSpectrum[istage][idet][idx]/nCombine;
-          m_positronDetectedSpectrum[istage][idet][newBinIdx] += 
+          m_positronDetectedSpectrum[istage][idet][newBinIdx] +=
             m_positronDetectedSpectrum[istage][idet][idx]/nCombine;
-        
+
         }
       }
     }
@@ -2121,20 +2121,20 @@ void Spectrum::rebin(int nCombine)
 // }
 
 
-void Spectrum::passPredictor(Predictor* pred_in) 
-{ 
+void Spectrum::passPredictor(Predictor* pred_in)
+{
   pred=pred_in;
   this->extractPredictorData();
-} 
+}
 
 void Spectrum::extractPredictorData()
 {
   for(int istage=0;istage<Nstage;istage++){
     for(int idet=0;idet<Ndetectors;idet++){
-      
+
       m_runningTime[istage][idet]=pred->tdper[istage].Livetime[idet]*1./365; //convert from days to years
       m_detectorSize[idet]=pred->tdper[istage].TargetMass[idet]*1e-6;//convert from kg to ktons
-      
+
       m_detectorEfficiency[istage][idet] = pred->tdper[istage].DMCEff[idet]*pred->tdper[istage].MuonVetoEff[idet];
       m_detectorEfficiency[istage][idet]
         *= m_detectorEfficiency_Dt
@@ -2156,7 +2156,7 @@ void Spectrum::setRandomSeed(unsigned int i)
       m_corespectrum[istage]->setRandomSeed(i+100000);
   }/*else{
      for (int icore = 0; icore < Ncores; icore++){
-     m_isotopes[icore]->setRandomSeed(i+100000); // set same random seeds for all cores since variation of the fission fraction are correlated between ADs for the first order 
+     m_isotopes[icore]->setRandomSeed(i+100000); // set same random seeds for all cores since variation of the fission fraction are correlated between ADs for the first order
      }
      }*/
   ran->SetSeed(i);
@@ -2179,7 +2179,7 @@ void Spectrum::setRandomIavDistortion()
   for(int idet=0;idet<Ndetectors;idet++){
     factor[idet] = 1. + m_iav_error * ran->Gaus(0,1);
   }
-  
+
   for(int idet=0;idet<Ndetectors;idet++){
     for(int idx=0; idx<m_nSamples; idx++){
       m_iav_frac[idet][idx] = factor[idet] * m_nominal_iav_frac[idx];
@@ -2188,7 +2188,7 @@ void Spectrum::setRandomIavDistortion()
         if (idx != jdx){
           m_iav_corr[idet][idx][jdx] = factor[idet]* m_nominal_iav_corr[idx][jdx];
         }
-        
+
       }
     }
 
@@ -2202,7 +2202,7 @@ void Spectrum::setRandomIavDistortion()
     // }
   }
 
-  
+
 }
 
 
@@ -2218,7 +2218,7 @@ void Spectrum::setRandomIhepScintiNonLinear()
     bool ParSetOK = true;
     Double_t ranvec_uniform[5];
     Double_t ranvec[5];
-    
+
     for (Int_t i = 0; i < 5; i++){
       ranvec_uniform[i] = ran->Gaus(0,1);
     }
@@ -2236,7 +2236,7 @@ void Spectrum::setRandomIhepScintiNonLinear()
     //   = m_ihep_nl_par_nominal[2]
     //   + (m_ihep_nl_par[1] - m_ihep_nl_par_nominal[1])
     //   * m_ihep_nl_par_error[2]/m_ihep_nl_par_error[1]; // assume p1 and p2 are 100% correlated
-    
+
     if (m_ihep_nl_par[1] < 0 || m_ihep_nl_par[2] < 0){
       ParSetOK = false;
       cout << "Found a negative parameter for IHEP non-linearlity function. Regenerating a random parameter set...." << endl;
@@ -2249,7 +2249,7 @@ void Spectrum::setRandomIhepScintiNonLinear()
   // for (Int_t i = 0; i < 5; i++)
   //   cout << "\t" << m_ihep_nl_par[i] ;
   // cout << endl;
-  
+
 }
 
 void Spectrum::setRandomBcwScintiNonLinear()
@@ -2260,7 +2260,7 @@ void Spectrum::setRandomBcwScintiNonLinear()
     bool ParSetOK = true;
     // Double_t ranvec_uniform[5];
     // Double_t ranvec[5];
-    
+
     // for (Int_t i = 0; i < 5; i++){
     //   ranvec_uniform[i] = ran->Gaus(0,1);
     // }
@@ -2274,7 +2274,7 @@ void Spectrum::setRandomBcwScintiNonLinear()
     //   m_bcw_nl_par[i] = m_bcw_nl_par_nominal[i] + m_bcw_nl_par_error[i] * ranvec[i];
 
     // }
-    
+
     // // if (m_bcw_nl_par[1] < 0 || m_bcw_nl_par[2] < 0){
     // //   ParSetOK = false;
     // //   cout << "Found a negative parameter for BCW non-linearlity function. Regenerating a random parameter set...." << endl;
@@ -2287,7 +2287,7 @@ void Spectrum::setRandomBcwScintiNonLinear()
   }
 
 
-  
+
 }
 
 void Spectrum::setRandomLbnlScintiNonLinear()
@@ -2302,7 +2302,7 @@ void Spectrum::setRandomUnifiedScintiNonLinear()
 
   Double_t ranvec_uniform[m_num_unified_nl_pars];
   Double_t ranvec[m_num_unified_nl_pars];
-    
+
   for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
     ranvec_uniform[i] = ran->Gaus(0,1);
   }
@@ -2316,11 +2316,11 @@ void Spectrum::setRandomUnifiedScintiNonLinear()
     m_unified_nl_par[i] = m_unified_nl_par_nominal[i] + m_unified_nl_par_error[i] * ranvec[i];
 
   }
-    
+
   // for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
   //   m_unified_nl_par[i] = m_unified_nl_par_nominal[i] + m_unified_nl_par_error[i] * ran->Gaus(0,1);
   // }
-  
+
 }
 
 
@@ -2341,13 +2341,13 @@ void Spectrum::setRandomResolution()
 }
 
 void Spectrum::setRandomDetectorEfficiency(){
-  
-  
+
+
   for(int idet=0;idet<Ndetectors;idet++){
-    
+
     //Ensures the same detector gets the same efficiency over different periods
     Double_t ran_det_eff = (1 + m_detectorEfficiency_rel_error * ran->Gaus(0,1));
-    
+
     for(int istage=0;istage<Nstage;istage++){
       m_detectorEfficiency[istage][idet] = ran_det_eff
         * pred->tdper[istage].DMCEff[idet]
@@ -2368,11 +2368,11 @@ void Spectrum::setRandomRelativeEnergyScale()
   for(int idet=0;idet<Ndetectors;idet++){
     double rel_escale_shift = m_rel_escale_error[idet] * ran->Gaus(0,1);
     m_rel_escale[idet] = m_rel_escale_nominal[idet] + rel_escale_shift;
-    
+
     // recalculate detection efficiency
     m_detectorEfficiency_Ed[idet] = m_detectorEfficiency_Ed_nominal*(1.0 + rel_escale_shift * 0.36); // 0.36 is a magic factor that convert energy scale shift to delayed energy cut efficiency (0.072/0.2) in DocDB-10956
-    
-    for(int istage=0;istage<Nstage;istage++){ 
+
+    for(int istage=0;istage<Nstage;istage++){
       m_detectorEfficiency[istage][idet]
         = pred->tdper[istage].DMCEff[idet]
         * pred->tdper[istage].MuonVetoEff[idet]
@@ -2389,7 +2389,7 @@ void Spectrum::setRandomRelativeEnergyScale()
 void Spectrum::setRandomAbsoluteEnergyScale()
 {
   m_abs_escale = m_abs_escale_nominal + m_abs_escale_error * ran->Gaus(0,1);
-  
+
 }
 
 
@@ -2416,7 +2416,7 @@ TF1* Spectrum::getDistortionCurve(double amount)
   ran->SetSeed(0);
   double slope=amount*ran->Gaus(0,1);
   double anchor_point=3.5;
-  //want offset to be set by requiring func @ anchor point to be 1 
+  //want offset to be set by requiring func @ anchor point to be 1
   double offset=(1-slope*anchor_point);
   func->SetParameter(0,offset);
   func->SetParameter(1,slope);
@@ -2433,7 +2433,7 @@ TF1* Spectrum::getFNDistortionCurve(double amount)
   func->SetParameter(1,0);
   //set offset so that ira func(m_eMax)=1;
   func->SetParameter(1,1-1*func->Eval(m_eMax));
-  
+
   return func;
 }
 
@@ -2444,7 +2444,7 @@ Double_t nl_func_ihep(Double_t * x, Double_t * par){
 
   Double_t nl_fac_511 = par[4]; // magic factor read from Soren's slides
 
-  
+
   // if e_true  < 0, assume e_true = 0 and calculate non-linearlity factor
   // Then apply to the true positron + gamma energy
   // this is needed since true energy sometimes become below 0 after Iav correction.
@@ -2452,7 +2452,7 @@ Double_t nl_func_ihep(Double_t * x, Double_t * par){
   if (e_true < 0){
     e_true = 0;
   }
-  
+
   Double_t e_nonlinear_fac
     = ((par[0] + par[3]*e_true)/(1+par[1]*exp(-par[2]*e_true))*e_true + 1.022*nl_fac_511)
     / (e_true + 1.022);
@@ -2535,21 +2535,21 @@ Double_t Spectrum::nl_func_bcw(Double_t * x, Double_t * par){
   double escale_offset = par[6]; // Add fixed energy offset
 
   double scinti_nl_fac = 1;
-  if (e_positron_true < m_bcw_positron_nl_e[0]) 
+  if (e_positron_true < m_bcw_positron_nl_e[0])
     scinti_nl_fac = m_bcw_positron_nl_fac[0];
-  else if (e_positron_true > m_bcw_positron_nl_e[n_bcw_positron_nl-1]) 
+  else if (e_positron_true > m_bcw_positron_nl_e[n_bcw_positron_nl-1])
     scinti_nl_fac = m_bcw_positron_nl_fac[n_bcw_positron_nl-1];
   else{
     for (Int_t i = 0; i < n_bcw_positron_nl-1; i++){
       if (e_positron_true >= m_bcw_positron_nl_e[i] && e_positron_true < m_bcw_positron_nl_e[i+1]){
-        scinti_nl_fac 
+        scinti_nl_fac
           = ((m_bcw_positron_nl_e[i+1] - e_positron_true)*m_bcw_positron_nl_fac[i]
              + (e_positron_true - m_bcw_positron_nl_e[i])*m_bcw_positron_nl_fac[i+1])
           / (m_bcw_positron_nl_e[i+1] - m_bcw_positron_nl_e[i]);
         break;
       }
     }
-    
+
   }
 
   double visibleE = scinti_nl_fac * e_positron_true;
@@ -2567,25 +2567,25 @@ Double_t Spectrum::nl_func_bcw(Double_t * x, Double_t * par){
   double par4_up = 0;
   double par4_down = 0;
   if (visibleE > elec_err_min_x){
-    par4_up 
-      = g_bcw_elec_nl_error[0]->Eval(visibleE) 
+    par4_up
+      = g_bcw_elec_nl_error[0]->Eval(visibleE)
       - g_bcw_elec_nl_error[0]->Eval(elec_err_min_x);
-    par4_down 
-      = g_bcw_elec_nl_error[1]->Eval(visibleE) 
+    par4_down
+      = g_bcw_elec_nl_error[1]->Eval(visibleE)
       - g_bcw_elec_nl_error[1]->Eval(elec_err_min_x);
   }else{
-    par4_up 
-      = g_bcw_elec_nl_error[1]->Eval(visibleE) 
+    par4_up
+      = g_bcw_elec_nl_error[1]->Eval(visibleE)
       - g_bcw_elec_nl_error[1]->Eval(elec_err_min_x);
-    par4_down 
-      = g_bcw_elec_nl_error[0]->Eval(visibleE) 
+    par4_down
+      = g_bcw_elec_nl_error[0]->Eval(visibleE)
       - g_bcw_elec_nl_error[0]->Eval(elec_err_min_x);
   }
   if (par[4] > 0) err_shift = par[4]*par4_up;
   else err_shift = par[4]*par4_down;
 
   double electronicsCorrection = exp(par[0] + par[1] * visibleE) + par[2] + err_offset + err_shift;
-  
+
   double final_energy =  visibleE * electronicsCorrection * escale_par + escale_offset;
 
   return final_energy;
@@ -2595,7 +2595,7 @@ Double_t Spectrum::nl_func_bcw(Double_t * x, Double_t * par){
 
 // LBNL non-linearityr function, based on beta-gamma spectra
 Double_t nl_func_lbnl(Double_t * x, Double_t * par){
-  
+
   //par[0]: flat energy scale shift for electron
   //par[1]: size of energy scale shift propotional to exp(-1.5*eVis) for electron
   //par[2]: size of energy scale shift due to Ge68 calibration point
@@ -2621,12 +2621,12 @@ Double_t nl_func_lbnl(Double_t * x, Double_t * par){
   }else{
     for (Int_t i = 0; i < 299; i++){
       if (e_positron_true >= m_lbnl_positron_nl_e[i] && e_positron_true < m_lbnl_positron_nl_e[i+1]){
-        scinti_nl_fac 
+        scinti_nl_fac
           = ((m_lbnl_positron_nl_e[i+1] - e_positron_true)*m_lbnl_positron_nl_fac[i]
              + (e_positron_true - m_lbnl_positron_nl_e[i])*m_lbnl_positron_nl_fac[i+1])
           / (m_lbnl_positron_nl_e[i+1] - m_lbnl_positron_nl_e[i]);
         for (Int_t ierr = 0; ierr < 3; ierr++){
-          err[ierr] 
+          err[ierr]
             = ((m_lbnl_positron_nl_e[i+1] - e_positron_true)*m_lbnl_positron_nl_err[ierr][i]
                + (e_positron_true - m_lbnl_positron_nl_e[i])*m_lbnl_positron_nl_err[ierr][i+1])
             / (m_lbnl_positron_nl_e[i+1] - m_lbnl_positron_nl_e[i]);
@@ -2635,11 +2635,11 @@ Double_t nl_func_lbnl(Double_t * x, Double_t * par){
         break;
       }
     }
-    
+
   }
   double random_nl_fac = scinti_nl_fac;
 
-  
+
   for (Int_t ierr = 0; ierr < 3; ierr++){
     random_nl_fac += par[ierr]*err[ierr];
   }
@@ -2672,12 +2672,12 @@ Double_t Spectrum::nl_func_unified(Double_t * x, Double_t * par){
   }else{
     for (Int_t i = 0; i < n_unified_nl_points-1; i++){
       if (e_positron_true >= m_unified_positron_nl_e[i] && e_positron_true < m_unified_positron_nl_e[i+1]){
-        scinti_nl_fac 
+        scinti_nl_fac
           = ((m_unified_positron_nl_e[i+1] - e_positron_true)*m_unified_positron_nl_fac[i]
              + (e_positron_true - m_unified_positron_nl_e[i])*m_unified_positron_nl_fac[i+1])
           / (m_unified_positron_nl_e[i+1] - m_unified_positron_nl_e[i]);
         for (Int_t ierr = 0; ierr < m_num_unified_nl_pars; ierr++){
-          err[ierr] 
+          err[ierr]
             = ((m_unified_positron_nl_e[i+1] - e_positron_true)*m_unified_positron_nl_err[ierr][i]
                + (e_positron_true - m_unified_positron_nl_e[i])*m_unified_positron_nl_err[ierr][i+1])
             / (m_unified_positron_nl_e[i+1] - m_unified_positron_nl_e[i]);
@@ -2686,7 +2686,7 @@ Double_t Spectrum::nl_func_unified(Double_t * x, Double_t * par){
         break;
       }
     }
-    
+
   }
   double random_nl_fac = scinti_nl_fac;
 
@@ -2703,13 +2703,13 @@ Double_t Spectrum::nl_func_unified(Double_t * x, Double_t * par){
   //   random_nl_fac += m_unified_nl_par[i] * g_unified_positron_nl_pulls[i]->Eval(e_positron_true);
   // }
 
-  
+
   double visibleE = random_nl_fac * e_positron_true;
-  
+
   return visibleE  * escale_par + escale_offset;
-  
+
 }
-  
+
 
 
 //////////////////////////////////
@@ -2717,17 +2717,17 @@ Double_t Spectrum::nl_func_unified(Double_t * x, Double_t * par){
 Double_t enu_to_epositron(Double_t * x, Double_t * par){
   Double_t Enu = x[0];
   Double_t costheta = par[0];
-  
+
   Double_t Me = 0.510999; // MeV
   Double_t Mn = 939.565; // MeV
   Double_t Mp = 938.272; // MeV
   Double_t Delta = Mn-Mp;
-  
+
   Double_t Ee0 = Enu - Delta;
   // if (Ee0 < Me){    // not allowed!
   //   return -1;
   // }
-  
+
   Double_t gamma0 = Ee0/Me;
   Double_t beta0 = sqrt(1 - 1/gamma0/gamma0);
   Double_t y2 = (Delta*Delta - Me*Me)/2.;
@@ -2735,15 +2735,15 @@ Double_t enu_to_epositron(Double_t * x, Double_t * par){
   if (costheta < -1 || costheta > 1) { // then use average cos theta
     costheta = - 0.034*beta0 + 2.4*Enu/Mp;
   }
-  
+
   Double_t Ee1 = Ee0 * (1 - Enu/Mp*(1.0 - costheta*beta0)) - y2/Mp;
-  
+
   //   if (Ee1 < Me){    // not allowed!
   //     return -1;
   //   }
 
   return Ee0 + Me; // Add Me to include annihiration gamma energy
-  
+
 }
 
 //////////////////////////////////
@@ -2756,15 +2756,14 @@ Double_t enu_to_epositron_0th(Double_t * x, Double_t * par){
   Double_t Mn = 939.565; // MeV
   Double_t Mp = 938.272; // MeV
   Double_t Delta = Mn-Mp;
-  
-  
+
+
   Double_t Ee0 = Enu - Delta;
   // if (Ee0 < Me){    // not allowed!
   //   return -1;
   // }
-  
+
   return Ee0 + Me; // Add Me to include annihiration gamma energy
 
-  
-}
 
+}

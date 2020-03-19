@@ -38,7 +38,7 @@ Int_t load_ibd_xsec(TString filename){
   Double_t xsec_tmp;
 
   ifstream fin(filename.Data());
-  
+
   nIbdPoints = 0;
   while(nMaxIbdPoints > nIbdPoints){
     if(fin.peek()=='#'){
@@ -78,29 +78,29 @@ Double_t get_noneq_corr(Int_t isotope_id, Double_t e){
   Double_t corr = 0;
 
   if (e > 4.0) return corr;
-  
+
   Int_t id = (Int_t)((e - 2.0)/0.5);
   if (id < 0) id = 0;
-  
+
   corr = ((e_noneq[id+1] - e)*noneq_corr[isotope_id][id] + (e-e_noneq[id])*noneq_corr[isotope_id][id+1])
     /(e_noneq[id+1]-e_noneq[id]);
-  
+
   return 0.01*corr;
 }
 
 
 
 void make_combined_spectra() {
-  
-  
-  
 
-  
+
+
+
+
 
 
 
   load_ibd_xsec("../../toySpectra/reactor/Xsec1_2011.dat");
-  
+
   Double_t flux_w_snf[6][220];
   Double_t flux_wo_snf[6][220];
   Double_t flux_snf[6][220];
@@ -113,7 +113,7 @@ void make_combined_spectra() {
 
   Double_t flux_tmp;
   Double_t flux_tmp_corr;
-  
+
   Int_t Nstage=2;
 
   //TString stage_name[5] = {"P15A_6AD","P15A_P14Aperiod_8AD","P15A_full_blinded_8AD"};
@@ -149,23 +149,23 @@ void make_combined_spectra() {
       fin.close();
     }
     flux_wo_snf_total_ave /= 6.0;
-    
+
     // Read SNF spectra
-    
-    
+
+
     ifstream fin("SNF_Nom.txt");
     for (Int_t i = 0; i < 220; i ++){
       fin >> enu_tmp;
       for (Int_t j = 0; j < 6; j++){
         fin >> flux_tmp;
         flux_snf[j][i] = flux_tmp;
-        flux_snf_total[j] += flux_snf[j][i] * get_ibd_xsec(enu_tmp);    
+        flux_snf_total[j] += flux_snf[j][i] * get_ibd_xsec(enu_tmp);
       }
     }
     fin.close();
 
     ofstream fout(Form("reactor_%s_SNF_nonEq.txt",stage_name[istage].Data()));
-    
+
     //  cout << 1./flux_snf_total[2]*flux_wo_snf_total_ave << endl;
     for (Int_t i = 0; i < 220; i ++){
       fout <<  std::setprecision(3)  << enu[i]  << std::setprecision(12);
@@ -176,11 +176,11 @@ void make_combined_spectra() {
             + snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
         else
           flux_w_snf[j][i] = flux_wo_snf[j][i];
-	
-	
+
+
         cout <<  "\t" << snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
         fout << "\t" << flux_w_snf[j][i];
-	
+
       }
       cout << endl;
       fout << endl;
