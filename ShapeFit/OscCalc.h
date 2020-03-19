@@ -6,7 +6,7 @@
 
 class OscCalc : public TObject {
 
- public: 
+public: 
   OscCalc();
   ~OscCalc();
   Double_t OscProb(double L, double E, double s22t13);
@@ -42,7 +42,7 @@ class OscCalc : public TObject {
   double theta14_default;
   int hierarchy;
      
- private:
+private:
   double deltam2_32;
   double deltam2_21;
   double deltam2_31;
@@ -58,7 +58,7 @@ class OscCalc : public TObject {
   double DeltaTerm(double deltam2_in,double L, double E);
   double DeltaTermInt(double deltam2_in,double L, double E);
 
- public:
+public:
   
 
 public:
@@ -69,6 +69,6 @@ public:
 // Call the ClassImp macro to give the ABC class RTTI and
 // full I/O capabilities.
 #if !defined(__CINT__)
- ClassImp(OscCalc);
+ClassImp(OscCalc);
 #endif
 

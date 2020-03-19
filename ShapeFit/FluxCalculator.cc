@@ -57,7 +57,7 @@ FluxCalculator::~FluxCalculator(){
     for(int icore=0;icore<Ncores;++icore){
       delete h_flux[istage][icore];
       for(int idetector=0;idetector<Ndetectors;++idetector)
-	delete h_super[istage][idetector][icore];
+        delete h_super[istage][idetector][icore];
     }
   }
   
@@ -125,9 +125,9 @@ std::map<int,TH1F*> FluxCalculator::CalculateFluxHistRow(int idet, double s22t13
   if (FirstTime){
     for(int icore=0;icore<Ncores;++icore){
       if(!useSuperHists){
-	hout[icore] = (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d",icore));
+        hout[icore] = (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d",icore));
       } else {
-	hout[icore] = (TH1F*)h_super[istage][idet][icore]->Clone(Form("hout_%d",icore));
+        hout[icore] = (TH1F*)h_super[istage][idet][icore]->Clone(Form("hout_%d",icore));
       }
     }
     htotal = (TH1F*)hout[0]->Clone("htotal");
@@ -203,9 +203,9 @@ std::map<int,TH1F*> FluxCalculator::ExtrapolationFactorRow(int idet_far, int ide
   if (FirstTime){
     for(int icore=0;icore<Ncores;++icore){
       if(!useSuperHists){
-	hout[icore] = (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d",icore));
+        hout[icore] = (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d",icore));
       } else{
-	hout[icore] = (TH1F*)h_super[istage][0][icore]->Clone(Form("hout_%d",icore));
+        hout[icore] = (TH1F*)h_super[istage][0][icore]->Clone(Form("hout_%d",icore));
       }
     }
     
@@ -221,11 +221,11 @@ std::map<int,TH1F*> FluxCalculator::ExtrapolationFactorRow(int idet_far, int ide
       osccalc->OscSpec(Distance[idet_near][icore],s22t13, h_flux[istage][icore],hout_near);
     } else{
       if (idet_near < 0){ // then, calculate oscillation probabilities at a particular detector
-	osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout[icore]);
-	osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout_near,0);
+        osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout[icore]);
+        osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout_near,0);
       }else{
-	osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout[icore]);
-	osccalc->OscSpecBinInt(Distance[idet_near][icore],s22t13,h_super[istage][idet_near][icore],hout_near);
+        osccalc->OscSpecBinInt(Distance[idet_far][icore],s22t13,h_super[istage][idet_far][icore],hout[icore]);
+        osccalc->OscSpecBinInt(Distance[idet_near][icore],s22t13,h_super[istage][idet_near][icore],hout_near);
       }
       // osccalc->OscSpec(Distance[idet_far][icore],s22t13, h_super[istage][idet_far][icore],hout[icore]);
       // osccalc->OscSpec(Distance[idet_near][icore],s22t13, h_super[istage][idet_near][icore],hout_near);
@@ -252,7 +252,7 @@ TH1F *FluxCalculator::OscSpecQuick(int idet, int icore, double s22t13, int iweek
   //-->find best point for sin22t13
   double bestS=(s22t13-Smin)*(NpointsS-1)*1./(Smax-Smin);
   int bestSi=(int)floor(bestS+0.5);
-   //-->find best point for dm2
+  //-->find best point for dm2
   int bestDi=0;
   if(dm2==-1){
     dm2=osccalc->GetDeltaM2_ee();
@@ -287,9 +287,9 @@ void FluxCalculator::LoadSuperHistograms(const Char_t *superhistsname){
     for(int idet=0;idet<Ndetectors;++idet){
       for(int icore=0;icore<Ncores;++icore){
 	
-	sprintf(name1,"h_super_istage%i_idet%i_icore%i",istage,idet,icore);
-	sprintf(name2,"super_istage%i_idet%i_icore%i",istage,idet,icore);
-	h_super[istage][idet][icore] = (TH1F*)infile->Get(name1)->Clone(name2);
+        sprintf(name1,"h_super_istage%i_idet%i_icore%i",istage,idet,icore);
+        sprintf(name2,"super_istage%i_idet%i_icore%i",istage,idet,icore);
+        h_super[istage][idet][icore] = (TH1F*)infile->Get(name1)->Clone(name2);
 	
       }
     }

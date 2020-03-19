@@ -69,7 +69,7 @@ TF1* GetSpectrum(bool fermi=false)
 
   double (*fullfun)(double*, double*) = fermi ? FullFermiSpec : FullSpec;
   TF1 *full = new TF1(fermi ? "ffullspec" : "fullspec",
-		      fullfun, 0, Q[0], 2*N_LVL);
+                      fullfun, 0, Q[0], 2*N_LVL);
 
   for (int i = 0; i < N_LVL; ++i) {
     spec.SetParameters(1, Q[i]);

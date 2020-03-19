@@ -98,22 +98,22 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
   /*
   //for(int idet=0;idet<Ndetectors;++idet){
   for(int idet=0;idet<1;++idet){
-    h_nominal_ad[idet]->Reset();
-    for(int ibin=0;ibin<spectrumNormNominal->nSamples();++ibin){
+  h_nominal_ad[idet]->Reset();
+  for(int ibin=0;ibin<spectrumNormNominal->nSamples();++ibin){
       
-      h_nominal_ad[idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
-                               spectrumNormNominal->positronDetectedArray(0,idet)[ibin]*spectrumNormNominal->binWidth()
-                               + spectrumNormNominal->bgDetectedArray(0,idet)[ibin]
-                               );
-    }//ibin loop
-    for(int ibin=0;ibin<spectrumNormNominal->nSamplesBkg();++ibin){
-      h_nominal_ad[idet]->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
-                               spectrumNormNominal->bgDetectedArray(0,idet)[ibin]
-                               );
-    }
+  h_nominal_ad[idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
+  spectrumNormNominal->positronDetectedArray(0,idet)[ibin]*spectrumNormNominal->binWidth()
+  + spectrumNormNominal->bgDetectedArray(0,idet)[ibin]
+  );
+  }//ibin loop
+  for(int ibin=0;ibin<spectrumNormNominal->nSamplesBkg();++ibin){
+  h_nominal_ad[idet]->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
+  spectrumNormNominal->bgDetectedArray(0,idet)[ibin]
+  );
+  }
 
 
-    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
+  cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
   }
   */
 

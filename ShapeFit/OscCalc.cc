@@ -153,9 +153,9 @@ Double_t OscCalc::OscProb(double L, double E, double s22t13){
 
   //3-neutrino flavor calculation using equation 9 in the TDR 
   /*double term1=sin22t12*pow(cos(theta13),4)*pow(sin(1.267*deltam2_21*L/E),2);
-  double term2=pow(cos(theta12)*sin(2*theta13)*sin(1.267*deltam2_31*L/E),2);
-  double term3=pow(sin(theta12)*sin(2*theta13)*sin(1.267*deltam2_32*L/E),2);
-  return 1-(term1+term2+term3); */
+    double term2=pow(cos(theta12)*sin(2*theta13)*sin(1.267*deltam2_31*L/E),2);
+    double term3=pow(sin(theta12)*sin(2*theta13)*sin(1.267*deltam2_32*L/E),2);
+    return 1-(term1+term2+term3); */
 
   //4-neutrino flavor calculation according to Eq. 6 of DocDB-9296-v1
   double Ue1=cos(theta14)*cos(theta13)*cos(theta12);

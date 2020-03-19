@@ -5,10 +5,10 @@
 #include <fstream>
 
 CrossSectionTable::CrossSectionTable()
-: m_eMin(0),
-  m_eMax(0),
-  m_nSamples(0),
-  m_binWidth(1.0)
+  : m_eMin(0),
+    m_eMax(0),
+    m_nSamples(0),
+    m_binWidth(1.0)
 {
   for(int idx=0; idx<MAX_XSEC_SAMPLES; idx++){
     m_xsec[idx] = 0;
@@ -38,7 +38,7 @@ double CrossSectionTable::inverseBetaDecay(double e_nu)
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
     double slope = (m_xsec[binIdxHigh] 
-		    - m_xsec[binIdxLow])/m_binWidth;
+                    - m_xsec[binIdxLow])/m_binWidth;
     value += dE*slope;
   }
   return value;
@@ -74,7 +74,7 @@ int CrossSectionTable::load(const char* filename)
 }
 
 int CrossSectionTable::loadOneFile(const char* filename, double* xData, 
-				   double* yData)
+                                   double* yData)
 {
   // Load data from one file
   ifstream fileData(filename);

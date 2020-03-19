@@ -63,9 +63,9 @@ TObject* DataSet::getObject(const char* name)
 }
 
 /*
-DataTable* DataSet::getTable(const char* name)
-{
-}
+  DataTable* DataSet::getTable(const char* name)
+  {
+  }
 */
 
 void DataSet::setDouble(const char* name, double value)
@@ -107,9 +107,9 @@ void DataSet::setObject(const char* name, TObject* value)
 }
 
 /*
-void DataSet::setTable(const char* name, DataTable* value)
-{
-}
+  void DataSet::setTable(const char* name, DataTable* value)
+  {
+  }
 */
 
 int DataSet::load(const char* filename)
@@ -118,7 +118,7 @@ int DataSet::load(const char* filename)
   ifstream fileData(filename);
   if(!fileData.is_open() || !fileData.good()){
     std::cout << "DataSet::load: "
-	      << "Error: Failed to open data file " << filename << std::endl;
+              << "Error: Failed to open data file " << filename << std::endl;
     return -1;
   }
   string line;
@@ -134,14 +134,14 @@ int DataSet::load(const char* filename)
     string name;
     if(!(lineStr >> name)){
       std::cout << "DataSet::load: "
-		<< "Error: Failed to read name from line " << line << std::endl;
+                << "Error: Failed to read name from line " << line << std::endl;
       return -1;
     }
     string svalue;
     if(!(lineStr >> svalue)){
       std::cout << "DataSet::load: "
-		<< "Error: Failed to read value from line " << line 
-		<< std::endl;
+                << "Error: Failed to read value from line " << line 
+                << std::endl;
       return -1;
     }
     bool isNumber=false;

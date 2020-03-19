@@ -26,7 +26,7 @@ Double_t M[cov_matrix_dimension][cov_matrix_dimension];
 
 void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filename, Int_t bkg_flag){
     
-    cout<<"Dimension of cov matrix is "<<cov_matrix_dimension<<"x"<<cov_matrix_dimension<<endl;
+  cout<<"Dimension of cov matrix is "<<cov_matrix_dimension<<"x"<<cov_matrix_dimension<<endl;
   
   // Create Predictor
   Predictor *myPred = new Predictor();
@@ -104,28 +104,28 @@ void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filena
   myPred->LoadToyMCNominalSpec();
   predset = myPred->MakeOneSuperPrediction(sinSq2Theta13,deltam2_ee_default,0,-1,false);
     
-    cout<<"Here"<<endl;
+  cout<<"Here"<<endl;
   
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=4;idet<8;++idet){
       for(int idet2=0;idet2<4;++idet2){
  
-	for (Int_t i = 0; i < n_evis_bins; i++){
-	  Int_t iii = ((idet-4)*4+idet2)*n_evis_bins +i;
+        for (Int_t i = 0; i < n_evis_bins; i++){
+          Int_t iii = ((idet-4)*4+idet2)*n_evis_bins +i;
 	  	    
-	  //Set nonsensical values for inactive ADs
-	  if((NdetectorsConfig[istage][idet] == 0) || (NdetectorsConfig[istage][idet2] == 0))
-	    Nobs_nominal[istage][iii] = 0;
-	  else
-	    Nobs_nominal[istage][iii] = myPred->GetCorrEvtsSpec(istage,idet)->GetBinContent(i+1);
+          //Set nonsensical values for inactive ADs
+          if((NdetectorsConfig[istage][idet] == 0) || (NdetectorsConfig[istage][idet2] == 0))
+            Nobs_nominal[istage][iii] = 0;
+          else
+            Nobs_nominal[istage][iii] = myPred->GetCorrEvtsSpec(istage,idet)->GetBinContent(i+1);
 
-	  Npred_nominal[istage][iii] = predset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  //}
-	  //if(istage==0 && (idet2==3 || idet==7)){
-	  //  cout << "Near: " << idet2 << " Far: " << idet << endl;
-	  //  cout << "Nominal: " << i << "\t" << Nobs_nominal[istage][iii] << "\t" << Npred_nominal[istage][iii] << endl;
-	  //}
-	}
+          Npred_nominal[istage][iii] = predset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          //}
+          //if(istage==0 && (idet2==3 || idet==7)){
+          //  cout << "Near: " << idet2 << " Far: " << idet << endl;
+          //  cout << "Nominal: " << i << "\t" << Nobs_nominal[istage][iii] << "\t" << Npred_nominal[istage][iii] << endl;
+          //}
+        }
       }
     }
   }
@@ -137,27 +137,27 @@ void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filena
     predset = myPred->MakeOneSuperPrediction(sinSq2Theta13,deltam2_ee_default,0,-1,false);
     
     for(int istage=0;istage<Nstage;++istage){
-        for(int idet=4;idet<8;++idet){
-            for(int idet2=0;idet2<4;++idet2){
-                for (Int_t i = 0; i < n_evis_bins; i++){
-                    Int_t iii = ((idet-4)*4+idet2)*n_evis_bins +i;
+      for(int idet=4;idet<8;++idet){
+        for(int idet2=0;idet2<4;++idet2){
+          for (Int_t i = 0; i < n_evis_bins; i++){
+            Int_t iii = ((idet-4)*4+idet2)*n_evis_bins +i;
 	   
-                    //Set nonsensical values for inactive ADs
-                    if((NdetectorsConfig[istage][idet] == 0) || (NdetectorsConfig[istage][idet2] == 0))
-                        Nobs[istage][iii] = 0;
-                    else
-                        Nobs[istage][iii] = myPred->GetCorrEvtsSpec(istage,idet)->GetBinContent(i+1);
+            //Set nonsensical values for inactive ADs
+            if((NdetectorsConfig[istage][idet] == 0) || (NdetectorsConfig[istage][idet2] == 0))
+              Nobs[istage][iii] = 0;
+            else
+              Nobs[istage][iii] = myPred->GetCorrEvtsSpec(istage,idet)->GetBinContent(i+1);
 
-                    Npred[istage][iii] = predset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+            Npred[istage][iii] = predset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
 	    
-                    // if (Npred[iii] < 0.01)
-                    //if(istage==0 && (idet2==3 || idet==7)){
-                    //cout << "Near: " << idet2 << " Far: " << idet << endl;
-                    //cout << "Nominal: " << i << "\t" << Nobs_nominal[istage][iii] << "\t" << Npred_nominal[istage][iii] << endl;
-                    //cout << "Non-nominal: " << i << "\t" << Nobs[istage][iii] << "\t" << Npred[istage][iii] << endl;
-                    //}
-                }
-            }
+            // if (Npred[iii] < 0.01)
+            //if(istage==0 && (idet2==3 || idet==7)){
+            //cout << "Near: " << idet2 << " Far: " << idet << endl;
+            //cout << "Nominal: " << i << "\t" << Nobs_nominal[istage][iii] << "\t" << Npred_nominal[istage][iii] << endl;
+            //cout << "Non-nominal: " << i << "\t" << Nobs[istage][iii] << "\t" << Npred[istage][iii] << endl;
+            //}
+          }
+        }
       }
     }
     
@@ -165,32 +165,32 @@ void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filena
     for(int istage=0;istage<Nstage;++istage){
       for (Int_t i = 0; i < 16*n_evis_bins; i++){
 	
-	if (Npred_nominal[istage][i] == 0) continue;
+        if (Npred_nominal[istage][i] == 0) continue;
 	
-	for(int jstage=0;jstage<Nstage;++jstage){
-	  for (Int_t j = 0; j < 16*n_evis_bins; j++){
+        for(int jstage=0;jstage<Nstage;++jstage){
+          for (Int_t j = 0; j < 16*n_evis_bins; j++){
 
-	    if (Npred_nominal[jstage][j] == 0) continue;
+            if (Npred_nominal[jstage][j] == 0) continue;
 
-	    //        M[i][j] += (Nobs[i] - Npred[i])*(Nobs[j] - Npred[j])/Npred[i]/Npred[j];
+            //        M[i][j] += (Nobs[i] - Npred[i])*(Nobs[j] - Npred[j])/Npred[i]/Npred[j];
 
-	    if (bkg_flag == 0){
+            if (bkg_flag == 0){
 	      	      
-	      if (Npred[istage][i] == 0) continue;	
-	      if (Npred[jstage][j] == 0) continue;
+              if (Npred[istage][i] == 0) continue;	
+              if (Npred[jstage][j] == 0) continue;
 
-	      M[i+16*n_evis_bins*istage][j+16*n_evis_bins*jstage] +=
-		(Nobs[istage][i] - Npred[istage][i] - Nobs_nominal[istage][i] + Npred_nominal[istage][i])
-		*(Nobs[jstage][j] - Npred[jstage][j] - Nobs_nominal[jstage][j] + Npred_nominal[jstage][j])
-		/Npred[istage][i]/Npred[jstage][j];
+              M[i+16*n_evis_bins*istage][j+16*n_evis_bins*jstage] +=
+                (Nobs[istage][i] - Npred[istage][i] - Nobs_nominal[istage][i] + Npred_nominal[istage][i])
+                *(Nobs[jstage][j] - Npred[jstage][j] - Nobs_nominal[jstage][j] + Npred_nominal[jstage][j])
+                /Npred[istage][i]/Npred[jstage][j];
 	      
-	    }else{//do not normalize by the predictions, because the predicted number of events becomes almost 0 or sometimes negative for some background-dominated bins. It screws up the covariance matrix calculation.
-	      M[i+16*n_evis_bins*istage][j+16*n_evis_bins*jstage] +=
-		(Nobs[istage][i] - Npred[istage][i] - Nobs_nominal[istage][i] + Npred_nominal[istage][i])
-		*(Nobs[jstage][j] - Npred[jstage][j] - Nobs_nominal[jstage][j] + Npred_nominal[jstage][j]); 
-	    }
-	  }
-	}
+            }else{//do not normalize by the predictions, because the predicted number of events becomes almost 0 or sometimes negative for some background-dominated bins. It screws up the covariance matrix calculation.
+              M[i+16*n_evis_bins*istage][j+16*n_evis_bins*jstage] +=
+                (Nobs[istage][i] - Npred[istage][i] - Nobs_nominal[istage][i] + Npred_nominal[istage][i])
+                *(Nobs[jstage][j] - Npred[jstage][j] - Nobs_nominal[jstage][j] + Npred_nominal[jstage][j]); 
+            }
+          }
+        }
       }
     }
     

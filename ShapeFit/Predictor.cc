@@ -10,7 +10,7 @@
   Fixed bug in the livetime weighting
   October 2012: Pedro 
   Changed SuperMatrix by SuperHists approach 
- */
+*/
 
 Predictor::Predictor(){
   
@@ -49,7 +49,7 @@ Predictor::Predictor(){
   extra_days_8ad = 0;
    
   combine_mode = 1;
-    // combine_mode = 0;
+  // combine_mode = 0;
   
   // combine_mode = 0: No scaling, 16*Nstage*n_evis_bins dimensions
   // combine_mode = 1: Default scaling with  2*Nstage*n_evis_bins dimensions
@@ -87,9 +87,9 @@ void Predictor::SetEvisBins(Int_t n, Double_t* bins, Int_t rebin_fac){
   for (Int_t istage = 0; istage < Nstage; istage ++){
     for (Int_t idet = 0; idet < Ndetectors; idet ++){
       for (Int_t jdet = 0; jdet < Ndetectors; jdet ++){
-	PredEvtsSpec[istage][idet][jdet] = new TH1F(Form("h_evis_Stage%i_AD%i_AD%i",istage,idet,jdet),
-						    Form("h_evis_Stage%i_AD%i_AD%i",istage,idet,jdet),
-						    n_evis_bins,evis_bins);
+        PredEvtsSpec[istage][idet][jdet] = new TH1F(Form("h_evis_Stage%i_AD%i_AD%i",istage,idet,jdet),
+                                                    Form("h_evis_Stage%i_AD%i_AD%i",istage,idet,jdet),
+                                                    n_evis_bins,evis_bins);
       }
     }
   }
@@ -135,9 +135,9 @@ void Predictor::SetEnuBins(Int_t n, Double_t* bins){
   for (Int_t istage = 0; istage < Nstage; istage++ ){
     for (Int_t idet = 0; idet < Ndetectors; idet++ ){
       for (Int_t ie = 0; ie < max_n_evis_bins; ie++ ){
-	CorrEvtsTrueSpec[istage][idet][ie] = new TH1F(Form("h_true_enu_stage%d_det%d_e%d",istage,idet,ie),
-						      Form("h_true_enu_stage%d_det%d_e%d",istage,idet,ie),
-						      n_enu_bins,enu_bins);
+        CorrEvtsTrueSpec[istage][idet][ie] = new TH1F(Form("h_true_enu_stage%d_det%d_e%d",istage,idet,ie),
+                                                      Form("h_true_enu_stage%d_det%d_e%d",istage,idet,ie),
+                                                      n_enu_bins,enu_bins);
       }
     }
   }
@@ -227,18 +227,18 @@ void Predictor::LoadMainData(const Char_t *mainmatrixname){
       if(row==11){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AccEvts[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AccEvts[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AccEvts[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
 
         }
       }
       if(row==12){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AccErr[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AccErr[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AccErr[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       
@@ -246,17 +246,17 @@ void Predictor::LoadMainData(const Char_t *mainmatrixname){
       if(row==13){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].Li9Evts[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].Li9Evts[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].Li9Evts[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       if(row==14){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].Li9Err[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].Li9Err[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].Li9Err[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       //-->fast-n bg
@@ -271,43 +271,43 @@ void Predictor::LoadMainData(const Char_t *mainmatrixname){
       if(row==16){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].FnErr[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].FnErr[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].FnErr[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       //-->amc bg
       if(row==17){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AmcEvts[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AmcEvts[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AmcEvts[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       if(row==18){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AmcErr[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AmcErr[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AmcErr[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       //-->aln bg
       if(row==19){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AlnEvts[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AlnEvts[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AlnEvts[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       if(row==20){
         for(int ii=0;ii<Ndetectors;ii++){
           tdper[istage-1].AlnErr[ii]=readvals[ii];
-	  //in new input format have to correct for efficiencies here
-	  tdper[istage-1].AlnErr[ii]*=tdper[istage-1].DMCEff[ii]
-	    *tdper[istage-1].MuonVetoEff[ii];
+          //in new input format have to correct for efficiencies here
+          tdper[istage-1].AlnErr[ii]*=tdper[istage-1].DMCEff[ii]
+            *tdper[istage-1].MuonVetoEff[ii];
         }
       }
       
@@ -362,17 +362,17 @@ void Predictor::LoadIBDSpec(TString *ibdspecname){
   TFile *infilespec[Nstage];
   for(int istage=0;istage<Nstage;++istage){
     infilespec[istage] = new TFile(ibdspecname[istage].Data(),"READ");
-      cout<<"File is "<<ibdspecname[istage].Data()<<endl;
+    cout<<"File is "<<ibdspecname[istage].Data()<<endl;
  
-   for(int idet=0;idet<Ndetectors;++idet){
+    for(int idet=0;idet<Ndetectors;++idet){
      
-     sprintf(name,"h_ibd_eprompt_inclusive_eh%i_ad%d",detConfigEH[idet],detConfigAD[idet]);
-     sprintf(name2,"h_ibd_eprompt_inclusive_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
+      sprintf(name,"h_ibd_eprompt_inclusive_eh%i_ad%d",detConfigEH[idet],detConfigAD[idet]);
+      sprintf(name2,"h_ibd_eprompt_inclusive_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
     
-     //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
-     tdper[istage].ObsEvtsSpec[idet] = (TH1F*)infilespec[istage]->Get(name)->Clone(name2);
+      //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
+      tdper[istage].ObsEvtsSpec[idet] = (TH1F*)infilespec[istage]->Get(name)->Clone(name2);
      
-   }
+    }
   }
   cout << "done loading ibd spectra!" << endl;
 }
@@ -426,10 +426,10 @@ void Predictor::LoadToyMCEntry(Int_t i, bool correct){
 }
 
 void Predictor::LoadBgSpec(TString *accspecname, 
-			   const Char_t *li9specname, 
-			   const Char_t *amcspecname,
-			   const Char_t *fnspecname,
-			   const Char_t *alnspecname){
+                           const Char_t *li9specname, 
+                           const Char_t *amcspecname,
+                           const Char_t *fnspecname,
+                           const Char_t *alnspecname){
   
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
@@ -442,18 +442,18 @@ void Predictor::LoadBgSpec(TString *accspecname,
       
     for(int idet=0;idet<Ndetectors;++idet){
 	
-	sprintf(name,"h_accidental_eprompt_inclusive_eh%i_ad%i",detConfigEH[idet],detConfigAD[idet]);
+      sprintf(name,"h_accidental_eprompt_inclusive_eh%i_ad%i",detConfigEH[idet],detConfigAD[idet]);
 
-	Char_t name2[1024];
-	sprintf(name2,"CorrAccEvtsSpec_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
+      Char_t name2[1024];
+      sprintf(name2,"CorrAccEvtsSpec_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
 	
 
         
-	tdper[istage].CorrAccEvtsSpec[idet] = (TH1F*)accspec[istage]->Get(name)->Clone(name2);
+      tdper[istage].CorrAccEvtsSpec[idet] = (TH1F*)accspec[istage]->Get(name)->Clone(name2);
   
-	for (Int_t ibin = 0; ibin < tdper[istage].CorrAccEvtsSpec[idet]->GetNbinsX();ibin++){
-	  tdper[istage].CorrAccEvtsSpec[idet]->SetBinError(ibin+1,0);
-	}
+      for (Int_t ibin = 0; ibin < tdper[istage].CorrAccEvtsSpec[idet]->GetNbinsX();ibin++){
+        tdper[istage].CorrAccEvtsSpec[idet]->SetBinError(ibin+1,0);
+      }
   
     }
     //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;    
@@ -462,9 +462,9 @@ void Predictor::LoadBgSpec(TString *accspecname,
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       if (tdper[istage].CorrAccEvtsSpec[idet]->Integral() == 0)
-	tdper[istage].CorrAccEvtsSpec[idet]->Scale(0);
+        tdper[istage].CorrAccEvtsSpec[idet]->Scale(0);
       else
-	tdper[istage].CorrAccEvtsSpec[idet]->Scale(tdper[istage].AccEvts[idet]*1./tdper[istage].CorrAccEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
+        tdper[istage].CorrAccEvtsSpec[idet]->Scale(tdper[istage].AccEvts[idet]*1./tdper[istage].CorrAccEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
     }
   }
   //accspec->Close();
@@ -481,7 +481,7 @@ void Predictor::LoadBgSpec(TString *accspecname,
       tdper[istage].CorrLi9EvtsSpec[idet]->Reset();
       //fill into destination histogram
       for(Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
-	tdper[istage].CorrLi9EvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
+        tdper[istage].CorrLi9EvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
       }
       delete htemp;
 
@@ -493,15 +493,15 @@ void Predictor::LoadBgSpec(TString *accspecname,
    
       //scale
       if (tdper[istage].CorrLi9EvtsSpec[idet]->Integral() == 0)
-	tdper[istage].CorrLi9EvtsSpec[idet]->Scale(0);
+        tdper[istage].CorrLi9EvtsSpec[idet]->Scale(0);
       else
-	tdper[istage].CorrLi9EvtsSpec[idet]->Scale(tdper[istage].Li9Evts[idet]*1./tdper[istage].CorrLi9EvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
+        tdper[istage].CorrLi9EvtsSpec[idet]->Scale(tdper[istage].Li9Evts[idet]*1./tdper[istage].CorrLi9EvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
     }
   }
   //li9spec->Close();
   cout << "--> loaded li9/he8 spectra" << endl;
 
-   //(fast-n)
+  //(fast-n)
   TFile *fnspec = new TFile(fnspecname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
@@ -515,7 +515,7 @@ void Predictor::LoadBgSpec(TString *accspecname,
       TH1F *htemp = (TH1F*)fnspec->Get(nameFn)->Clone(name);   
       //fill into destination histogram
       for(Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
-	tdper[istage].CorrFnEvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
+        tdper[istage].CorrFnEvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
       }
       delete htemp;
       
@@ -523,9 +523,9 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrFnEvtsSpec[idet]->SetBinError(ibin+1,0);        
       }
       if (tdper[istage].CorrFnEvtsSpec[idet]->Integral() == 0)
-	tdper[istage].CorrFnEvtsSpec[idet]->Scale(0);
+        tdper[istage].CorrFnEvtsSpec[idet]->Scale(0);
       else
-	tdper[istage].CorrFnEvtsSpec[idet]->Scale(tdper[istage].FnEvts[idet]*1./tdper[istage].CorrFnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
+        tdper[istage].CorrFnEvtsSpec[idet]->Scale(tdper[istage].FnEvts[idet]*1./tdper[istage].CorrFnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
     }
   }
   //fnspec->Close();
@@ -545,10 +545,10 @@ void Predictor::LoadBgSpec(TString *accspecname,
       //Note: cannot just do Add(amcfunc) as bin sizes are different
       for(int ibin=1;ibin<=tdper[istage].CorrAmcEvtsSpec[idet]->GetXaxis()->GetNbins();++ibin){
 	
-	double lowedge=tdper[istage].CorrAmcEvtsSpec[idet]->GetXaxis()->GetBinLowEdge(ibin);
-	double upedge=tdper[istage].CorrAmcEvtsSpec[idet]->GetXaxis()->GetBinUpEdge(ibin);
-	double intval=amcfunc->Integral(lowedge,upedge);
-	tdper[istage].CorrAmcEvtsSpec[idet]->SetBinContent(ibin,intval);
+        double lowedge=tdper[istage].CorrAmcEvtsSpec[idet]->GetXaxis()->GetBinLowEdge(ibin);
+        double upedge=tdper[istage].CorrAmcEvtsSpec[idet]->GetXaxis()->GetBinUpEdge(ibin);
+        double intval=amcfunc->Integral(lowedge,upedge);
+        tdper[istage].CorrAmcEvtsSpec[idet]->SetBinContent(ibin,intval);
 	
       }
          
@@ -560,9 +560,9 @@ void Predictor::LoadBgSpec(TString *accspecname,
       }
 
       if (tdper[istage].CorrAmcEvtsSpec[idet]->Integral() == 0)
-	tdper[istage].CorrAmcEvtsSpec[idet]->Scale(0);
+        tdper[istage].CorrAmcEvtsSpec[idet]->Scale(0);
       else
-	tdper[istage].CorrAmcEvtsSpec[idet]->Scale(tdper[istage].AmcEvts[idet]*1./tdper[istage].CorrAmcEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events per liveday based on input file 
+        tdper[istage].CorrAmcEvtsSpec[idet]->Scale(tdper[istage].AmcEvts[idet]*1./tdper[istage].CorrAmcEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events per liveday based on input file 
     }
   }
   //amcspec->Close();
@@ -582,7 +582,7 @@ void Predictor::LoadBgSpec(TString *accspecname,
 
       //fill into destination histogram
       for(Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
-	tdper[istage].CorrAlnEvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
+        tdper[istage].CorrAlnEvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
       }
 
       delete htemp;
@@ -594,9 +594,9 @@ void Predictor::LoadBgSpec(TString *accspecname,
 
       //scale
       if (tdper[istage].CorrAlnEvtsSpec[idet]->Integral() == 0)
-	tdper[istage].CorrAlnEvtsSpec[idet]->Scale(0);
+        tdper[istage].CorrAlnEvtsSpec[idet]->Scale(0);
       else
-	tdper[istage].CorrAlnEvtsSpec[idet]->Scale(tdper[istage].AlnEvts[idet]*1./tdper[istage].CorrAlnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
+        tdper[istage].CorrAlnEvtsSpec[idet]->Scale(tdper[istage].AlnEvts[idet]*1./tdper[istage].CorrAlnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file 
     }
   }
   //alnspec->Close();
@@ -646,11 +646,11 @@ TH1F* Predictor::GetCorrAccEvtsSpec(Int_t istage, Int_t idet){
   TH1F * dummy = (TH1F*)tdper[istage].CorrAccEvtsSpec[idet]->Clone();
   dummy->Scale(tdper[istage].Livetime[idet] * tdper[istage].MuonVetoEff[idet] * tdper[istage].DMCEff[idet]);
   return dummy;  
-// return tdper[istage].CorrAccEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
+  // return tdper[istage].CorrAccEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
 }
 TH1F* Predictor::GetCorrLi9EvtsSpec(Int_t istage, Int_t idet){
-    TH1F * dummy = (TH1F*)tdper[istage].CorrLi9EvtsSpec[idet]->Clone();
-    dummy->Scale(tdper[istage].Livetime[idet] * tdper[istage].MuonVetoEff[idet] * tdper[istage].DMCEff[idet]);
+  TH1F * dummy = (TH1F*)tdper[istage].CorrLi9EvtsSpec[idet]->Clone();
+  dummy->Scale(tdper[istage].Livetime[idet] * tdper[istage].MuonVetoEff[idet] * tdper[istage].DMCEff[idet]);
   return dummy;
   //return tdper[istage].CorrLi9EvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
 }
@@ -658,7 +658,7 @@ TH1F* Predictor::GetCorrAmcEvtsSpec(Int_t istage, Int_t idet){
   TH1F * dummy = (TH1F*)tdper[istage].CorrAmcEvtsSpec[idet]->Clone();
   dummy->Scale(tdper[istage].Livetime[idet] * tdper[istage].MuonVetoEff[idet] * tdper[istage].DMCEff[idet]);
   return dummy;  
-//return tdper[istage].CorrAmcEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
+  //return tdper[istage].CorrAmcEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
 }
 TH1F* Predictor::GetCorrFnEvtsSpec(Int_t istage, Int_t idet){
   TH1F * dummy = (TH1F*)tdper[istage].CorrFnEvtsSpec[idet]->Clone();
@@ -729,13 +729,13 @@ void Predictor::MakePrediction(double sin2theta13, double dm2, double s22t14, do
 
       for(int icore=0;icore<Ncores;++icore){
 	
-	int thebin=mapflux_noosc[icore]->GetXaxis()->FindBin(Etrue);
-	factor_noosc[ibin_enu][icore] = mapflux_noosc[icore]->GetBinContent(thebin);
-	factor_norm += factor_noosc[ibin_enu][icore];
+        int thebin=mapflux_noosc[icore]->GetXaxis()->FindBin(Etrue);
+        factor_noosc[ibin_enu][icore] = mapflux_noosc[icore]->GetBinContent(thebin);
+        factor_norm += factor_noosc[ibin_enu][icore];
 	
       }
       for(int icore=0;icore<Ncores;++icore){
-	factor_noosc[ibin_enu][icore] /= factor_norm;
+        factor_noosc[ibin_enu][icore] /= factor_norm;
       }
 
     }
@@ -745,25 +745,25 @@ void Predictor::MakePrediction(double sin2theta13, double dm2, double s22t14, do
       Double_t norm = 0;
       double oldval = tperdat.CorrEvtsSpec[idet]->GetBinContent(ibin_evis+1);
       if (oldval < 0){
-	cout << "Predictor: Negative bin content after background subtraction for detector " << idet
-	     << ", bin " << ibin_evis << endl;
-	cout << "Setting prediction for this bin to be 0" << endl;
-	oldval = 0;
+        cout << "Predictor: Negative bin content after background subtraction for detector " << idet
+             << ", bin " << ibin_evis << endl;
+        cout << "Setting prediction for this bin to be 0" << endl;
+        oldval = 0;
       }
       CorrEvtsTrueSpec[istage][idet][ibin_evis]->Reset();
       for(int ibin_enu=0;ibin_enu< n_enu_bins; ++ibin_enu){
-	for(int icore=0;icore<Ncores;++icore){
+        for(int icore=0;icore<Ncores;++icore){
           double Etrue=CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetXaxis()->GetBinCenter(ibin_enu+1); 
-	  int thebin=mapflux_noosc[icore]->GetXaxis()->FindBin(Etrue);
-	  double oscprob=mapextrap[icore]->GetBinContent(thebin);
-	  CorrEvtsTrueSpec[istage][idet][ibin_evis]
-	    ->AddBinContent(ibin_enu+1,oldval*M_evis_to_enu[ibin_evis][ibin_enu]*factor_noosc[ibin_enu][icore]*oscprob);
+          int thebin=mapflux_noosc[icore]->GetXaxis()->FindBin(Etrue);
+          double oscprob=mapextrap[icore]->GetBinContent(thebin);
+          CorrEvtsTrueSpec[istage][idet][ibin_evis]
+            ->AddBinContent(ibin_enu+1,oldval*M_evis_to_enu[ibin_evis][ibin_enu]*factor_noosc[ibin_enu][icore]*oscprob);
 	  
-	  norm += M_evis_to_enu[ibin_evis][ibin_enu]*factor_noosc[ibin_enu][icore]*oscprob;
-	}
+          norm += M_evis_to_enu[ibin_evis][ibin_enu]*factor_noosc[ibin_enu][icore]*oscprob;
+        }
       }
       if (norm != 0)
-	CorrEvtsTrueSpec[istage][idet][ibin_evis]->Scale(1/norm);
+        CorrEvtsTrueSpec[istage][idet][ibin_evis]->Scale(1/norm);
       
     }
     //Get events at each detector from each core (in terms of true E)
@@ -771,20 +771,20 @@ void Predictor::MakePrediction(double sin2theta13, double dm2, double s22t14, do
     for(int ibin_evis=0;ibin_evis < n_evis_bins; ++ibin_evis){
       for(int icore=0;icore<Ncores;++icore){
         if (FirstMakePrediction){
-	  //Need to ensure other istages are created
-	  for(int ii=0;ii<Nstage;++ii){
-	    sprintf(dummyname,"CorrEvtsCoreSpec_%i_%i_%i_%i",ii,idet,ibin_evis,icore);
-	    CorrEvtsCoreSpec[ii][idet][ibin_evis][icore]  = (TH1F*)CorrEvtsTrueSpec[ii][idet][ibin_evis]->Clone(dummyname);
-	  }
+          //Need to ensure other istages are created
+          for(int ii=0;ii<Nstage;++ii){
+            sprintf(dummyname,"CorrEvtsCoreSpec_%i_%i_%i_%i",ii,idet,ibin_evis,icore);
+            CorrEvtsCoreSpec[ii][idet][ibin_evis][icore]  = (TH1F*)CorrEvtsTrueSpec[ii][idet][ibin_evis]->Clone(dummyname);
+          }
         }
         CorrEvtsCoreSpec[istage][idet][ibin_evis][icore]->Reset();
         //Note: multiplication has to be done manually in order to allow different bins between E hists and flux hists
-	for(int ibin=1;ibin<=CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetXaxis()->GetNbins();++ibin){
+        for(int ibin=1;ibin<=CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetXaxis()->GetNbins();++ibin){
           double Etrue=CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetXaxis()->GetBinCenter(ibin);
-	  //          if (Etrue > 8.7) Etrue = 8.7; // this is because the current flux histogram ends at 8.8 MeV
+          //          if (Etrue > 8.7) Etrue = 8.7; // this is because the current flux histogram ends at 8.8 MeV
           int thebin=mapflux[icore]->GetXaxis()->FindBin(Etrue);
-	  double factor=mapflux[icore]->GetBinContent(thebin);
-	  CorrEvtsCoreSpec[istage][idet][ibin_evis][icore]->SetBinContent(ibin,CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetBinContent(ibin)*factor);
+          double factor=mapflux[icore]->GetBinContent(thebin);
+          CorrEvtsCoreSpec[istage][idet][ibin_evis][icore]->SetBinContent(ibin,CorrEvtsTrueSpec[istage][idet][ibin_evis]->GetBinContent(ibin)*factor);
         }
       }
     }
@@ -796,19 +796,19 @@ void Predictor::MakePrediction(double sin2theta13, double dm2, double s22t14, do
       std::map<int,TH1F*> mapextrap = fluxcalc->ExtrapolationFactorRow(idet,idet2,sin2theta13,istage,dm2,s22t14,dm2_41);      
       for(int ibin_evis=0;ibin_evis < n_evis_bins; ++ibin_evis){
         if (FirstMakePrediction){
-	  //Need to ensure other istages are created
-	  for(int ii=0;ii<Nstage;++ii){
-	    sprintf(dummyname,"PredEvtsTrueSpec_%i_%i_%i_%i",ii,idet,idet2,ibin_evis);
-	    PredEvtsTrueSpec[ii][idet][idet2][ibin_evis] = (TH1F*)CorrEvtsCoreSpec[ii][idet2][ibin_evis][0]->Clone(dummyname);
-	  }
-	}
+          //Need to ensure other istages are created
+          for(int ii=0;ii<Nstage;++ii){
+            sprintf(dummyname,"PredEvtsTrueSpec_%i_%i_%i_%i",ii,idet,idet2,ibin_evis);
+            PredEvtsTrueSpec[ii][idet][idet2][ibin_evis] = (TH1F*)CorrEvtsCoreSpec[ii][idet2][ibin_evis][0]->Clone(dummyname);
+          }
+        }
         PredEvtsTrueSpec[istage][idet][idet2][ibin_evis]->Reset();
         
         for(int icore=0;icore<Ncores;++icore){ 
           //same as above: have to do multiplication manually to allow for different bins
           for(int ibin=1;ibin<=CorrEvtsCoreSpec[istage][idet2][ibin_evis][icore]->GetXaxis()->GetNbins();++ibin){
             double Etrue=CorrEvtsCoreSpec[istage][idet2][ibin_evis][icore]->GetXaxis()->GetBinCenter(ibin);
-	    //            if (Etrue > 8.7) Etrue = 8.7; // this is because the current flux histogram ends at 8.8 MeV
+            //            if (Etrue > 8.7) Etrue = 8.7; // this is because the current flux histogram ends at 8.8 MeV
             int thebin=mapextrap[icore]->GetXaxis()->FindBin(Etrue);
             double factor=mapextrap[icore]->GetBinContent(thebin);
             PredEvtsTrueSpec[istage][idet][idet2][ibin_evis]->AddBinContent(ibin,CorrEvtsCoreSpec[istage][idet2][ibin_evis][icore]->GetBinContent(ibin)*factor);
@@ -827,9 +827,9 @@ void Predictor::MakePrediction(double sin2theta13, double dm2, double s22t14, do
    
       //No prediction should be made if det or det2 were inactive
       if(NdetectorsConfig[istage][idet] != 0)
-	if(NdetectorsConfig[istage][idet2] != 0)
-	  for(int ibin_evis=0;ibin_evis < n_evis_bins; ibin_evis++)
-	    PredEvtsSpec[istage][idet][idet2]->SetBinContent(ibin_evis+1,PredEvtsTrueSpec[istage][idet][idet2][ibin_evis]->Integral());
+        if(NdetectorsConfig[istage][idet2] != 0)
+          for(int ibin_evis=0;ibin_evis < n_evis_bins; ibin_evis++)
+            PredEvtsSpec[istage][idet][idet2]->SetBinContent(ibin_evis+1,PredEvtsTrueSpec[istage][idet][idet2][ibin_evis]->Integral());
        
       //fill output object
       predper->SetPred(istage,idet,idet2,PredEvtsSpec[istage][idet][idet2]);
@@ -863,9 +863,9 @@ void Predictor::CombineData(){
     for(int istage=0;istage<Nstage;++istage){
       
       float factor=tdper[istage].MuonVetoEff[idet]
-	*tdper[istage].DMCEff[idet]
-	*tdper[istage].Livetime[idet]
-	*tdper[istage].TargetMass[idet]/tdper[istage].TargetMass[0];
+        *tdper[istage].DMCEff[idet]
+        *tdper[istage].Livetime[idet]
+        *tdper[istage].TargetMass[idet]/tdper[istage].TargetMass[0];
       
       weightedsum+=tdper[istage].CorrEvts[idet]*factor;
       livsum+=factor;
@@ -912,22 +912,22 @@ void Predictor::CombinePredictions(){
 
       for(int istage=0;istage<Nstage;++istage){
 
-      //Skip over inactive AD
-      if(NdetectorsConfig[istage][idet] == 0) continue;
-      if(NdetectorsConfig[istage][idet2] == 0) continue;
+        //Skip over inactive AD
+        if(NdetectorsConfig[istage][idet] == 0) continue;
+        if(NdetectorsConfig[istage][idet2] == 0) continue;
 
-       float factor=tdper[istage].MuonVetoEff[idet]
-         *tdper[istage].DMCEff[idet]
-         *tdper[istage].Livetime[idet]
-         *tdper[istage].TargetMass[idet]/tdper[istage].TargetMass[0];
-       hweightedsum->Add(predper->GetPred(istage,idet,idet2),factor);
-       livsum+=factor;
+        float factor=tdper[istage].MuonVetoEff[idet]
+          *tdper[istage].DMCEff[idet]
+          *tdper[istage].Livetime[idet]
+          *tdper[istage].TargetMass[idet]/tdper[istage].TargetMass[0];
+        hweightedsum->Add(predper->GetPred(istage,idet,idet2),factor);
+        livsum+=factor;
       }
 
       if (livsum == 0)
-	 hweightedsum->Scale(0);
+        hweightedsum->Scale(0);
       else
-	hweightedsum->Scale(1./livsum);
+        hweightedsum->Scale(1./livsum);
 
       superpred->SetPred(0,idet,idet2,hweightedsum);
     }
@@ -1039,63 +1039,63 @@ void Predictor::AddandScaleCovMatrix(Int_t type){
   for(int istage=0;istage<Nstage;istage++){
     for(int jstage=0;jstage<Nstage;jstage++){
       for(int idet=4;idet<8;++idet){
-	for(int idet2=0;idet2<4;++idet2){
-	  for(int jdet=4;jdet<8;++jdet){
-	    for(int jdet2=0;jdet2<4;++jdet2){
+        for(int idet2=0;idet2<4;++idet2){
+          for(int jdet=4;jdet<8;++jdet){
+            for(int jdet2=0;jdet2<4;++jdet2){
 
-	      //Skip over inactive AD
-	      if(NdetectorsConfig[istage][idet] == 0) continue;
-	      if(NdetectorsConfig[istage][idet2] == 0) continue;
+              //Skip over inactive AD
+              if(NdetectorsConfig[istage][idet] == 0) continue;
+              if(NdetectorsConfig[istage][idet2] == 0) continue;
 
-	      if(NdetectorsConfig[jstage][jdet] == 0) continue;
-	      if(NdetectorsConfig[jstage][jdet2] == 0) continue;
+              if(NdetectorsConfig[jstage][jdet] == 0) continue;
+              if(NdetectorsConfig[jstage][jdet2] == 0) continue;
 
-	      Int_t iii = (idet-4)*4 +idet2;
-	      Int_t jjj = (jdet-4)*4 +jdet2;
-	      for (Int_t i = 0; i < n_evis_bins; i++){
-		for (Int_t j = 0; j < n_evis_bins; j++){
+              Int_t iii = (idet-4)*4 +idet2;
+              Int_t jjj = (jdet-4)*4 +jdet2;
+              for (Int_t i = 0; i < n_evis_bins; i++){
+                for (Int_t j = 0; j < n_evis_bins; j++){
 		  
-		  Int_t i2 = (istage*MaxPredictions+iii)*n_evis_bins+i;
-		  Int_t j2 = (jstage*MaxPredictions+jjj)*n_evis_bins+j;
+                  Int_t i2 = (istage*MaxPredictions+iii)*n_evis_bins+i;
+                  Int_t j2 = (jstage*MaxPredictions+jjj)*n_evis_bins+j;
 		  
-		  M_bg_sys_frac[i2][j2] = M_bg_sys[i2][j2]
-		    /predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
-		    /predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);
+                  M_bg_sys_frac[i2][j2] = M_bg_sys[i2][j2]
+                    /predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
+                    /predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);
 		  
-		  if (type == -1 || type == 0){ // all errors
-		    M[i2][j2]
-		      += M_sig_sys[i2][j2]
-		      * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
-		      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1)
-		      + M_bg_sys[i2][j2] // already scaled
-              + M_stat[i2][j2];
+                  if (type == -1 || type == 0){ // all errors
+                    M[i2][j2]
+                      += M_sig_sys[i2][j2]
+                      * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
+                      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1)
+                      + M_bg_sys[i2][j2] // already scaled
+                      + M_stat[i2][j2];
               
-              /*
-              if(n_evis_bins==37){ //ensure to do this only for LBNL binning
-                  if(i==j){ //only for diagonal elements
+                    /*
+                      if(n_evis_bins==37){ //ensure to do this only for LBNL binning
+                      if(i==j){ //only for diagonal elements
                       if(i<3){ //only for first three bins
-                          //cout<<"Adding extra uncertainty"<<endl;
-                          M[i2][j2]+=0.4*0.4* predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
-                          * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);  //adding 10%, 20%, 40% additional uncertainty
+                      //cout<<"Adding extra uncertainty"<<endl;
+                      M[i2][j2]+=0.4*0.4* predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
+                      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);  //adding 10%, 20%, 40% additional uncertainty
                       }
-                  }
-              }*/
+                      }
+                      }*/
     
               
-		  }else if (type ==1) {// signal systematics only
-		    M[i2][j2]
-		      += M_sig_sys[i2][j2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
-		      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);
-		  }else if  (type ==2) {// backgrounds systematics only
-		    M[i2][j2] += M_bg_sys[i2][j2]; // already scaed
-		  }else if  (type ==3) {// near-site stat error only
-		    M[i2][j2] +=  M_stat[i2][j2];
-		  }
-		}
-	      }
-	    }
-	  }
-	}
+                  }else if (type ==1) {// signal systematics only
+                    M[i2][j2]
+                      += M_sig_sys[i2][j2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
+                      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1);
+                  }else if  (type ==2) {// backgrounds systematics only
+                    M[i2][j2] += M_bg_sys[i2][j2]; // already scaed
+                  }else if  (type ==3) {// near-site stat error only
+                    M[i2][j2] +=  M_stat[i2][j2];
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -1116,7 +1116,7 @@ void Predictor::InvertMatrix(){
     npredictions = 1;
 
  
-    Double_t * M_scaled_tmp = CombineMatrix(combine_mode);
+  Double_t * M_scaled_tmp = CombineMatrix(combine_mode);
     
   if (stage == -1){ //Use full covariance matrix
     TMatrixD * mat = new TMatrixD(npredictions*Nstage*n_evis_bins_rebin,npredictions*Nstage*n_evis_bins_rebin);
@@ -1130,58 +1130,58 @@ void Predictor::InvertMatrix(){
     Double_t * m_tmp = mat->GetMatrixArray();
     for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
       for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){
-	M_inv[i][j] = m_tmp[i*npredictions*Nstage*n_evis_bins_rebin+j];
-	//cout << " " << M_inv[i][j];
+        M_inv[i][j] = m_tmp[i*npredictions*Nstage*n_evis_bins_rebin+j];
+        //cout << " " << M_inv[i][j];
       }
       //cout << endl;
     }
-  delete mat;
+    delete mat;
   }
     
   else if(stage == 7){ //added by Beda - 6+8 AD period
-      int Stages_in_68AD=2;
+    int Stages_in_68AD=2;
       
-      TMatrixD * mat = new TMatrixD(npredictions*Stages_in_68AD*n_evis_bins_rebin,npredictions*Stages_in_68AD*n_evis_bins_rebin);
+    TMatrixD * mat = new TMatrixD(npredictions*Stages_in_68AD*n_evis_bins_rebin,npredictions*Stages_in_68AD*n_evis_bins_rebin);
       
-      Double_t M_scaled_tmp_stage[npredictions*Stages_in_68AD*n_evis_bins_rebin*npredictions*Stages_in_68AD*n_evis_bins_rebin];
+    Double_t M_scaled_tmp_stage[npredictions*Stages_in_68AD*n_evis_bins_rebin*npredictions*Stages_in_68AD*n_evis_bins_rebin];
       
       
-      for(int i=0;i<npredictions*Stages_in_68AD*n_evis_bins_rebin;++i){
-          for(int j=0;j<npredictions*Stages_in_68AD*n_evis_bins_rebin;++j){
-              M_scaled_tmp_stage[i*Stages_in_68AD*npredictions*n_evis_bins_rebin+j] = M_scaled_tmp[i*npredictions*Nstage*n_evis_bins_rebin+j];
-      //check it this is correct stage->Stages_in_68AD
-          }
+    for(int i=0;i<npredictions*Stages_in_68AD*n_evis_bins_rebin;++i){
+      for(int j=0;j<npredictions*Stages_in_68AD*n_evis_bins_rebin;++j){
+        M_scaled_tmp_stage[i*Stages_in_68AD*npredictions*n_evis_bins_rebin+j] = M_scaled_tmp[i*npredictions*Nstage*n_evis_bins_rebin+j];
+        //check it this is correct stage->Stages_in_68AD
       }
+    }
    
       
-      mat->SetMatrixArray(M_scaled_tmp_stage);
-      //cout << "Matrix Determinant: " << mat->Determinant() << endl;
-      //cout << "Matrix" << endl;
-      //mat->Print();
+    mat->SetMatrixArray(M_scaled_tmp_stage);
+    //cout << "Matrix Determinant: " << mat->Determinant() << endl;
+    //cout << "Matrix" << endl;
+    //mat->Print();
       
-      //cout<<"Inverting normal matrix"<<endl;
+    //cout<<"Inverting normal matrix"<<endl;
       
-      mat->Invert();
-      //cout << "Inverted Matrix" << endl;
-      //mat->Print();
-      Double_t * m_tmp = mat->GetMatrixArray();
+    mat->Invert();
+    //cout << "Inverted Matrix" << endl;
+    //mat->Print();
+    Double_t * m_tmp = mat->GetMatrixArray();
       
-      for(int istage=0;istage<Nstage;istage++){
-          for(int jstage=0;jstage<Nstage;jstage++){
-              for (Int_t i = 0; i < npredictions*n_evis_bins_rebin; i++){
-                  for (Int_t j = 0; j < npredictions*n_evis_bins_rebin; j++){
+    for(int istage=0;istage<Nstage;istage++){
+      for(int jstage=0;jstage<Nstage;jstage++){
+        for (Int_t i = 0; i < npredictions*n_evis_bins_rebin; i++){
+          for (Int_t j = 0; j < npredictions*n_evis_bins_rebin; j++){
                       
-                      if(istage!=2 && jstage!=2)  //skip 7AD stage
-                          M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] = m_tmp[(i+istage*npredictions*n_evis_bins_rebin)*npredictions*Stages_in_68AD*n_evis_bins_rebin+(jstage*npredictions*n_evis_bins_rebin+j)];
-                      else
-                          M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] =0;
-                      //cout << " " << M_inv[i][j];
-                  }
-                  //cout << endl;
-              }
+            if(istage!=2 && jstage!=2)  //skip 7AD stage
+              M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] = m_tmp[(i+istage*npredictions*n_evis_bins_rebin)*npredictions*Stages_in_68AD*n_evis_bins_rebin+(jstage*npredictions*n_evis_bins_rebin+j)];
+            else
+              M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] =0;
+            //cout << " " << M_inv[i][j];
           }
+          //cout << endl;
+        }
       }
-      delete mat;
+    }
+    delete mat;
   }
   else{ //Need to be very careful on how to get the correct portion of the covmatrix
     TMatrixD * mat = new TMatrixD(npredictions*n_evis_bins_rebin,npredictions*n_evis_bins_rebin);
@@ -1190,8 +1190,8 @@ void Predictor::InvertMatrix(){
 
     for(int i=0;i<npredictions*n_evis_bins_rebin;++i){
       for(int j=0;j<npredictions*n_evis_bins_rebin;++j){
-	M_scaled_tmp_stage[i*npredictions*n_evis_bins_rebin+j] = M_scaled_tmp[(stage*npredictions*n_evis_bins_rebin+i)*npredictions*Nstage*n_evis_bins_rebin+(stage*npredictions*n_evis_bins_rebin+j)];
-	//mat(i,j) = M_scaled_tmp[(stage*npredictions*n_evis_bins_rebin+i)*npredictions*Nstage*n_evis_bins_rebin+(stage*npredictions*n_evis_bins_rebin+j)];
+        M_scaled_tmp_stage[i*npredictions*n_evis_bins_rebin+j] = M_scaled_tmp[(stage*npredictions*n_evis_bins_rebin+i)*npredictions*Nstage*n_evis_bins_rebin+(stage*npredictions*n_evis_bins_rebin+j)];
+        //mat(i,j) = M_scaled_tmp[(stage*npredictions*n_evis_bins_rebin+i)*npredictions*Nstage*n_evis_bins_rebin+(stage*npredictions*n_evis_bins_rebin+j)];
       }
     }
 
@@ -1207,39 +1207,39 @@ void Predictor::InvertMatrix(){
 
     for(int istage=0;istage<Nstage;istage++){
       for(int jstage=0;jstage<Nstage;jstage++){
-	for (Int_t i = 0; i < npredictions*n_evis_bins_rebin; i++){
-	  for (Int_t j = 0; j < npredictions*n_evis_bins_rebin; j++){
+        for (Int_t i = 0; i < npredictions*n_evis_bins_rebin; i++){
+          for (Int_t j = 0; j < npredictions*n_evis_bins_rebin; j++){
 
-	    if(istage==stage && jstage==stage)
-	      M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] = m_tmp[i*npredictions*n_evis_bins_rebin+j];
-	    else
-	      M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] =0; 
-	    //cout << " " << M_inv[i][j];
-	  }
-	  //cout << endl;
-	}
+            if(istage==stage && jstage==stage)
+              M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] = m_tmp[i*npredictions*n_evis_bins_rebin+j];
+            else
+              M_inv[istage*npredictions*n_evis_bins_rebin+i][jstage*npredictions*n_evis_bins_rebin+j] =0; 
+            //cout << " " << M_inv[i][j];
+          }
+          //cout << endl;
+        }
       }
     }
-  delete mat;
+    delete mat;
   }
 
 }
 
 void Predictor::InvertRateMatrix(){
 
-    cout<<"Calculating rate matrix for some reason"<<endl;
+  cout<<"Calculating rate matrix for some reason"<<endl;
   Int_t StartStage, EndStage, NumStage;
 
   if (stage == -1){ //Use full covariance matrix
-      cout<<"Using full cov matrix"<<endl;
+    cout<<"Using full cov matrix"<<endl;
     StartStage = 0;
     EndStage = Nstage;
     NumStage = Nstage;
   }
   else if(stage==7){
-      StartStage=0;
-      EndStage=2;
-      NumStage = 2;
+    StartStage=0;
+    EndStage=2;
+    NumStage = 2;
   }
   else{
     StartStage = stage;
@@ -1248,198 +1248,198 @@ void Predictor::InvertRateMatrix(){
   }
   
     
-    Int_t npredictions = 2;
+  Int_t npredictions = 2;
     
-    if (combine_mode == 0)
-        npredictions = 16;
-    if (combine_mode == 1)
-        npredictions = 2;
-    if (combine_mode == 2)
-        npredictions = 4;
-    if (combine_mode == 3)
-        npredictions = 1;
+  if (combine_mode == 0)
+    npredictions = 16;
+  if (combine_mode == 1)
+    npredictions = 2;
+  if (combine_mode == 2)
+    npredictions = 4;
+  if (combine_mode == 3)
+    npredictions = 1;
     
-    if(combine_mode==1){
+  if(combine_mode==1){
         
-        TMatrixD * mat = new TMatrixD(nNearHalls*NumStage,nNearHalls*NumStage);
+    TMatrixD * mat = new TMatrixD(nNearHalls*NumStage,nNearHalls*NumStage);
         
-        Double_t M_scaled_tmp[nNearHalls*NumStage*nNearHalls*NumStage];
-        for (Int_t i = 0; i < nNearHalls*NumStage; i++){
-            for (Int_t j = 0; j < nNearHalls*NumStage; j++){
-                M_scaled[i][j] = 0;
-                M_scaled_tmp[i*nNearHalls*NumStage+j] = 0;
-            }
-        }
+    Double_t M_scaled_tmp[nNearHalls*NumStage*nNearHalls*NumStage];
+    for (Int_t i = 0; i < nNearHalls*NumStage; i++){
+      for (Int_t j = 0; j < nNearHalls*NumStage; j++){
+        M_scaled[i][j] = 0;
+        M_scaled_tmp[i*nNearHalls*NumStage+j] = 0;
+      }
+    }
       
       
-        for(int istage=StartStage;istage<EndStage;istage++){
-            for(int jstage=StartStage;jstage<EndStage;jstage++){
-                for(int idet=4;idet<8;++idet){
-                    if(NdetectorsConfig[istage][idet] == 0) continue;
-                    for(int idet2=0;idet2<4;++idet2){
-                        if(NdetectorsConfig[istage][idet2] == 0) continue;
-                        for(int jdet=4;jdet<8;++jdet){
-                            if(NdetectorsConfig[jstage][jdet] == 0) continue;
-                            for(int jdet2=0;jdet2<4;++jdet2){
-                                if(NdetectorsConfig[jstage][jdet2] == 0) continue;
+    for(int istage=StartStage;istage<EndStage;istage++){
+      for(int jstage=StartStage;jstage<EndStage;jstage++){
+        for(int idet=4;idet<8;++idet){
+          if(NdetectorsConfig[istage][idet] == 0) continue;
+          for(int idet2=0;idet2<4;++idet2){
+            if(NdetectorsConfig[istage][idet2] == 0) continue;
+            for(int jdet=4;jdet<8;++jdet){
+              if(NdetectorsConfig[jstage][jdet] == 0) continue;
+              for(int jdet2=0;jdet2<4;++jdet2){
+                if(NdetectorsConfig[jstage][jdet2] == 0) continue;
                                 
-                                Int_t iii = (idet-4)*4 +idet2;
-                                Int_t jjj = (jdet-4)*4 +jdet2;
+                Int_t iii = (idet-4)*4 +idet2;
+                Int_t jjj = (jdet-4)*4 +jdet2;
                                 
-                                for(int ie=0;ie<n_evis_bins;++ie){
-                                    for(int je=0;je<n_evis_bins;++je){
+                for(int ie=0;ie<n_evis_bins;++ie){
+                  for(int je=0;je<n_evis_bins;++je){
                                         
-                                        if (stage==-1 || stage==7)  //I guess this is proper extension
-                                            M_scaled[nNearHalls*istage+(detConfigEH[idet2]-1)][nNearHalls*jstage+(detConfigEH[jdet2]-1)]
-                                            += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
-                                        else
-                                            M_scaled[(detConfigEH[idet2]-1)][(detConfigEH[jdet2]-1)]
-                                            += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    if (stage==-1 || stage==7)  //I guess this is proper extension
+                      M_scaled[nNearHalls*istage+(detConfigEH[idet2]-1)][nNearHalls*jstage+(detConfigEH[jdet2]-1)]
+                        += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
+                    else
+                      M_scaled[(detConfigEH[idet2]-1)][(detConfigEH[jdet2]-1)]
+                        += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
+                  }
                 }
+              }
             }
-        }
-
-
-        for (Int_t i = 0; i < nNearHalls*NumStage; i++){
-          for (Int_t j = 0; j < nNearHalls*NumStage; j++){
-        M_scaled_tmp[i*nNearHalls*NumStage+j] = M_scaled[i][j];
           }
         }
-        mat->SetMatrixArray(&M_scaled_tmp[0]);
-        //mat->Print();
-        mat->Invert();
-        //mat->Print();
-        Double_t * m_tmp = mat->GetMatrixArray();
+      }
+    }
 
-        for (Int_t istage = 0; istage < Nstage; istage++){
-          for (Int_t jstage = 0; jstage < Nstage; jstage++){
+
+    for (Int_t i = 0; i < nNearHalls*NumStage; i++){
+      for (Int_t j = 0; j < nNearHalls*NumStage; j++){
+        M_scaled_tmp[i*nNearHalls*NumStage+j] = M_scaled[i][j];
+      }
+    }
+    mat->SetMatrixArray(&M_scaled_tmp[0]);
+    //mat->Print();
+    mat->Invert();
+    //mat->Print();
+    Double_t * m_tmp = mat->GetMatrixArray();
+
+    for (Int_t istage = 0; istage < Nstage; istage++){
+      for (Int_t jstage = 0; jstage < Nstage; jstage++){
         for (Int_t i = 0; i < nNearHalls; i++){
           for (Int_t j = 0; j < nNearHalls; j++){
 
             if (stage==-1)
               M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = m_tmp[((istage*nNearHalls)+i)*nNearHalls*Nstage+(jstage*nNearHalls)+j];
             else if(stage==7){
-                if(istage<2 && jstage<2){
-                    M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = m_tmp[((istage*nNearHalls)+i)*nNearHalls*Nstage+(jstage*nNearHalls)+j];
-                }
-                else
-                    M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = 0;
+              if(istage<2 && jstage<2){
+                M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = m_tmp[((istage*nNearHalls)+i)*nNearHalls*Nstage+(jstage*nNearHalls)+j];
+              }
+              else
+                M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = 0;
             }
             else{
               if (istage==stage && jstage==stage)
-            M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = m_tmp[i*nNearHalls+j];
+                M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = m_tmp[i*nNearHalls+j];
               else
-            M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = 0;
+                M_rate_inv[istage*nNearHalls+i][jstage*nNearHalls+j] = 0;
             }
             
             //      cout << " " << M_inv[i][j];
           }
           //    cout << endl;
         }
+      }
+    }
+        
+    /*cout<<"Inverted matrix:"<<endl;
+      for (Int_t i = 0; i < Nstage*npredictions; i++){
+      for (Int_t j = 0; j < Nstage*npredictions; j++){
+      cout<<M_rate_inv[i][j]<<" ";
+      }
+      cout<<endl;
+      }*/
+        
+    delete mat;
+  }
+  if(combine_mode==0){
+    if(n_evis_bins_rebin!=n_evis_bins) cout<<"Bin mismatch for some reason"<<endl;
+    TMatrixD * mat = new TMatrixD(npredictions*Nstage,npredictions*Nstage);
+        
+    Double_t M_scaled_tmp[npredictions*Nstage*npredictions*Nstage];
+    for (Int_t i = 0; i < npredictions*Nstage; i++){
+      for (Int_t j = 0; j < npredictions*Nstage; j++){
+        M_scaled[i][j] = 0;
+        M_scaled_tmp[i*npredictions*Nstage+j] = 0;
+      }
+    }
+        
+    for(int istage=0;istage<Nstage;istage++){
+      for(int jstage=0;jstage<Nstage;jstage++){
+        for(int idet=4;idet<8;++idet){
+          if(NdetectorsConfig[istage][idet] == 0) continue;
+          for(int idet2=0;idet2<4;++idet2){
+            if(NdetectorsConfig[istage][idet2] == 0) continue;
+            for(int jdet=4;jdet<8;++jdet){
+              if(NdetectorsConfig[jstage][jdet] == 0) continue;
+              for(int jdet2=0;jdet2<4;++jdet2){
+                if(NdetectorsConfig[jstage][jdet2] == 0) continue;
+                                
+                Int_t iii = (idet-4)*4 +idet2;
+                Int_t jjj = (jdet-4)*4 +jdet2;
+                                
+                for(int ie=0;ie<n_evis_bins;++ie){
+                  for(int je=0;je<n_evis_bins;++je){
+                                        
+                                        
+                    M_scaled[npredictions*istage+iii][npredictions*jstage+jjj]
+                      += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
+                  }
+                }
+              }
+            }
           }
         }
-        
-        /*cout<<"Inverted matrix:"<<endl;
-        for (Int_t i = 0; i < Nstage*npredictions; i++){
-            for (Int_t j = 0; j < Nstage*npredictions; j++){
-                cout<<M_rate_inv[i][j]<<" ";
-            }
-            cout<<endl;
-        }*/
-        
-        delete mat;
-        }
-    if(combine_mode==0){
-        if(n_evis_bins_rebin!=n_evis_bins) cout<<"Bin mismatch for some reason"<<endl;
-        TMatrixD * mat = new TMatrixD(npredictions*Nstage,npredictions*Nstage);
-        
-        Double_t M_scaled_tmp[npredictions*Nstage*npredictions*Nstage];
-        for (Int_t i = 0; i < npredictions*Nstage; i++){
-            for (Int_t j = 0; j < npredictions*Nstage; j++){
-                M_scaled[i][j] = 0;
-                M_scaled_tmp[i*npredictions*Nstage+j] = 0;
-            }
-        }
-        
-        for(int istage=0;istage<Nstage;istage++){
-            for(int jstage=0;jstage<Nstage;jstage++){
-                for(int idet=4;idet<8;++idet){
-                    if(NdetectorsConfig[istage][idet] == 0) continue;
-                    for(int idet2=0;idet2<4;++idet2){
-                        if(NdetectorsConfig[istage][idet2] == 0) continue;
-                        for(int jdet=4;jdet<8;++jdet){
-                            if(NdetectorsConfig[jstage][jdet] == 0) continue;
-                            for(int jdet2=0;jdet2<4;++jdet2){
-                                if(NdetectorsConfig[jstage][jdet2] == 0) continue;
-                                
-                                Int_t iii = (idet-4)*4 +idet2;
-                                Int_t jjj = (jdet-4)*4 +jdet2;
-                                
-                                for(int ie=0;ie<n_evis_bins;++ie){
-                                    for(int je=0;je<n_evis_bins;++je){
-                                        
-                                        
-                                        M_scaled[npredictions*istage+iii][npredictions*jstage+jjj]
-                                        += M[(istage*MaxPredictions+iii)*n_evis_bins+ie][(jstage*MaxPredictions+jjj)*n_evis_bins+je];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        for (Int_t istage = 0; istage < Nstage; istage++){
-            for (Int_t jstage = 0; jstage < Nstage; jstage++){
-                for (Int_t i = 0; i < npredictions; i++){
-                    for (Int_t j = 0; j < npredictions; j++){
-                        M_scaled_tmp[(istage*npredictions+i)*npredictions*Nstage+jstage*npredictions+j] = M_scaled[istage*npredictions+i][jstage*npredictions+j];
-                    }
-                }
-            }
-        }
-        mat->SetMatrixArray(&M_scaled_tmp[0]);
-        //mat->Print();
-        mat->Invert();
-        //mat->Print();
-        Double_t * m_tmp = mat->GetMatrixArray();
-        
-        for (Int_t istage = 0; istage < Nstage; istage++){
-            for (Int_t jstage = 0; jstage < Nstage; jstage++){
-                for (Int_t i = 0; i < npredictions; i++){
-                    for (Int_t j = 0; j < npredictions; j++){
-                        
-                        
-                        M_rate_inv[istage*npredictions+i][jstage*npredictions+j] = m_tmp[((istage*npredictions)+i)*npredictions*Nstage+(jstage*npredictions)+j];
-                        
-                        
-                        //      cout << " " << M_inv[i][j];
-                    }
-                    //    cout << endl;
-                }
-            }
-        }
-        
-        delete mat;
-        
-        
-        cout<<"Inverted matrix:"<<endl;
-        for (Int_t i = 0; i < Nstage*npredictions; i++){
-            for (Int_t j = 0; j < Nstage*npredictions; j++){
-                cout<<M_rate_inv[i][j]<<" ";
-            }
-            cout<<endl;
-        }
-        
-        
+      }
     }
-    cout<<"Inversion done"<<endl;
+        
+    for (Int_t istage = 0; istage < Nstage; istage++){
+      for (Int_t jstage = 0; jstage < Nstage; jstage++){
+        for (Int_t i = 0; i < npredictions; i++){
+          for (Int_t j = 0; j < npredictions; j++){
+            M_scaled_tmp[(istage*npredictions+i)*npredictions*Nstage+jstage*npredictions+j] = M_scaled[istage*npredictions+i][jstage*npredictions+j];
+          }
+        }
+      }
+    }
+    mat->SetMatrixArray(&M_scaled_tmp[0]);
+    //mat->Print();
+    mat->Invert();
+    //mat->Print();
+    Double_t * m_tmp = mat->GetMatrixArray();
+        
+    for (Int_t istage = 0; istage < Nstage; istage++){
+      for (Int_t jstage = 0; jstage < Nstage; jstage++){
+        for (Int_t i = 0; i < npredictions; i++){
+          for (Int_t j = 0; j < npredictions; j++){
+                        
+                        
+            M_rate_inv[istage*npredictions+i][jstage*npredictions+j] = m_tmp[((istage*npredictions)+i)*npredictions*Nstage+(jstage*npredictions)+j];
+                        
+                        
+            //      cout << " " << M_inv[i][j];
+          }
+          //    cout << endl;
+        }
+      }
+    }
+        
+    delete mat;
+        
+        
+    cout<<"Inverted matrix:"<<endl;
+    for (Int_t i = 0; i < Nstage*npredictions; i++){
+      for (Int_t j = 0; j < Nstage*npredictions; j++){
+        cout<<M_rate_inv[i][j]<<" ";
+      }
+      cout<<endl;
+    }
+        
+        
+  }
+  cout<<"Inversion done"<<endl;
 }
 
 Double_t Predictor::CalculateChi2Cov(Double_t sin22t13, Double_t dm2_ee,Double_t sin22t14, Double_t dm2_41){
@@ -1478,34 +1478,34 @@ Double_t Predictor::CalculateChi2Cov(){
     for(int idet=4;idet<8;++idet){
       for(int idet2=0;idet2<4;++idet2){
 
-	//Skip over inactive AD
-	if(NdetectorsConfig[istage][idet] == 0) continue;
-	if(NdetectorsConfig[istage][idet2] == 0) continue;
+        //Skip over inactive AD
+        if(NdetectorsConfig[istage][idet] == 0) continue;
+        if(NdetectorsConfig[istage][idet2] == 0) continue;
 
-	for (Int_t i = 0; i < n_evis_bins; i++){
+        for (Int_t i = 0; i < n_evis_bins; i++){
 	  
-	  if (combine_mode == 0){
-	    Int_t iii = (idet-4)*4 +idet2;
-	    N_obs[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	    N_pred[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  }
+          if (combine_mode == 0){
+            Int_t iii = (idet-4)*4 +idet2;
+            N_obs[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
 
-	  if (combine_mode == 1){
-	    N_obs[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] +=  mode1_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	    N_pred[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  }
+          if (combine_mode == 1){
+            N_obs[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] +=  mode1_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
 
-	  if (combine_mode == 2){
-	    N_obs[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	    N_pred[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  }
+          if (combine_mode == 2){
+            N_obs[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
 
-	  if (combine_mode == 3){
-          N_obs[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-          N_pred[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  }
+          if (combine_mode == 3){
+            N_obs[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
 	  
-	}
+        }
       }
     }
   }
@@ -1521,8 +1521,8 @@ Double_t Predictor::CalculateChi2Cov(){
     endStage = Nstage;
   }
   else if(stage==7){
-      startStage=0;
-      endStage=2;
+    startStage=0;
+    endStage=2;
   }
   else{
     startStage = stage;
@@ -1536,8 +1536,8 @@ Double_t Predictor::CalculateChi2Cov(){
       //cout << "j: " << j << " N_obs: " << N_obs[j]<< " N_pred: " << N_pred[j] << endl;
 
       //cout << "M_inv: " << M_inv[i][j] << " chi2: " << M_inv[i][j]*(N_obs[i]-N_pred[i])*(N_obs[j]-N_pred[j]) << endl;
-    //for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
-    //for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){ 
+      //for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
+      //for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){ 
       chi2out+= M_inv[i][j]
         * (N_obs[i]-N_pred[i]) 
         * (N_obs[j]-N_pred[j]);
@@ -1555,16 +1555,16 @@ Double_t Predictor::CalculateChi2CovRate(Double_t sin22t13, Double_t dm2_ee,Doub
 
 Double_t Predictor::CalculateChi2CovRate(){
     
-    Int_t npredictions = 2;
+  Int_t npredictions = 2;
     
-    if (combine_mode == 0)
-        npredictions = 16;
-    if (combine_mode == 1)
-        npredictions = 2;
-    if (combine_mode == 2)
-        npredictions = 4;
-    if (combine_mode == 3)
-        npredictions = 1;
+  if (combine_mode == 0)
+    npredictions = 16;
+  if (combine_mode == 1)
+    npredictions = 2;
+  if (combine_mode == 2)
+    npredictions = 4;
+  if (combine_mode == 3)
+    npredictions = 1;
 
   if (RecalculateCovMatrix){
     AddandScaleCovMatrix();
@@ -1579,51 +1579,51 @@ Double_t Predictor::CalculateChi2CovRate(){
     N_obs[i] = 0;
   }
     
-    cout<<"Here"<<endl;
+  cout<<"Here"<<endl;
   
   // Fill observation and predictions
   for(int istage=0;istage<Nstage;istage++){
     for(int idet=4;idet<8;++idet){
-	for(int idet2=0;idet2<4;++idet2){
+      for(int idet2=0;idet2<4;++idet2){
 
-	  //Skip over inactive AD
-	  if(NdetectorsConfig[istage][idet] == 0) continue;
-	  if(NdetectorsConfig[istage][idet2] == 0) continue;
+        //Skip over inactive AD
+        if(NdetectorsConfig[istage][idet] == 0) continue;
+        if(NdetectorsConfig[istage][idet2] == 0) continue;
         
         if(combine_mode==0){
-            Int_t iii = (idet-4)*4 +idet2;
-            for (Int_t i = 0; i < n_evis_bins; i++){
-                N_obs[istage*npredictions+iii] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-                N_pred[istage*npredictions+iii] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-            }
+          Int_t iii = (idet-4)*4 +idet2;
+          for (Int_t i = 0; i < n_evis_bins; i++){
+            N_obs[istage*npredictions+iii] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[istage*npredictions+iii] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
         }
         if(combine_mode==1){
-            for (Int_t i = 0; i < n_evis_bins; i++){
-                N_obs[istage*npredictions+(detConfigEH[idet2]-1)] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-                N_pred[istage*nNearHalls+(detConfigEH[idet2]-1)] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-            }
+          for (Int_t i = 0; i < n_evis_bins; i++){
+            N_obs[istage*npredictions+(detConfigEH[idet2]-1)] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+            N_pred[istage*nNearHalls+(detConfigEH[idet2]-1)] += predper->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          }
         }
-	}
-    }
-  }
-    
-    cout<<"Here2"<<endl;
-
-  Double_t chi2out=0;
-   for (Int_t istage = 0; istage < 3; istage++){
-     for (Int_t jstage = 0; jstage < 3; jstage++){
-       for (Int_t i = 0; i < npredictions; i++){
-	for (Int_t j = 0; j < npredictions; j++){
-	  
-	  chi2out+= M_rate_inv[istage*npredictions+i][jstage*npredictions+j]
-	    * (N_obs[istage*npredictions+i]-N_pred[istage*npredictions+i])
-	    * (N_obs[jstage*npredictions+j]-N_pred[jstage*npredictions+j]);
-	
-	}
       }
     }
   }
-   //cout << chi2out << " " << N_obs[0]  << " " << N_obs[1]  << " " << N_pred[0] << " " << N_pred[1] << endl;
+    
+  cout<<"Here2"<<endl;
+
+  Double_t chi2out=0;
+  for (Int_t istage = 0; istage < 3; istage++){
+    for (Int_t jstage = 0; jstage < 3; jstage++){
+      for (Int_t i = 0; i < npredictions; i++){
+        for (Int_t j = 0; j < npredictions; j++){
+	  
+          chi2out+= M_rate_inv[istage*npredictions+i][jstage*npredictions+j]
+            * (N_obs[istage*npredictions+i]-N_pred[istage*npredictions+i])
+            * (N_obs[jstage*npredictions+j]-N_pred[jstage*npredictions+j]);
+	
+        }
+      }
+    }
+  }
+  //cout << chi2out << " " << N_obs[0]  << " " << N_obs[1]  << " " << N_pred[0] << " " << N_pred[1] << endl;
   
   return chi2out;
 
@@ -1665,18 +1665,18 @@ Double_t * Predictor::GetFinalPred(PredSet *evtset, Int_t mode){
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=4;idet<8;++idet){
       for(int idet2=0;idet2<4;++idet2){
-	Int_t iii = (idet-4)*4 +idet2;
-	for (Int_t i = 0; i < n_evis_bins; i++){
-	  if (mode == 0)
-	    final_pred[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  if (mode == 1)
-	    final_pred[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  if (mode == 2)
-	    final_pred[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-	  if (mode == 3)
-	    final_pred[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+        Int_t iii = (idet-4)*4 +idet2;
+        for (Int_t i = 0; i < n_evis_bins; i++){
+          if (mode == 0)
+            final_pred[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          if (mode == 1)
+            final_pred[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          if (mode == 2)
+            final_pred[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
+          if (mode == 3)
+            final_pred[npredictions*istage*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
 
-	}
+        }
       }         
     }
   }
@@ -1705,17 +1705,17 @@ Double_t * Predictor::GetFinalObs(Int_t mode){
   for(int istage=0;istage<Nstage;istage++){
     for(int idet=4;idet<8;++idet){
       for(int idet2=0;idet2<4;++idet2){
-	Int_t iii = (idet-4)*4 +idet2;
-	for (Int_t i = 0; i < n_evis_bins; i++){
-	  if (mode == 0)
-	    final_obs[(istage*npredictions+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	  if (mode == 1)
-	    final_obs[(istage*npredictions+detConfigEH[idet2]-1)*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	  if (mode == 2)
-	    final_obs[(istage*npredictions+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	  if (mode == 3)
-	    final_obs[istage*npredictions*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
-	}
+        Int_t iii = (idet-4)*4 +idet2;
+        for (Int_t i = 0; i < n_evis_bins; i++){
+          if (mode == 0)
+            final_obs[(istage*npredictions+iii)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+          if (mode == 1)
+            final_obs[(istage*npredictions+detConfigEH[idet2]-1)*n_evis_bins_rebin+evis_rebin_map[i]] += mode1_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+          if (mode == 2)
+            final_obs[(istage*npredictions+idet2)*n_evis_bins_rebin+evis_rebin_map[i]] += tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+          if (mode == 3)
+            final_obs[istage*npredictions*n_evis_bins_rebin+evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * tdper[istage].CorrEvtsSpec[idet]->GetBinContent(i+1);
+        }
       }
     }
   }
@@ -1790,9 +1790,9 @@ Double_t * Predictor::GetFinalPredSum(PredSet *evtset, Int_t mode){
       for(int idet2=0;idet2<4;++idet2){
         Int_t iii = (idet-4)*4 +idet2;
         for (Int_t i = 0; i < n_evis_bins; i++){
-            if (mode == 0){
+          if (mode == 0){
             final_pred_sum[iii*n_evis_bins_rebin+evis_rebin_map[i]] += FarAD_stage_coeff[istage][idet] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
-            }
+          }
           if (mode == 1)
             final_pred_sum[(detConfigEH[idet2]-1)*n_evis_bins_rebin+evis_rebin_map[i]] += FarEH_stage_coeff[istage][idet] * mode1_coeff[istage][idet2] * evtset->GetPred(istage,idet,idet2)->GetBinContent(i+1);
           if (mode == 2)
@@ -1877,7 +1877,7 @@ Double_t * Predictor::GetFinalObsErrorSum(Int_t mode){
           if (mode == 2)
             final_obserror_sum[idet2*n_evis_bins_rebin+evis_rebin_map[i]] += pow(FarAD_stage_coeff[istage][idet] * tdper[istage].CorrEvtsSpec[idet]->GetBinError(i+1),2);
           if (mode == 3)
-	    final_obserror_sum[evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * pow(FarEH_stage_coeff[istage][idet]* tdper[istage].CorrEvtsSpec[idet]->GetBinError(i+1),2);
+            final_obserror_sum[evis_rebin_map[i]] += NearEH_coeff[istage][idet2] * pow(FarEH_stage_coeff[istage][idet]* tdper[istage].CorrEvtsSpec[idet]->GetBinError(i+1),2);
         }
       }
     }
@@ -2071,11 +2071,11 @@ Double_t * Predictor::CombineMatrix(Int_t mode, Bool_t MakeSum){
       Double_t TotalNearEH_IBD = 0;
 
       for(Int_t idet=0;idet<4;++idet)//Sum over 4 near ADs
-	TotalNearEH_IBD += nIBD[istage][idet];
+        TotalNearEH_IBD += nIBD[istage][idet];
       
       //Now calculate weighting
       for(Int_t idet=0;idet<4;++idet)
-	  NearEH_coeff[istage][idet] = nIBD[istage][idet] / TotalNearEH_IBD;
+        NearEH_coeff[istage][idet] = nIBD[istage][idet] / TotalNearEH_IBD;
 
     }//End of istage
 
@@ -2094,27 +2094,27 @@ Double_t * Predictor::CombineMatrix(Int_t mode, Bool_t MakeSum){
       
       Double_t TotalFarAD_IBD = 0;
       for (Int_t istage=0;istage<Nstage;istage++){
-	TotalFarAD_IBD += nIBD[istage][idet];
-	TotalFarEH_IBD += nIBD[istage][idet];
-	FarEH_IBD[istage] += nIBD[istage][idet];
+        TotalFarAD_IBD += nIBD[istage][idet];
+        TotalFarEH_IBD += nIBD[istage][idet];
+        FarEH_IBD[istage] += nIBD[istage][idet];
       }
 
       //Now do weighting
       for (Int_t istage=0;istage<Nstage;istage++){
-	FarAD_stage_coeff[istage][idet] = nIBD[istage][idet] / TotalFarAD_IBD;
-	cout << "idet: " << idet << ", istage: " << istage << ", nIBD: " << nIBD[istage][idet] << ", FarAD: " << FarAD_stage_coeff[istage][idet] << endl;
+        FarAD_stage_coeff[istage][idet] = nIBD[istage][idet] / TotalFarAD_IBD;
+        cout << "idet: " << idet << ", istage: " << istage << ", nIBD: " << nIBD[istage][idet] << ", FarAD: " << FarAD_stage_coeff[istage][idet] << endl;
       }
 
     }
 
-  //Now that we have total EH3 IBD for all period, can calculate EH3 period weighting
-  for (Int_t istage=0;istage<Nstage;istage++){
-    for(Int_t idet=4;idet<Ndetectors;++idet){
-	FarEH_stage_coeff[istage][idet] = FarEH_IBD[istage] / TotalFarEH_IBD; //No dependence on det
+    //Now that we have total EH3 IBD for all period, can calculate EH3 period weighting
+    for (Int_t istage=0;istage<Nstage;istage++){
+      for(Int_t idet=4;idet<Ndetectors;++idet){
+        FarEH_stage_coeff[istage][idet] = FarEH_IBD[istage] / TotalFarEH_IBD; //No dependence on det
     	
-	cout << "istage: " << istage << ", idet: " << idet << ", nIBD: " << nIBD[istage][idet] << ", FarEH: " << FarEH_stage_coeff[istage][idet] << endl;
+        cout << "istage: " << istage << ", idet: " << idet << ", nIBD: " << nIBD[istage][idet] << ", FarEH: " << FarEH_stage_coeff[istage][idet] << endl;
       }
-  }
+    }
 
     CalculateStageCoeff = false;
   }
@@ -2146,59 +2146,59 @@ Double_t * Predictor::CombineMatrix(Int_t mode, Bool_t MakeSum){
               for(int ie=0;ie<n_evis_bins;++ie){
                 for(int je=0;je<n_evis_bins;++je){
 		  
-		  if (MakeSum){
+                  if (MakeSum){
 		    
-		    if (mode == 0){// no combining
-		      M_scaled[(iii)*n_evis_bins_rebin+evis_rebin_map[ie]][(jjj)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+= FarAD_stage_coeff[istage][idet]* FarAD_stage_coeff[jstage][jdet]* M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		    if (mode == 1){ //Combine to 2x2 matrix
-		      M_scaled[(detConfigEH[idet2]-1)*n_evis_bins_rebin+evis_rebin_map[ie]][(detConfigEH[jdet2]-1)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+=FarEH_stage_coeff[istage][idet] * FarEH_stage_coeff[jstage][jdet] * mode1_coeff[istage][idet2] * mode1_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		    if (mode == 2){ // Combine to 4x4 matrix
-		      M_scaled[(idet2)*n_evis_bins_rebin+evis_rebin_map[ie]][(jdet2)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+=FarAD_stage_coeff[istage][idet] * FarAD_stage_coeff[jstage][jdet] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		    if (mode == 3){
-		      M_scaled[evis_rebin_map[ie]][evis_rebin_map[je]] +=FarEH_stage_coeff[istage][idet] * FarEH_stage_coeff[jstage][jdet] * NearEH_coeff[istage][idet2] * NearEH_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		  }
-		  
-		  else{
-		    if (mode == 0){// no combining
-		      M_scaled[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+jjj)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+= M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		    if (mode == 1){ //Combine to 2x2 matrix
-		      M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]]
-			+= mode1_coeff[istage][idet2] * mode1_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-                
-                
-                if(n_evis_bins_rebin==37 && n_evis_bins==37){
-                    //cout<<"Adding exra uncertainty"<<endl;
-                    if(ie==je){
-                        if(ie<3){
-                            M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]]=1.4*1.4*M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]];
-                        }
+                    if (mode == 0){// no combining
+                      M_scaled[(iii)*n_evis_bins_rebin+evis_rebin_map[ie]][(jjj)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        += FarAD_stage_coeff[istage][idet]* FarAD_stage_coeff[jstage][jdet]* M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
                     }
-                }
+                    if (mode == 1){ //Combine to 2x2 matrix
+                      M_scaled[(detConfigEH[idet2]-1)*n_evis_bins_rebin+evis_rebin_map[ie]][(detConfigEH[jdet2]-1)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        +=FarEH_stage_coeff[istage][idet] * FarEH_stage_coeff[jstage][jdet] * mode1_coeff[istage][idet2] * mode1_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                    if (mode == 2){ // Combine to 4x4 matrix
+                      M_scaled[(idet2)*n_evis_bins_rebin+evis_rebin_map[ie]][(jdet2)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        +=FarAD_stage_coeff[istage][idet] * FarAD_stage_coeff[jstage][jdet] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                    if (mode == 3){
+                      M_scaled[evis_rebin_map[ie]][evis_rebin_map[je]] +=FarEH_stage_coeff[istage][idet] * FarEH_stage_coeff[jstage][jdet] * NearEH_coeff[istage][idet2] * NearEH_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                  }
+		  
+                  else{
+                    if (mode == 0){// no combining
+                      M_scaled[(npredictions*istage+iii)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+jjj)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        += M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                    if (mode == 1){ //Combine to 2x2 matrix
+                      M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]]
+                        += mode1_coeff[istage][idet2] * mode1_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
                 
-		    }
-		    if (mode == 2){ // Combine to 4x4 matrix
-		      M_scaled[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+jdet2)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+= M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		    if (mode == 3){ // Combine to 1x1 matrix
-		      M_scaled[(npredictions*istage)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage)*n_evis_bins_rebin+evis_rebin_map[je]]
-			+= NearEH_coeff[istage][idet2] * NearEH_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
+                
+                      if(n_evis_bins_rebin==37 && n_evis_bins==37){
+                        //cout<<"Adding exra uncertainty"<<endl;
+                        if(ie==je){
+                          if(ie<3){
+                            M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]]=1.4*1.4*M_scaled[(npredictions*istage+(detConfigEH[idet2]-1))*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+(detConfigEH[jdet2]-1))*n_evis_bins_rebin+evis_rebin_map[je]];
+                          }
+                        }
+                      }
+                
+                    }
+                    if (mode == 2){ // Combine to 4x4 matrix
+                      M_scaled[(npredictions*istage+idet2)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage+jdet2)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        += M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                    if (mode == 3){ // Combine to 1x1 matrix
+                      M_scaled[(npredictions*istage)*n_evis_bins_rebin+evis_rebin_map[ie]][(npredictions*jstage)*n_evis_bins_rebin+evis_rebin_map[je]]
+                        += NearEH_coeff[istage][idet2] * NearEH_coeff[jstage][jdet2] * M[(MaxPredictions*istage+iii)*n_evis_bins+ie][(MaxPredictions*jstage+jjj)*n_evis_bins+je];
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -2207,13 +2207,13 @@ Double_t * Predictor::CombineMatrix(Int_t mode, Bool_t MakeSum){
   if (MakeSum){
     for (Int_t i = 0; i < npredictions*n_evis_bins_rebin; i++){
       for (Int_t j = 0; j < npredictions*n_evis_bins_rebin; j++){
-	final_covmatrix[i*npredictions*n_evis_bins_rebin+j] = M_scaled[i][j];
+        final_covmatrix[i*npredictions*n_evis_bins_rebin+j] = M_scaled[i][j];
       }
     }
   }else{
     for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
       for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){
-	final_covmatrix[i*npredictions*Nstage*n_evis_bins_rebin+j] = M_scaled[i][j];
+        final_covmatrix[i*npredictions*Nstage*n_evis_bins_rebin+j] = M_scaled[i][j];
       }
     }
       

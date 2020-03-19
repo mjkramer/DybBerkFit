@@ -83,35 +83,35 @@ void genSuperHistograms()
 
   Char_t name[1024];
   for(int istage=0;istage<Nstage;++istage){
-  for(int idet=0;idet<Ndetectors;++idet){
-    for(int icore=0;icore<Ncores;++icore){
-      cout << "Creating histogram for Stage# " << istage+1 << " AD# " << idet+1 << " from Core " << icore << endl;
-      sprintf(name,"h_super_istage%d_idet%d_icore%d",istage,idet,icore);
-      //h[istage][idet][icore] = new TH1F (name,name,41,1.8,10);
-      h[istage][idet][icore] = new TH1F (name,name,164,1.8,10);
+    for(int idet=0;idet<Ndetectors;++idet){
+      for(int icore=0;icore<Ncores;++icore){
+        cout << "Creating histogram for Stage# " << istage+1 << " AD# " << idet+1 << " from Core " << icore << endl;
+        sprintf(name,"h_super_istage%d_idet%d_icore%d",istage,idet,icore);
+        //h[istage][idet][icore] = new TH1F (name,name,41,1.8,10);
+        h[istage][idet][icore] = new TH1F (name,name,164,1.8,10);
+      }
     }
-  }
   }
   
   //Generate nominal spectrum
   
   for(int istage=0;istage<Nstage;++istage){
-  for(int icore=0;icore<Ncores;++icore){
-    spectrumNorm->updateAntinu(icore);
-    for(int idet=0;idet<Ndetectors;++idet){
-      for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
+    for(int icore=0;icore<Ncores;++icore){
+      spectrumNorm->updateAntinu(icore);
+      for(int idet=0;idet<Ndetectors;++idet){
+        for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
         
-        h[istage][idet][icore]->Fill(spectrumNorm->energyArray(idet)[ibin],
-				     spectrumNorm->antiNuNoOscArray(istage,idet)[ibin]);
-      }//ibin loop
+          h[istage][idet][icore]->Fill(spectrumNorm->energyArray(idet)[ibin],
+                                       spectrumNorm->antiNuNoOscArray(istage,idet)[ibin]);
+        }//ibin loop
 
 
-      // construct supermatrix element
-      //M[istage][idet][icore] = h[istage][idet][icore]->Integral()/pow(m_detectorDistance[idet][icore],2);
+        // construct supermatrix element
+        //M[istage][idet][icore] = h[istage][idet][icore]->Integral()/pow(m_detectorDistance[idet][icore],2);
       
+      }
+      //    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
     }
-    //    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
-  }
   }
   
   outfile->Write();
@@ -125,15 +125,15 @@ void genSuperHistograms()
   fout_supermatrix << "#\tD1\tD2\tL1\tL2\tL3\tL4" << endl;
   
   for(int idet=0;idet<Ndetectors;++idet){
-    Double_t norm = 0;
-    for(int icore=0;icore<Ncores;++icore)
-      norm+= M[idet][icore];
-    fout_supermatrix << Form("AD%d",idet+1);
-    for(int icore=0;icore<Ncores;++icore){
-      M[idet][icore] /= norm;
-      fout_supermatrix << "\t" << M[idet][icore];
-    }
-    fout_supermatrix << endl;
+  Double_t norm = 0;
+  for(int icore=0;icore<Ncores;++icore)
+  norm+= M[idet][icore];
+  fout_supermatrix << Form("AD%d",idet+1);
+  for(int icore=0;icore<Ncores;++icore){
+  M[idet][icore] /= norm;
+  fout_supermatrix << "\t" << M[idet][icore];
+  }
+  fout_supermatrix << endl;
   }
   */
   

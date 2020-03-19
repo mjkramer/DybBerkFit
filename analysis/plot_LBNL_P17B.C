@@ -60,17 +60,17 @@ void plot_LBNL_P17B()
   TFile *fout = new TFile("./LBNL_contour_P17B.root", "recreate");
 
   TH2D *hchi2_map =
-      new TH2D("hchi2_map", "hchi2_map", nS2T, s2t_min - 0.5 * s2t_step,
-               s2t_max + 0.5 * s2t_step, nDM2, dm2_min - 0.5 * dm2_step,
-               dm2_max + 0.5 * dm2_step);
+    new TH2D("hchi2_map", "hchi2_map", nS2T, s2t_min - 0.5 * s2t_step,
+             s2t_max + 0.5 * s2t_step, nDM2, dm2_min - 0.5 * dm2_step,
+             dm2_max + 0.5 * dm2_step);
 
   TH1D *hchi2_s2t =
-      new TH1D("hchi2_s2t", "hchi2_s2t", nS2T, s2t_min - 0.5 * s2t_step,
-               s2t_max + 0.5 * s2t_step);
+    new TH1D("hchi2_s2t", "hchi2_s2t", nS2T, s2t_min - 0.5 * s2t_step,
+             s2t_max + 0.5 * s2t_step);
 
   TH1D *hchi2_dm2 =
-      new TH1D("hchi2_dm2", "hchi2_dm2", nDM2, dm2_min - 0.5 * dm2_step,
-               dm2_max + 0.5 * dm2_step);
+    new TH1D("hchi2_dm2", "hchi2_dm2", nDM2, dm2_min - 0.5 * dm2_step,
+             dm2_max + 0.5 * dm2_step);
 
   Double_t sin22t13[nS2T];
   Double_t dm2[nDM2];
@@ -80,7 +80,7 @@ void plot_LBNL_P17B()
   }
   for (int step_dm2 = 0; step_dm2 < nDM2; ++step_dm2) {
     dm2[step_dm2] =
-        (dm2_max - dm2_min) * step_dm2 * 1. / (nDM2 - 1) + dm2_min; //-dm_corr;
+      (dm2_max - dm2_min) * step_dm2 * 1. / (nDM2 - 1) + dm2_min; //-dm_corr;
   }
 
   //**********READ decoherence_result.txt *****************//
@@ -174,30 +174,30 @@ void plot_LBNL_P17B()
   /*
 
 
-  Char_t output_filename[256];
-  //  sprintf(output_filename, "contours_2d_%s_toyMC.root",opt);
-  //  sprintf(output_filename, "contours_2d_toyMC.root");
-  //  sprintf(output_filename, "contours_2d_datafit_p12b.root");
-  sprintf(output_filename,
-  "contours_2d_datafit_physics_NL2014_unblinded_6AD_8AD.root");
+    Char_t output_filename[256];
+    //  sprintf(output_filename, "contours_2d_%s_toyMC.root",opt);
+    //  sprintf(output_filename, "contours_2d_toyMC.root");
+    //  sprintf(output_filename, "contours_2d_datafit_p12b.root");
+    sprintf(output_filename,
+    "contours_2d_datafit_physics_NL2014_unblinded_6AD_8AD.root");
 
 
-  TTree * tr_full = (TTree*)f_full->Get("tr_fit");
-  tr_full->SetBranchAddress("chi2_map",chi2_map);
-  tr_full->SetBranchAddress("s2t_min",&s2t_best);
-  tr_full->SetBranchAddress("dm2_min",&dm2_best);
-  tr_full->SetBranchAddress("chi2_min",&dm2_best);
-  tr_full->GetEntry(0);
-  chi2_best = 1e8;
-  for (Int_t iDM2 = 0; iDM2 < nDM2;  iDM2 ++){
+    TTree * tr_full = (TTree*)f_full->Get("tr_fit");
+    tr_full->SetBranchAddress("chi2_map",chi2_map);
+    tr_full->SetBranchAddress("s2t_min",&s2t_best);
+    tr_full->SetBranchAddress("dm2_min",&dm2_best);
+    tr_full->SetBranchAddress("chi2_min",&dm2_best);
+    tr_full->GetEntry(0);
+    chi2_best = 1e8;
+    for (Int_t iDM2 = 0; iDM2 < nDM2;  iDM2 ++){
     for (Int_t iS2T = 0; iS2T < nS2T;  iS2T ++){
-      hchi2_map->SetBinContent(iS2T+1, iDM2+1, chi2_map[iDM2][iS2T]);
+    hchi2_map->SetBinContent(iS2T+1, iDM2+1, chi2_map[iDM2][iS2T]);
 
-      if(chi2_best > chi2_map[iDM2][iS2T])
-        chi2_best = chi2_map[iDM2][iS2T];
+    if(chi2_best > chi2_map[iDM2][iS2T])
+    chi2_best = chi2_map[iDM2][iS2T];
 
     }
-  }
+    }
   */
 
   TCanvas *c1 = new TCanvas("c1", "c1", 600, 600);
@@ -229,7 +229,7 @@ void plot_LBNL_P17B()
   gPad->Update();
   c1->GetPad(0)->Update();
   TObjArray *conts =
-      (TObjArray *)gROOT->GetListOfSpecials()->FindObject("contours");
+    (TObjArray *)gROOT->GetListOfSpecials()->FindObject("contours");
   // TObjArray *conts = c1->GetPad(0)->FindObject("contours");
   //  cout << conts << endl;
   Int_t ncontours = conts->GetSize();
@@ -312,19 +312,19 @@ void plot_LBNL_P17B()
   }
   g_best->Draw("P");
   /*
-  TFile* file_p15a=new TFile("./LBNL_contour.root","READ");
-  c2->cd();
-  TGraph* gr_best_p15a=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_best");
-  gr_best_p15a->Draw("SAME P");
-  TGraph* gr_68=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont68");
-  gr_68->Draw("SAME");
-  TGraph* gr_95=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont95");
-  gr_95->Draw("SAME");
-  TGraph* gr_99=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont99");
-  gr_99->Draw("SAME");
+    TFile* file_p15a=new TFile("./LBNL_contour.root","READ");
+    c2->cd();
+    TGraph* gr_best_p15a=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_best");
+    gr_best_p15a->Draw("SAME P");
+    TGraph* gr_68=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont68");
+    gr_68->Draw("SAME");
+    TGraph* gr_95=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont95");
+    gr_95->Draw("SAME");
+    TGraph* gr_99=(TGraph*)file_p15a->Get("dm2_ee_vs_s2t13_cont99");
+    gr_99->Draw("SAME");
 
 
-  c2->Print("LBNL_contour_s2t_dm2ee.pdf");*/
+    c2->Print("LBNL_contour_s2t_dm2ee.pdf");*/
 
   TCanvas *c3 = new TCanvas("c3", "c3", 600, 600);
   c3->SetLeftMargin(0.15);
@@ -380,16 +380,16 @@ void plot_LBNL_P17B()
       if (chi2_s2t[i] > dchi2_thre[ithre] &&
           chi2_s2t[i + 1] < dchi2_thre[ithre]) {
         allowed_min_s[ithre] =
-            ((dchi2_thre[ithre] - chi2_s2t[i + 1]) * sin22t13[i] +
-             (chi2_s2t[i] - dchi2_thre[ithre]) * sin22t13[i + 1]) /
-            (chi2_s2t[i] - chi2_s2t[i + 1]);
+          ((dchi2_thre[ithre] - chi2_s2t[i + 1]) * sin22t13[i] +
+           (chi2_s2t[i] - dchi2_thre[ithre]) * sin22t13[i + 1]) /
+          (chi2_s2t[i] - chi2_s2t[i + 1]);
       }
       if (chi2_s2t[i] < dchi2_thre[ithre] &&
           chi2_s2t[i + 1] > dchi2_thre[ithre]) {
         allowed_max_s[ithre] =
-            ((dchi2_thre[ithre] - chi2_s2t[i + 1]) * sin22t13[i] +
-             (chi2_s2t[i] - dchi2_thre[ithre]) * sin22t13[i + 1]) /
-            (chi2_s2t[i] - chi2_s2t[i + 1]);
+          ((dchi2_thre[ithre] - chi2_s2t[i + 1]) * sin22t13[i] +
+           (chi2_s2t[i] - dchi2_thre[ithre]) * sin22t13[i + 1]) /
+          (chi2_s2t[i] - chi2_s2t[i + 1]);
       }
     }
   }
@@ -399,16 +399,16 @@ void plot_LBNL_P17B()
       if (chi2_dm2[i] > dchi2_thre[ithre] &&
           chi2_dm2[i + 1] < dchi2_thre[ithre]) {
         allowed_min_d[ithre] =
-            ((dchi2_thre[ithre] - chi2_dm2[i + 1]) * dm2[i] +
-             (chi2_dm2[i] - dchi2_thre[ithre]) * dm2[i + 1]) /
-            (chi2_dm2[i] - chi2_dm2[i + 1]);
+          ((dchi2_thre[ithre] - chi2_dm2[i + 1]) * dm2[i] +
+           (chi2_dm2[i] - dchi2_thre[ithre]) * dm2[i + 1]) /
+          (chi2_dm2[i] - chi2_dm2[i + 1]);
       }
       if (chi2_dm2[i] < dchi2_thre[ithre] &&
           chi2_dm2[i + 1] > dchi2_thre[ithre]) {
         allowed_max_d[ithre] =
-            ((dchi2_thre[ithre] - chi2_dm2[i + 1]) * dm2[i] +
-             (chi2_dm2[i] - dchi2_thre[ithre]) * dm2[i + 1]) /
-            (chi2_dm2[i] - chi2_dm2[i + 1]);
+          ((dchi2_thre[ithre] - chi2_dm2[i + 1]) * dm2[i] +
+           (chi2_dm2[i] - dchi2_thre[ithre]) * dm2[i + 1]) /
+          (chi2_dm2[i] - chi2_dm2[i + 1]);
       }
     }
   }
@@ -470,10 +470,10 @@ void plot_LBNL_P17B()
   gPad->SetLeftMargin(0.15);
   gPad->SetBottomMargin(0.14);
   TH1F *small_frame =
-      gPad->DrawFrame(0.065, 0.00215 * 1000, 0.105, 0.00285 * 1000);
+    gPad->DrawFrame(0.065, 0.00215 * 1000, 0.105, 0.00285 * 1000);
 
   small_frame->SetTitle(
-      ";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [#times10^{-3} eV^{2}]");
+                        ";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [#times10^{-3} eV^{2}]");
   small_frame->GetXaxis()->CenterTitle();
   small_frame->GetYaxis()->CenterTitle();
   small_frame->GetXaxis()->SetTitleOffset(1.);
@@ -601,11 +601,11 @@ void plot_LBNL_P17B()
   // ax->SetTitleFont(62);
 
   TLine *ll1_2 =
-      new TLine(0., allowed_min_d[0] * 1000, 1., allowed_min_d[0] * 1000);
+    new TLine(0., allowed_min_d[0] * 1000, 1., allowed_min_d[0] * 1000);
   TLine *ll2_2 =
-      new TLine(0., allowed_max_d[0] * 1000, 1., allowed_max_d[0] * 1000);
+    new TLine(0., allowed_max_d[0] * 1000, 1., allowed_max_d[0] * 1000);
   TLine *ll3_2 =
-      new TLine(1., allowed_min_d[0] * 1000, 1., allowed_max_d[0] * 1000);
+    new TLine(1., allowed_min_d[0] * 1000, 1., allowed_max_d[0] * 1000);
   ll1_2->SetLineStyle(2);
   ll2_2->SetLineStyle(2);
   ll3_2->SetLineStyle(2);
@@ -617,11 +617,11 @@ void plot_LBNL_P17B()
   ll3_2->Draw("SAME");
 
   TLine *ll1_1 =
-      new TLine(0., allowed_min_d[1] * 1000, 4., allowed_min_d[1] * 1000);
+    new TLine(0., allowed_min_d[1] * 1000, 4., allowed_min_d[1] * 1000);
   TLine *ll2_1 =
-      new TLine(0., allowed_max_d[1] * 1000, 4., allowed_max_d[1] * 1000);
+    new TLine(0., allowed_max_d[1] * 1000, 4., allowed_max_d[1] * 1000);
   TLine *ll3_1 =
-      new TLine(4., allowed_min_d[1] * 1000, 4., allowed_max_d[1] * 1000);
+    new TLine(4., allowed_min_d[1] * 1000, 4., allowed_max_d[1] * 1000);
   ll1_1->SetLineStyle(2);
   ll2_1->SetLineStyle(2);
   ll3_1->SetLineStyle(2);
@@ -633,11 +633,11 @@ void plot_LBNL_P17B()
   ll3_1->Draw("SAME");
 
   TLine *ll1_3 =
-      new TLine(0., allowed_min_d[2] * 1000, 9., allowed_min_d[2] * 1000);
+    new TLine(0., allowed_min_d[2] * 1000, 9., allowed_min_d[2] * 1000);
   TLine *ll2_3 =
-      new TLine(0., allowed_max_d[2] * 1000, 9., allowed_max_d[2] * 1000);
+    new TLine(0., allowed_max_d[2] * 1000, 9., allowed_max_d[2] * 1000);
   TLine *ll3_3 =
-      new TLine(9., allowed_min_d[2] * 1000, 9., allowed_max_d[2] * 1000);
+    new TLine(9., allowed_min_d[2] * 1000, 9., allowed_max_d[2] * 1000);
   ll1_3->SetLineStyle(2);
   ll2_3->SetLineStyle(2);
   ll3_3->SetLineStyle(2);

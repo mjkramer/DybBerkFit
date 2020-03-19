@@ -9,7 +9,7 @@ using namespace std;
 
 class TimePeriodData : public TObject {
 
- public:
+public:
   TimePeriodData();
   ~TimePeriodData();
   void CorrectEvts(bool print=false);//<---correct for bg, livetimes and muon efficiencies
@@ -48,12 +48,12 @@ class TimePeriodData : public TObject {
   TH1F *CorrAlnEvtsSpec[Ndetectors];
   TH1F *CorrEvtsSpec[Ndetectors];
   
- private:
+private:
   bool firstcorrection;
   int nwarnings;
   int warlimit;//<--limit of consistency warnings to print
   
- public:
+public:
   ClassDef(TimePeriodData,1);
  
 };

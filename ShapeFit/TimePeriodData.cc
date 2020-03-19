@@ -63,10 +63,10 @@ void TimePeriodData::CorrectEvts(bool print){
     
     float factor=0;
     if (MuonVetoEff[idet]*DMCEff[idet]*Livetime[idet]*TargetMass[idet] > 0)
-	factor = 1./MuonVetoEff[idet]
-	  *1./DMCEff[idet]
-	  *1./Livetime[idet]
-	  *TargetMass[0]*1./TargetMass[idet];
+      factor = 1./MuonVetoEff[idet]
+        *1./DMCEff[idet]
+        *1./Livetime[idet]
+        *TargetMass[0]*1./TargetMass[idet];
     
     CorrEvts[idet]=(ObsEvts[idet])*factor;
     AccEvts[idet]*=factor;
@@ -97,7 +97,7 @@ void TimePeriodData::CorrectSpec(bool print){
     //cout << "ObsEvtsSpec[idet]: " << ObsEvtsSpec[idet]->Integral() << endl;
     for(int ibin=1;ibin<=ObsEvtsSpec[idet]->GetXaxis()->GetNbins();++ibin){
       ObsEvtsSpec[idet]->SetBinError(ibin,sqrt(ObsEvtsSpec[idet]->GetBinContent(ibin)));      
-      }//bins
+    }//bins
   }//dets
 
   //Correct backgrounds for livetime and subtract from obs events
@@ -107,9 +107,9 @@ void TimePeriodData::CorrectSpec(bool print){
     
     if (MuonVetoEff[idet]*DMCEff[idet]*Livetime[idet]*TargetMass[idet] > 0)
       factor = 1./MuonVetoEff[idet]
-	*1./DMCEff[idet]
-	*1./Livetime[idet]
-	*TargetMass[0]*1./TargetMass[idet];
+        *1./DMCEff[idet]
+        *1./Livetime[idet]
+        *TargetMass[0]*1./TargetMass[idet];
     
     //copy ObsEvtsSpec into CorrEvtsSpec without leaking memory (although this is a small memory leak, since it's only once per fake experiment)
     sprintf(name,"CorrEvtsSpec_AD%i",idet);
@@ -118,8 +118,8 @@ void TimePeriodData::CorrectSpec(bool print){
     } else {
       CorrEvtsSpec[idet]->Reset();//<-- just a precaution
       for(int ibin=1;ibin<=ObsEvtsSpec[idet]->GetXaxis()->GetNbins();++ibin){
-	CorrEvtsSpec[idet]->SetBinContent(ibin,ObsEvtsSpec[idet]->GetBinContent(ibin));
-	CorrEvtsSpec[idet]->SetBinError(ibin,ObsEvtsSpec[idet]->GetBinError(ibin));
+        CorrEvtsSpec[idet]->SetBinContent(ibin,ObsEvtsSpec[idet]->GetBinContent(ibin));
+        CorrEvtsSpec[idet]->SetBinError(ibin,ObsEvtsSpec[idet]->GetBinError(ibin));
       }
     }    
 
@@ -142,17 +142,17 @@ void TimePeriodData::CorrectSpec(bool print){
       double intspec = CorrEvtsSpec[idet]->Integral();
       double intnum = CorrEvts[idet];
       if(print==true){
-	cout << "AD" << idet+1 << ": " << intspec << " (spec); " << intnum << " (text)" << endl;//tmp
-	}
+        cout << "AD" << idet+1 << ": " << intspec << " (spec); " << intnum << " (text)" << endl;//tmp
+      }
       if(TMath::Abs(intspec - intnum) > 0.001 * intspec){
-	  cout << "Ay caramba!!! Discrepancy in number of IBD corrected events between spectra and text files; should abort..." << endl;
-	  //cout << "Enter one number and press enter to continue, although you should really hit Ctrl+C" << endl;
-	  //Note: abilitate lines below when have 9Li and other backgrounds
-	  //int catastrophe;
-	  //cin >> catastrophe;
+        cout << "Ay caramba!!! Discrepancy in number of IBD corrected events between spectra and text files; should abort..." << endl;
+        //cout << "Enter one number and press enter to continue, although you should really hit Ctrl+C" << endl;
+        //Note: abilitate lines below when have 9Li and other backgrounds
+        //int catastrophe;
+        //cin >> catastrophe;
 	  
-	}
-      }//idet 
+      }
+    }//idet 
     
   }else if(nwarnings==warlimit){
     cout << "WILL NOT PERFORM ANY MORE CONSISTENCY CHECKS AND WILL NOT PRINT ANY MORE WARNINGS" << endl;
@@ -209,10 +209,10 @@ void TimePeriodData::PrintToScreen(){
 
   cout << "Target Masses: ";
   for(int idet=0;idet<Ndetectors;++idet){
-      cout << TargetMass[idet];
+    cout << TargetMass[idet];
       
-      if(idet == Ndetectors-1) cout << endl;
-      else cout << ",";      
+    if(idet == Ndetectors-1) cout << endl;
+    else cout << ",";      
   }
   
   cout << "Corrected Evts: ";
