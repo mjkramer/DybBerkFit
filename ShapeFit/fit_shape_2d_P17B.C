@@ -44,16 +44,16 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   TString sig_spectra_filename[3] = {sig_spectra_filename0,sig_spectra_filename1,sig_spectra_filename2};
   TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
   Char_t Theta13InputsLocation[3][1024];
-  
+
   strcpy(Theta13InputsLocation[0],input_filename0);
   strcpy(Theta13InputsLocation[1],input_filename1);
   strcpy(Theta13InputsLocation[2],input_filename2);
- 
+
   Double_t stat_factor = 1;
-  
+
   bool isNominalMC = true;
-  
-  
+
+
   int Nevts=1;
   if(isMC){
     if (!isNominalMC)
@@ -64,55 +64,55 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   gStyle->SetTitleSize(0.04,"XY");
 
   //  Char_t toymc_filename[256] = "./toyfiles/nominal/toySpectra_allsys_and_stat.root";
-  
-  
+
+
   // Create Predictor
   pred = new Predictor();
 
   pred->SetStage(PeriodFlag);
 
-  FluxCalculator* fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);//<--flux calculator in super-hist mode 
+  FluxCalculator* fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);//<--flux calculator in super-hist mode
 
   pred->EnterFluxCalculator(fluxcalc);
 
   for(int istage=0;istage<Nstage;istage++){
-    pred->LoadMainData(Theta13InputsLocation[istage]); 
-  } 
+    pred->LoadMainData(Theta13InputsLocation[istage]);
+  }
 
   pred->LoadPredictedIBD(predicted_ibd_filename);
 
   pred->LoadIBDSpec(sig_spectra_filename);
-    
+
   pred->LoadBgSpec(AccidentalSpectrumLocation,
                    li9_filename,
                    amc_filename,
                    fn_filename,
                    aln_filename);//<---load bg afterwards since here is when correct events
-  
+
   //pred->SetStatFactor(stat_factor);
   //pred->Set8ADStatFactor(extra_days);
 
   const int n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
   double* enu_bins = Binning::enu();
-  
+
   pred->SetEvisBins(n_evis_bins,evis_bins);
   pred->SetEnuBins(Binning::n_enu(),enu_bins);
-  
+
   pred->LoadEvisToEnuMatrix(response_filename);
   // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
-  
+
   pred->LoadCovMatrix(sig_matrix_filename,bg_matrix_filename);
-  
+
   //*************************************
-  
+
   //-->Best fits histograms
   TH2F *h_s22t13_dm2 = new TH2F("h_s22t13_dm2","",100,0,0.2,100,1.5e-3,3.5e-3);
   h_s22t13_dm2->GetXaxis()->SetTitle("sin^{2}(2#theta_{13})");
   h_s22t13_dm2->GetYaxis()->SetTitle("#Delta m^{2}");
   h_s22t13_dm2->SetMarkerStyle(20);
   h_s22t13_dm2->SetMarkerSize(0.8);
-  
+
   //-->Prediction at t13=0
   cout << "Prediction at t13=0" << endl;
   PredSet *predset_0 = pred->MakeOneSuperPrediction(0,-1,0,-1,true);
@@ -131,13 +131,13 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   */
   //Do the minimization manually
   //----------------------------
-  
+
   //++best parameters
   Double_t minchi2=1e8;
   Double_t bests22t13=0;
   Double_t bestdm2ee=0;
   //  PredSet bestpred;
-  
+
   // const Int_t nsteps = 31;
   // Double_t s22t13start=0.07;
   // Double_t s22t13end=0.10;
@@ -174,16 +174,16 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   TH2F *h_chi2_temp = (TH2F*)h_chi2_all->Clone("h_chi2_temp");
 
   TDirectory * dir = gDirectory;
-  
+
   //savefile
   TFile *savefile = new TFile(savefilename,"RECREATE");
   TTree * tr = new TTree("tr_fit","fit results");
-  tr->Branch("chi2_map",&dchi2result[0][0],Form("chi2_map[%d][%d]/D",nsteps_dm2,nsteps)); 
-  tr->Branch("chi2_min",&chi2_min,"chi2_min/D"); 
-  tr->Branch("dm2_min",&dm2_min,"dm2_min/D"); 
-  tr->Branch("s2t_min",&s2t_min,"s2t_min/D"); 
-  
-  
+  tr->Branch("chi2_map",&dchi2result[0][0],Form("chi2_map[%d][%d]/D",nsteps_dm2,nsteps));
+  tr->Branch("chi2_min",&chi2_min,"chi2_min/D");
+  tr->Branch("dm2_min",&dm2_min,"dm2_min/D");
+  tr->Branch("s2t_min",&s2t_min,"s2t_min/D");
+
+
   TH2F* h_chi2_map = new TH2F("h_chi2_map","h_chi2_map",
                               nsteps,s22t13start,s22t13end,nsteps_dm2,dm2eestart,dm2eeend);
 
@@ -195,15 +195,15 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   //minu->SetPrintLevel(-1);
   minu->SetFCN(minuit_fcn);
 
-  
+
   PredSet *predset=0;
   for(int ievt=0;ievt<Nevts;++ievt){
-    
+
     minchi2=1e10;
     bests22t13=0;
     bestdm2ee=0;
     h_chi2_temp->Reset();
-    
+
     if(isMC){
       if (isNominalMC)
         //        pred->LoadToyMCEntry(ievt,true);
@@ -215,10 +215,10 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     Int_t ierflag;
     Double_t arglist[2];
     arglist[0] = 1.0;
-    
+
     // Fit by Minuit
     minu->mnexcm("SET ERR",arglist,1,ierflag);
-    
+
     minu->mnparm(0,
                  "SinSq2Theta13",
                  0.082, //34
@@ -239,10 +239,10 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     //   if (ierflag != 0) return;
     arglist[1] = 1.0;
     //    minu->mnexcm("MINIMIZE", arglist ,2,ierflag);
-    
+
     minu->mnexcm("MIGRAD", arglist ,2,ierflag);  //Default fitter
     //std::cout << "================ MIGRAD finished with error flag = " << ierflag  << " ============================" << std::endl;
-    
+
     Double_t fpar,ferr;
     minu->GetParameter(0,fpar,ferr);
     bests22t13 = fpar;
@@ -250,12 +250,12 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     bestdm2ee = fpar;
     Double_t best_pars[2] = {bests22t13,bestdm2ee};
     Double_t * grad = nullptr;  // not used by minuit_fcn
-    
+
     minu->Eval(2,grad,minchi2,best_pars,0);
 
     cout << "======== fit results (for checking) :" <<  bests22t13 << " " << bestdm2ee << " " << minchi2 << endl;
     Int_t check = 0;
-    
+
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       cout<<"Running dm2_step="<<step_dm2<<" out of "<<nsteps_dm2<<endl;
 
@@ -263,11 +263,11 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
       //cout << 100 * check / (nsteps_dm2-1) << "%" << endl;
       //}
       check++;
-	
+
       for(int step=0;step<nsteps;++step){
 
-        sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;      
-        dm2ee[step_dm2][step]=(dm2eeend-dm2eestart)*step_dm2*1./(nsteps_dm2-1)+dm2eestart;  
+        sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;
+        dm2ee[step_dm2][step]=(dm2eeend-dm2eestart)*step_dm2*1./(nsteps_dm2-1)+dm2eestart;
 
         chi2result[step_dm2][step]=pred->CalculateChi2Cov(sin22t13[step_dm2][step],dm2ee[step_dm2][step],0,-1);
         h_chi2_temp->SetBinContent(step+1,step_dm2+1,chi2result[step_dm2][step]);
@@ -275,7 +275,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
         delete predset;
       }
     }//loop over t13
-    
+
     cout << "Event: " << ievt << "; --> best fit: " << bests22t13 << "," << bestdm2ee << "; minchi2=" << minchi2 << endl;//tmp
     h_s22t13_dm2->Fill(bests22t13,bestdm2ee);
     h_minchi2->Fill(minchi2);
@@ -294,27 +294,27 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
         dchi2result[step_dm2][step] = chi2result[step_dm2][step]-minchi2;
       }
     }
-    
+
     chi2_min = minchi2;
     s2t_min = bests22t13;
     dm2_min = bestdm2ee;
 
     tr->Fill();
 
-    
+
   }//loop over toys
 
   PredSet * tmp_set;
   PredSet * bestpred = new PredSet();
- 
+
   cout<<"Making best prediction"<<endl;
   tmp_set = pred->MakeOneSuperPrediction(bests22t13,bestdm2ee,0,-1,true);
   cout<<"Best prediction done!"<<endl;
   for(Int_t istage=0;istage<Nstage;istage++)
-    for(Int_t idet=4;idet<8;idet++) 
-      for(Int_t idet2=0;idet2<4;idet2++) 
+    for(Int_t idet=4;idet<8;idet++)
+      for(Int_t idet2=0;idet2<4;idet2++)
         bestpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
-  
+
   TCanvas * c0 = new TCanvas ("c0","c0",600,600);
   h_chi2_map->Draw("zcol");
 
@@ -329,7 +329,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     cout << "Stage#: " << istage+1 << endl;
     bestpred->PrintToScreen(istage);
   }
-  
+
   Double_t * tmp_vector;
 
   const Int_t nModes = 4;
@@ -349,7 +349,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   TH1D::SetDefaultSumw2();
 
   TString hnames[nModes][16];
-  
+
   hnames[0][0] = TString("AD5 / AD1");
   hnames[0][1] = TString("AD5 / AD2");
   hnames[0][2] = TString("AD5 / AD3");
@@ -377,11 +377,11 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
 
   hnames[3][0] = TString("AD5+AD6+AD7+AD8 / AD1+AD2+AD3+AD4");
 
-  
+
   TH1D * h_final_obs[Nstage][nModes][16];
   TH1D * h_final_pred[Nstage][nModes][16];
   TH1D * h_final_pred_null[Nstage][nModes][16];
-  
+
   TH1D * h_final_obs_sum[nModes][16];
   TH1D * h_final_pred_sum[nModes][16];
   TH1D * h_final_pred_null_sum[nModes][16];
@@ -391,52 +391,52 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   Int_t n_rebinned_evis_bins = pred->GetNumRebinnedEvisBins();
   Double_t * rebinned_evis_bins = pred->GetRebinnedEvisBins();
 
-  
+
   for (Int_t iMode = 0; iMode < nModes; iMode++){
-    
+
     h_final_covmatrix[iMode]= new TH2D(Form("h_final_covmatrix_mode%d",iMode),"Final covariance matrix",
                                        nPredictions[iMode]*Nstage*n_rebinned_evis_bins,0,nPredictions[iMode]*Nstage*n_rebinned_evis_bins,
                                        nPredictions[iMode]*Nstage*n_rebinned_evis_bins,0,nPredictions[iMode]*Nstage*n_rebinned_evis_bins);
-    
+
     for (Int_t i = 0; i < nPredictions[iMode]; i++){
       h_final_obs_sum[iMode][i] = new TH1D(Form("h_final_obs_sum_mode%d_%d",iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
       h_final_obs_sum[iMode][i]->GetXaxis()->SetTitle("Visible energy");
       h_final_obs_sum[iMode][i]->GetYaxis()->SetTitle("Events per day");
-      
+
       h_final_pred_sum[iMode][i] = new TH1D(Form("h_final_pred_sum_mode%d_%d",iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
       h_final_pred_null_sum[iMode][i] = new TH1D(Form("h_final_pred_null_sum_mode%d_%d",iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
-      
+
       for (Int_t istage = 0; istage<Nstage; istage++){
-	
+
         h_final_obs[istage][iMode][i] = new TH1D(Form("h_final_obs_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
         h_final_obs[istage][iMode][i]->GetXaxis()->SetTitle("Visible energy");
         h_final_obs[istage][iMode][i]->GetYaxis()->SetTitle("Events per day");
-	
+
         h_final_pred[istage][iMode][i] = new TH1D(Form("h_final_pred_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
         h_final_pred_null[istage][iMode][i] = new TH1D(Form("h_final_pred_null_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
-      } 
+      }
     }
-    
+
   }
 
   TH1D * h_final_obs_ratio[Nstage][nModes][16];
   TH1D * h_final_pred_ratio[Nstage][nModes][16];
   TH1D * h_final_pred_null_ratio[Nstage][nModes][16];
-    
+
   TH1D * h_final_obs_ratio_sum[nModes][16];
   TH1D * h_final_pred_ratio_sum[nModes][16];
   TH1D * h_final_pred_null_ratio_sum[nModes][16];
   dir->cd();
-  
+
   PredSet * nullpred = new PredSet();
-  
+
   cout<<"Making zero prediction"<<endl;
   tmp_set = pred->MakeOneSuperPrediction(0,-1,0,-1,true);
   for(Int_t istage=0;istage<Nstage;istage++)
-    for(Int_t idet=4;idet<8;idet++) 
-      for(Int_t idet2=0;idet2<4;idet2++) 
+    for(Int_t idet=4;idet<8;idet++)
+      for(Int_t idet2=0;idet2<4;idet2++)
         nullpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
-    
+
   // try to dump final covariance matrix
   ofstream fout_cmat("final_covmatrix_mode1.txt");
   tmp_vector = pred->GetFinalCovMatrix(-1,1);
@@ -447,28 +447,28 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     fout_cmat << endl;
   }
   fout_cmat.close();
-  
-  
+
+
   /////
-  
+
   for (Int_t iMode = 0; iMode < nModes; iMode++){
 
     //cout << "iMode: " << iMode << endl;
 
     tmp_vector = pred->GetFinalCovMatrix(0,iMode);
- 
+
     for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
       for (Int_t j = 0; j < nPredictions[iMode]*n_rebinned_evis_bins; j++){
         final_covmatrix_sum[iMode][i][j]=0;
       }
     }
-    
+
     for (Int_t istage=0;istage<Nstage;istage++){
       for (Int_t jstage=0;jstage<Nstage;jstage++){
         for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
           for (Int_t j = 0; j < nPredictions[iMode]*n_rebinned_evis_bins; j++){
             final_covmatrix[iMode][istage*nPredictions[iMode]*n_rebinned_evis_bins+i][jstage*nPredictions[iMode]*n_rebinned_evis_bins+j] = tmp_vector[(istage*nPredictions[iMode]*n_rebinned_evis_bins+i)*nPredictions[iMode]*Nstage*n_rebinned_evis_bins+jstage*nPredictions[iMode]*n_rebinned_evis_bins+j];
-            
+
             //      cout << " " << final_covmatrix[i][j];
           }
           //    cout << endl;
@@ -483,22 +483,22 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
       }
     }
 
-    
+
     tmp_vector = pred->GetFinalPred(bestpred, iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
       final_pred[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalObs(iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
       final_obs[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalObsError(iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
       final_obserror[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalPred(nullpred, iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
       final_pred_null[iMode][i] = tmp_vector[i];
@@ -508,54 +508,54 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
       final_pred_sum[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalObsSum(iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
       final_obs_sum[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalObsErrorSum(iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
       final_obserror_sum[iMode][i] = tmp_vector[i];
     }
-    
+
     tmp_vector = pred->GetFinalPredSum(nullpred, iMode);
     for (Int_t i = 0; i < nPredictions[iMode]*n_rebinned_evis_bins; i++){
       final_pred_null_sum[iMode][i] = tmp_vector[i];
     }
-    
+
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
-  
+
       for (Int_t istage = 0; istage <Nstage; istage++){
         for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
           //cout << "evis: " << i << endl;
 
           h_final_obs[istage][iMode][iPred]->SetBinContent(i+1,final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
           h_final_obs[istage][iMode][iPred]->SetBinError(i+1,final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
-	  
+
           //cout << "h_final_obs: " << final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
 
           h_final_pred[istage][iMode][iPred]->SetBinContent(i+1,final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
           h_final_pred[istage][iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]));
           //cout << "h_final_pred: " << final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]) << endl;
-	  
+
           h_final_pred_null[istage][iMode][iPred]->SetBinContent(i+1,final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
           h_final_pred_null[istage][iMode][iPred]->SetBinError(i+1,0);
 
           //cout << "h_final_pred_null: " << final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
- 
+
         }
-	
-	
+
+
         h_final_pred[istage][iMode][iPred]->SetLineStyle(2);
         h_final_pred[istage][iMode][iPred]->SetLineColor(2);
         h_final_pred[istage][iMode][iPred]->SetFillStyle(1001);
         //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
         h_final_pred[istage][iMode][iPred]->SetFillColor(2);
         h_final_pred_null[istage][iMode][iPred]->SetLineColor(4);
-	
+
         savefile->cd();
-	
+
         h_final_obs_ratio[istage][iMode][iPred] = (TH1D*)h_final_obs[istage][iMode][iPred]->Clone(Form("h_final_obs_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
         h_final_obs_ratio[istage][iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
         h_final_pred_ratio[istage][iMode][iPred] = (TH1D*)h_final_pred[istage][iMode][iPred]->Clone(Form("h_final_pred_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
@@ -572,38 +572,38 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
           h_final_pred_null_ratio[istage][iMode][iPred]->Scale(0);
         }
 
-        dir->cd();	
+        dir->cd();
       }
     }
-    
+
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
       for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
-         
+
         h_final_obs_sum[iMode][iPred]->SetBinContent(i+1,final_obs_sum[iMode][iPred*n_rebinned_evis_bins+i]);
         h_final_obs_sum[iMode][iPred]->SetBinError(i+1,final_obserror_sum[iMode][iPred*n_rebinned_evis_bins+i]);
-         
+
         h_final_pred_sum[iMode][iPred]->SetBinContent(i+1,final_pred_sum[iMode][iPred*n_rebinned_evis_bins+i]);
         h_final_pred_sum[iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix_sum[iMode][iPred*n_rebinned_evis_bins+i][iPred*n_rebinned_evis_bins+i]));
-         
+
         h_final_pred_null_sum[iMode][iPred]->SetBinContent(i+1,final_pred_null_sum[iMode][iPred*n_rebinned_evis_bins+i]);
         h_final_pred_null_sum[iMode][iPred]->SetBinError(i+1,0);
       }
-	
-	
+
+
       h_final_pred_sum[iMode][iPred]->SetLineStyle(2);
       h_final_pred_sum[iMode][iPred]->SetLineColor(2);
       h_final_pred_sum[iMode][iPred]->SetFillStyle(1001);
       //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
       h_final_pred_sum[iMode][iPred]->SetFillColor(2);
       h_final_pred_null_sum[iMode][iPred]->SetLineColor(4);
-	
+
       savefile->cd();
-	
+
       h_final_obs_ratio_sum[iMode][iPred] = (TH1D*)h_final_obs_sum[iMode][iPred]->Clone(Form("h_final_obs_ratio_sum_mode%d_%d",iMode,iPred));
       h_final_obs_ratio_sum[iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
       h_final_pred_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_sum[iMode][iPred]->Clone(Form("h_final_pred_ratio_sum_mode%d_%d",iMode,iPred));
       h_final_pred_null_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_null_sum[iMode][iPred]->Clone(Form("h_final_pred_null_ratio_sum_mode%d_%d",iMode,iPred));
-	
+
       if(h_final_pred_null_sum[iMode][iPred]->Integral() > 0){ //Check to not do division by zero
         h_final_obs_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
         h_final_pred_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
@@ -614,22 +614,22 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
         h_final_pred_ratio_sum[iMode][iPred]->Scale(0);
         h_final_pred_null_ratio_sum[iMode][iPred]->Scale(0);
       }
-	
-      dir->cd();	
+
+      dir->cd();
     }
-    
+
 
     for (Int_t i = 0; i <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
       for (Int_t j = 0; j <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; j++){
-	 
+
         if (final_covmatrix[iMode][i][i] == 0) continue;
         if (final_covmatrix[iMode][j][j] == 0) continue;
-	 
+
         h_final_covmatrix[iMode]->SetBinContent(i+1,j+1,final_covmatrix[iMode][i][j]/sqrt(final_covmatrix[iMode][i][i]*final_covmatrix[iMode][j][j]));
       }
     }
-     
-     
+
+
 
   }
   /*
@@ -643,7 +643,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     c3->Clear();
     for(Int_t istage=0;istage<Nstage;istage++){
     c2->Clear();
-      
+
     if (iMode == 0){
     c2->Divide(4,4);
     }
@@ -659,7 +659,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     c2->SetWindowSize(1200,1000);
     c2->Divide(1,1);
     }
-      
+
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
     c2->cd(iPred+1);
     TVirtualPad * pad = c2->GetPad(iPred+1);
@@ -674,7 +674,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     h_final_pred_null[istage][iMode][iPred]->Draw("hist same");
     h_final_pred[istage][iMode][iPred]->Draw("e2 same");
     h_final_obs[istage][iMode][iPred]->Draw("same");
-	
+
     pad->cd(2);
     pad->GetPad(2)->SetRightMargin(0.05);;
     pad->GetPad(2)->SetLeftMargin(0.15);;
@@ -686,14 +686,14 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     h_final_pred_ratio[istage][iMode][iPred]->Draw("e2");
     h_final_pred_null_ratio[istage][iMode][iPred]->Draw("hist same");
     h_final_obs_ratio[istage][iMode][iPred]->Draw("e0 same");
-        
+
     }
-      
+
     c2->Print("./fit_result_files/fit_shape_2d.pdf");
     }
-    
+
     c2->Clear();
-    
+
     if (iMode == 0){
     c2->Divide(4,4);
     }
@@ -709,7 +709,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     c2->SetWindowSize(1200,1000);
     c2->Divide(1,1);
     }
-    
+
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
     c2->cd(iPred+1);
     TVirtualPad * pad = c2->GetPad(iPred+1);
@@ -724,7 +724,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     h_final_pred_null_sum[iMode][iPred]->Draw("hist same");
     h_final_pred_sum[iMode][iPred]->Draw("e2 same");
     h_final_obs_sum[iMode][iPred]->Draw("same");
-      
+
     pad->cd(2);
     pad->GetPad(2)->SetRightMargin(0.05);;
     pad->GetPad(2)->SetLeftMargin(0.15);;
@@ -736,21 +736,21 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     h_final_pred_ratio_sum[iMode][iPred]->Draw("e2");
     h_final_pred_null_ratio_sum[iMode][iPred]->Draw("hist same");
     h_final_obs_ratio_sum[iMode][iPred]->Draw("e0 same");
-      
+
     }
-    
+
     c2->Print("./fit_result_files/fit_shape_2d.pdf");
-     
+
     //c3->cd();
     //h_final_covmatrix[iMode]->Draw("zcol");
     //c3->Print("./fit_result_files/fit_shape_2d.pdf");
-    
+
     }
 
     c2->Print("./fit_result_files/fit_shape_2d.pdf]"); //Close PDF file
   */
   /////////////////////////////////////////////////////////////////////////////////////////
-  
+
 
   TH2F *h_chi2_all_cl = (TH2F*)h_chi2_all->Clone("h_chi2_all_cl");
   if(Nevts>1){
@@ -772,7 +772,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     h_chi2_all_cl->Draw("cont1");
     h_s22t13_dm2->Draw("same");
   }
-  
+
   savefile->cd();
   // h_chi2_map->Write();
   // chi2graph->Write();
@@ -795,21 +795,21 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
 
       sprintf(name,"CorrLi9EvtsSpec_stage%i_AD%i",istage,idet+1);
       pred->GetCorrLi9EvtsSpec(istage,idet)->Clone(name)->Write();
-      
+
       sprintf(name,"CorrAmcEvtsSpec_stage%i_AD%i",istage,idet+1);
       pred->GetCorrAmcEvtsSpec(istage,idet)->Clone(name)->Write();
-      
+
       sprintf(name,"CorrFnEvtsSpec_stage%i_AD%i",istage,idet+1);
       pred->GetCorrFnEvtsSpec(istage,idet)->Clone(name)->Write();
-      
+
       sprintf(name,"CorrAlnEvtsSpec_stage%i_AD%i",istage,idet+1);
       pred->GetCorrAlnEvtsSpec(istage,idet)->Clone(name)->Write();
 
     }
   }
- 
+
   savefile->Close();
-  
+
 
   // dump final stat error and weighted mean coefficients for later use
   /*
@@ -821,7 +821,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     fout_wmean << endl;
     }
     fout_wmean.close();
-  
+
 
 
     ofstream fout_stat("covmatrix_nearsite_stat.txt");
@@ -829,45 +829,45 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
     fout_stat << pred->GetFracStatError(i,j) << endl;
-      
+
     }
     fout_stat << endl;
     }
     fout_stat.close();
-  
-  
+
+
     ofstream fout_stat_total("covmatrix_total_stat.txt");
     tmp_vector = pred->GetFinalCovMatrix(-1,bestpred,0);
     for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
     fout_stat_total << pred->GetFracStatError(i,j) << endl;
-      
+
     }
     fout_stat_total << endl;
     }
     fout_stat_total.close();
-  
+
     ofstream fout_bg_total("covmatrix_frac_bg.txt");
     for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
     fout_bg_total << pred->GetFracBgError(i,j) << endl;
-      
+
     }
     fout_bg_total << endl;
     }
     fout_bg_total.close();
   */
-  
+
 }//end of Test
 
 Double_t CalculateChi2(TH1F *h_s22t13,TH1F* h_data){
 
-  Double_t chi2out=0; 
+  Double_t chi2out=0;
   int nbins=0;
   for(int ibin=1;ibin<h_s22t13->GetXaxis()->FindBin(7);++ibin){
     nbins++;
- 
-    double bdata=h_data->GetBinContent(ibin); 
+
+    double bdata=h_data->GetBinContent(ibin);
     double bs22t13=h_s22t13->GetBinContent(ibin);
     double edata=h_data->GetBinError(ibin);
     if(edata!=0 && bdata!=0){

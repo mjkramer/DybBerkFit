@@ -28,7 +28,7 @@ public:
   Bool_t loadCovMatrixBCW(const char* filename_mcov);
   void setRandomIBDSpectraBCW();
   double IBDSpectrumBCW(unsigned int coreId, double e_nu);
-  
+
   double eMin();
   double eMax();
 
@@ -59,9 +59,9 @@ private:
   TRandom3 * ran ;
 
   CrossSectionTable * m_xsec;
-  
+
   bool isAbInitioSpectraUsed;
-  
+
 };
 
 #endif // CORESPECTRUM_H

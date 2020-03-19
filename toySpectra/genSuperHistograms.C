@@ -18,27 +18,27 @@ using namespace Config;
 void genSuperHistograms()
 {
   TH1F * h[Nstage][Ndetectors][Ncores];
-  
-  
+
+
   // Create Expectations
   DataSet *mydata = new DataSet();
   mydata->load(nominal_dataset_filename);
 
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
- 
+
   const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
   for(int istage=0;istage<Nstage;istage++){
-    myPred->LoadMainData(Theta13InputsLocation[istage]); 
+    myPred->LoadMainData(Theta13InputsLocation[istage]);
   }
-  
 
-  // Create nominal Spectrum 
+
+  // Create nominal Spectrum
   Spectrum *spectrumNorm = new Spectrum();
   spectrumNorm->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNorm->loadDistances(baselines_filename);                    
+  spectrumNorm->loadDistances(baselines_filename);
   spectrumNorm->initialize(mydata);
   //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
   TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
@@ -50,13 +50,13 @@ void genSuperHistograms()
                                  aln_filename);
 
   // load distances hare as well to construct traditional supermatrix
-  
+
   Double_t m_detectorDistance[Ndetectors][Ncores];
 
   string dummyLine;
   string thead;
   float d2,d1,l2,l1,l4,l3;
-  //-->Distances  
+  //-->Distances
   cout << " Distances ++++++++++++++++++++++++++++++++++++++" << endl;
   ifstream disfile(baselines_filename);
   getline(disfile, dummyLine);
@@ -72,12 +72,12 @@ void genSuperHistograms()
     m_detectorDistance[adnum-1][4]=l3*0.001;
     m_detectorDistance[adnum-1][5]=l4*0.001;
   }
-  
+
 
   //Double_t M[Nstage][Ndetectors][Ncores];
 
-  
-  
+
+
   //Prepare destination file
   TFile *outfile = new TFile(histogram_filename, "RECREATE");
 
@@ -92,15 +92,15 @@ void genSuperHistograms()
       }
     }
   }
-  
+
   //Generate nominal spectrum
-  
+
   for(int istage=0;istage<Nstage;++istage){
     for(int icore=0;icore<Ncores;++icore){
       spectrumNorm->updateAntinu(icore);
       for(int idet=0;idet<Ndetectors;++idet){
         for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
-        
+
           h[istage][idet][icore]->Fill(spectrumNorm->energyArray(idet)[ibin],
                                        spectrumNorm->antiNuNoOscArray(istage,idet)[ibin]);
         }//ibin loop
@@ -108,12 +108,12 @@ void genSuperHistograms()
 
         // construct supermatrix element
         //M[istage][idet][icore] = h[istage][idet][icore]->Integral()/pow(m_detectorDistance[idet][icore],2);
-      
+
       }
       //    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
     }
   }
-  
+
   outfile->Write();
   outfile->Close();
 
@@ -123,7 +123,7 @@ void genSuperHistograms()
   // normalize and dump supermatrix
   ofstream fout_supermatrix(output_supermatrix_filename.Data());
   fout_supermatrix << "#\tD1\tD2\tL1\tL2\tL3\tL4" << endl;
-  
+
   for(int idet=0;idet<Ndetectors;++idet){
   Double_t norm = 0;
   for(int icore=0;icore<Ncores;++icore)
@@ -136,6 +136,6 @@ void genSuperHistograms()
   fout_supermatrix << endl;
   }
   */
-  
+
 
 }//end of genToySpectraTree

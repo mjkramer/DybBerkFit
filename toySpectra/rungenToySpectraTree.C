@@ -3,7 +3,7 @@ void rungenToySpectraTree(int x){
   gROOT->ProcessLine(".x LoadClasses.C");
   gROOT->ProcessLine(".L genToySpectraTree.C+");
   // gROOT->ProcessLine(".L genToySpectraTree_postP15A.C+");
-  
+
   const Int_t nopts = 19;
   TString options[nopts] = {
     "allsys",//1
@@ -26,9 +26,9 @@ void rungenToySpectraTree(int x){
     "vary_fn",//19
     "vary_li9"//20
   };
-  
+
   Int_t i = x - 1;
-  
+
   // Set of variation only affected by the reactor flux covariance matrix
   /*
     const Int_t nopts = 2;
@@ -42,7 +42,7 @@ void rungenToySpectraTree(int x){
     };
   */
   TString dataset_name_base = "dyb_data_v1_";
-  
+
   //for (Int_t i = 0; i < nopts; i++){
   //for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
   //  for (Int_t i = 22; i < 23; i++){

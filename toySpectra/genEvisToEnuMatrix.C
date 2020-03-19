@@ -22,7 +22,7 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
   // // define output histograms
 
   //  const Int_t n_evis_bins = 52;
-    
+
   const Int_t n_evis_bins = Binning::n_evis();
   const double* evis_bins = Binning::evis();
 
@@ -37,7 +37,7 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
     sprintf(name,"h_evis_vs_enu_ad%i",idet+1);
     h_evis_vs_enu_ad[idet] = new TH2F (name,name,240,0,12,n_evis_bins,evis_bins);
   }
-  
+
   // Create Nominal (i.e. no random variation) Expectations
   DataSet *mydata_nominal = new DataSet();
   mydata_nominal->load(nominal_noosc_dataset_filename);
@@ -63,20 +63,20 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
   } else
     dm241 = mydata_nominal->getDouble("deltaMSq41");
 
-  
+
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor *myPred = new Predictor();
 
   const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
   for(int istage=0;istage<Nstage;istage++){
-    myPred->LoadMainData(Theta13InputsLocation[istage]); 
+    myPred->LoadMainData(Theta13InputsLocation[istage]);
   }
-  
-  // Create nominal Spectrum 
+
+  // Create nominal Spectrum
   Spectrum *spectrumNormNominal = new Spectrum();
   spectrumNormNominal->passPredictor(myPred);
   //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNormNominal->loadDistances(baselines_filename);                    
+  spectrumNormNominal->loadDistances(baselines_filename);
   spectrumNormNominal->initialize(mydata_nominal);
 
   TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
@@ -86,11 +86,11 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
                                         amc_filename,
                                         fn_filename,
                                         aln_filename);
-  
+
   //Prepare destination file
   TFile *outfile = new TFile(response_root_filename, "RECREATE");
 
-  
+
   //Generate nominal spectrum
 
   spectrumNormNominal->updateAntinu();
@@ -100,7 +100,7 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
   for(int idet=0;idet<1;++idet){
   h_nominal_ad[idet]->Reset();
   for(int ibin=0;ibin<spectrumNormNominal->nSamples();++ibin){
-      
+
   h_nominal_ad[idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin],
   spectrumNormNominal->positronDetectedArray(0,idet)[ibin]*spectrumNormNominal->binWidth()
   + spectrumNormNominal->bgDetectedArray(0,idet)[ibin]
@@ -134,7 +134,7 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
                                      spectrumNormNominal->energyArray(idet)[ibin],
                                      spectrumNormNominal->positronDetectedArray(0,idet)[ibin]*spectrumNormNominal->binWidth()
                                      ); // don't include background spectra for this true enu_vs_evis convertion.
-        
+
       }
     }//idet loop
 
@@ -142,12 +142,12 @@ void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2
 
 
   outfile->cd();
-  //for(int idet=0;idet<Ndetectors;++idet){  
+  //for(int idet=0;idet<Ndetectors;++idet){
   for(int idet=0;idet<1;++idet){
     h_nominal_ad[idet]->Write();
     h_evis_vs_enu_ad[idet]->Write();
   }
-  
+
   outfile->Write();
   outfile->Close();
 

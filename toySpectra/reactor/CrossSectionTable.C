@@ -37,7 +37,7 @@ double CrossSectionTable::inverseBetaDecay(double e_nu)
     int binIdxHigh = binIdxLow+1;
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
-    double slope = (m_xsec[binIdxHigh] 
+    double slope = (m_xsec[binIdxHigh]
                     - m_xsec[binIdxLow])/m_binWidth;
     value += dE*slope;
   }
@@ -73,7 +73,7 @@ int CrossSectionTable::load(const char* filename)
   return 0;
 }
 
-int CrossSectionTable::loadOneFile(const char* filename, double* xData, 
+int CrossSectionTable::loadOneFile(const char* filename, double* xData,
                                    double* yData)
 {
   // Load data from one file
@@ -111,4 +111,3 @@ double CrossSectionTable::eMax()
 {
   return m_eMax;
 }
-

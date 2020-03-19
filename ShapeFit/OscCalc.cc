@@ -3,8 +3,8 @@
 using namespace std;
 
 OscCalc::OscCalc(){
-    
-  //default parameters 
+
+  //default parameters
   hierarchy=1;//-1 for inverted
   deltam2_32_default=2.44e-3;//eV2
   deltam2_21_default=7.53e-5;//eV2
@@ -12,20 +12,20 @@ OscCalc::OscCalc(){
   deltam2_factor_default=5.17e-5;//eV2, conversion factor between deltam2_ee and deltam2_32.
   sin22t12_default=0.851;//from pdg-2018
   theta14_default=0;
-  
+
   //set operating parameters to default parameters
   deltam2_21=deltam2_21_default;
   deltam2_32=deltam2_32_default;
   deltam2_31=deltam2_32+hierarchy*deltam2_21;
   deltam2_41=deltam2_41_default;
   deltam2_factor=deltam2_factor_default;
-  //assuming 4th state (sterile) is heavier than the others 
+  //assuming 4th state (sterile) is heavier than the others
   deltam2_42=deltam2_41-deltam2_21;//<--2 is heavier than 1
   deltam2_43=deltam2_41-hierarchy*deltam2_31;//<--depends on hierarchy
   sin22t12=sin22t12_default;
   theta14=theta14_default;
 
-  //Load default unoscillated spectrum 
+  //Load default unoscillated spectrum
   //TFile *anspecfile = new TFile("./UnoscSpectrum/UnoscSpectrum.root","READ");
   //anspecdef = (TH1F*)anspecfile->Get("anspec");
 
@@ -68,7 +68,7 @@ void OscCalc::SetDeltaM2_41(double deltam2){
   deltam2_41=deltam2;
   deltam2_42=deltam2_41-deltam2_21;
   deltam2_43=deltam2_41-hierarchy*deltam2_31;//<--depends on hierarchy
-  
+
 }
 
 void OscCalc::SetTheta14(double theta_in){
@@ -80,7 +80,7 @@ void OscCalc::SetTheta14(double theta_in){
 void OscCalc::SetTheta12(double theta_in){
 
   sin22t12=pow(TMath::Sin(2*theta_in),2);
-  
+
 }
 
 void OscCalc::SetHierarchy(int hie){
@@ -147,11 +147,11 @@ double OscCalc::DeltaTermInt(double deltam2_in, double L, double E){
 }
 
 Double_t OscCalc::OscProb(double L, double E, double s22t13){
-    
+
   double theta13=TMath::ASin(sqrt(s22t13))*0.5;
   double theta12=TMath::ASin(sqrt(sin22t12))*0.5;
 
-  //3-neutrino flavor calculation using equation 9 in the TDR 
+  //3-neutrino flavor calculation using equation 9 in the TDR
   /*double term1=sin22t12*pow(cos(theta13),4)*pow(sin(1.267*deltam2_21*L/E),2);
     double term2=pow(cos(theta12)*sin(2*theta13)*sin(1.267*deltam2_31*L/E),2);
     double term3=pow(sin(theta12)*sin(2*theta13)*sin(1.267*deltam2_32*L/E),2);
@@ -162,18 +162,18 @@ Double_t OscCalc::OscProb(double L, double E, double s22t13){
   double Ue2=cos(theta14)*cos(theta13)*sin(theta12);
   double Ue3=cos(theta14)*sin(theta13);
   double Ue4=sin(theta14);
-  
+
   double term1=4*pow(Ue1,2)*pow(Ue2,2)*DeltaTerm(deltam2_21,L,E)+4*pow(Ue1,2)*pow(Ue3,2)*DeltaTerm(deltam2_31,L,E);
   double term2=4*pow(Ue2,2)*pow(Ue3,2)*DeltaTerm(deltam2_32,L,E);
   double term3=4*pow(Ue1,2)*pow(Ue4,2)*DeltaTerm(deltam2_41,L,E)+4*pow(Ue2,2)*pow(Ue4,2)*DeltaTerm(deltam2_42,L,E);
   double term4=4*pow(Ue3,2)*pow(Ue4,2)*DeltaTerm(deltam2_43,L,E);
- 
+
   return 1-term1-term2-term3-term4;
-    
+
 }
 
 Double_t OscCalc::OscProbInt(double L, double E, double s22t13, int term){
-    
+
   double theta13=TMath::ASin(sqrt(s22t13))*0.5;
   double theta12=TMath::ASin(sqrt(sin22t12))*0.5;
 
@@ -184,14 +184,14 @@ Double_t OscCalc::OscProbInt(double L, double E, double s22t13, int term){
   double Ue4=sin(theta14);
 
   double result = 0;
-  
+
   double term1;
   double term2;
   double term3;
   double term4;
   double term5;
   double term6;
-  
+
   if (term < 0){
     term1=4*pow(Ue1,2)*pow(Ue2,2)*DeltaTermInt(deltam2_21,L,E);
     term2=4*pow(Ue1,2)*pow(Ue3,2)*DeltaTermInt(deltam2_31,L,E);
@@ -207,7 +207,7 @@ Double_t OscCalc::OscProbInt(double L, double E, double s22t13, int term){
     term5=DeltaTermInt(deltam2_42,L,E);
     term6=DeltaTermInt(deltam2_43,L,E);
   }
-  
+
   if (term < 0){ // all terms included
     result = L/E-term1-term2-term3-term4-term5-term6;
   }else if (term == 0){
@@ -227,57 +227,57 @@ Double_t OscCalc::OscProbInt(double L, double E, double s22t13, int term){
   }
 
   return result;
-  
+
 }
 
 Double_t OscCalc::OscFunc(double L, double s22t13, TH1F *anspec){
-    
+
   TH1F *anspecosc = (TH1F*)anspec->Clone("anspecosc");
   anspecosc->SetLineColor(2);
   for(int pts=1;pts<=anspec->GetXaxis()->GetNbins();++pts){
-    
+
     double E=anspec->GetXaxis()->GetBinCenter(pts);
     anspecosc->SetBinContent(pts,anspec->GetBinContent(pts)*OscProb(L,E,s22t13));
-    
+
   }
-  
+
   double intrat = anspecosc->Integral()*1./anspec->Integral();
   delete anspecosc;
   return intrat;
-    
+
 }
 
 Double_t OscCalc::OscFunc(double L, double s22t13){
-  
+
   TH1F *anspecosc = (TH1F*)anspecdef->Clone("anspecosc");
   anspecosc->SetLineColor(2);
   for(int pts=1;pts<=anspecdef->GetXaxis()->GetNbins();++pts){
-    
+
     double E=anspecdef->GetXaxis()->GetBinCenter(pts);
     anspecosc->SetBinContent(pts,anspecdef->GetBinContent(pts)*OscProb(L,E,s22t13));
-    
+
   }
-  
+
   double intrat = anspecosc->Integral()*1./anspecdef->Integral();
   delete anspecosc;
   return intrat;
-  
+
 }
 
 TH1F* OscCalc::OscSpec(double L, double s22t13, TH1F *anspec){
-  
+
   TH1F *anspecosc = (TH1F*)anspec->Clone("anspecosc");
   anspecosc->SetLineColor(2);
   anspecosc->Reset();//<--should have no effect; just a precaution
   for(int pts=1;pts<=anspec->GetXaxis()->GetNbins();++pts){
-    
+
     double E=anspec->GetXaxis()->GetBinCenter(pts);
     anspecosc->SetBinContent(pts,anspec->GetBinContent(pts)*OscProb(L,E,s22t13));
-    
+
   }
- 
+
   return anspecosc;
-  
+
 }
 
 void OscCalc::OscSpec(double L, double s22t13, TH1F *anspec, TH1F* anspecosc){
@@ -286,14 +286,14 @@ void OscCalc::OscSpec(double L, double s22t13, TH1F *anspec, TH1F* anspecosc){
   anspecosc->SetLineColor(2);
   anspecosc->Reset();//<--should have no effect; just a precaution
   for(int pts=1;pts<=anspec->GetXaxis()->GetNbins();++pts){
-    
+
     double E=anspec->GetXaxis()->GetBinCenter(pts);
     anspecosc->SetBinContent(pts,anspec->GetBinContent(pts)*OscProb(L,E,s22t13));
-    
+
   }
- 
+
   // return anspecosc;
-  
+
 }
 
 void OscCalc::OscSpecBinInt(double L, double s22t13, TH1F *anspec, TH1F* anspecosc, int term){ // bin integrated oscillation prediction
@@ -312,7 +312,7 @@ void OscCalc::OscSpecBinInt(double L, double s22t13, TH1F *anspec, TH1F* anspeco
     double E_low = anspec->GetXaxis()->GetBinLowEdge(pts);
     double E_high = E_low + E_binw;
     double E_center = 0.5*(E_low+E_high);
-    
+
     double N_center = anspec->GetBinContent(pts);
     double N_low = 0;
     if (pts > 1) {
@@ -343,17 +343,17 @@ void OscCalc::OscSpecBinInt(double L, double s22t13, TH1F *anspec, TH1F* anspeco
 
       if (E_low_fine > 0)
         OscProbAve = (OscProbInt(L,E_low_fine,s22t13,term) - OscProbInt(L,E_high_fine,s22t13,term))/(L/E_low_fine - L/E_high_fine);
-      else 
+      else
         OscProbAve = 1;
-      
+
       N_osc_sum += N_center_fine * OscProbAve;
     }
 
     anspecosc->SetBinContent(pts,N_osc_sum/(double)ndiv);
   }
- 
+
   // return anspecosc;
-  
+
 }
 
 

@@ -26,7 +26,7 @@ DataSet::~DataSet()
 
 double DataSet::getDouble(const char* name)
 {
-  TParameter<double>* par = 
+  TParameter<double>* par =
     dynamic_cast<TParameter<double>* >( this->getObject(name) );
   if(!par){
     cerr << "Failed to find \"" << name << "\" (double)" << endl;
@@ -38,7 +38,7 @@ double DataSet::getDouble(const char* name)
 
 const char* DataSet::getString(const char* name)
 {
-  TObjString* par = 
+  TObjString* par =
     dynamic_cast<TObjString* >( this->getObject(name) );
   if(!par){
     cerr << "Failed to find \"" << name << "\" (string)" << endl;
@@ -140,7 +140,7 @@ int DataSet::load(const char* filename)
     string svalue;
     if(!(lineStr >> svalue)){
       std::cout << "DataSet::load: "
-                << "Error: Failed to read value from line " << line 
+                << "Error: Failed to read value from line " << line
                 << std::endl;
       return -1;
     }

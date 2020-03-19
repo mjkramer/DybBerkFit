@@ -91,7 +91,7 @@ void SmearSpectrum(){
   Double_t e_max = 15;
   const Int_t nsteps = 3000;
 
-  //rebinned histogram for fit 
+  //rebinned histogram for fit
   const Int_t n_evis_bins = 37;
   Double_t evis_bins[38]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
   evis_bins[0] = 0.7;
@@ -100,24 +100,24 @@ void SmearSpectrum(){
   }
   evis_bins[37] = 12.0;
 
-  //rebinned histogram for toy 
+  //rebinned histogram for toy
   const Int_t n_evis_bins_toy = 240;
   TH1D *h_li9_smeared_toy = new TH1D("h_li9_smeared_toy","h_li9_smeared_toy",n_evis_bins_toy,0,12);
   Double_t evis_bins_toy[241]; // The toy spectra currently spans 0-12MeV in 240 bins
   for (Int_t i = 0; i <= n_evis_bins_toy; i++){
     evis_bins_toy[i] = 0.05 *i;
   }
-  
+
   Double_t e_step = (e_max - e_min)/(Double_t)nsteps;
 
   Double_t li9_smeared[nsteps];
-  
+
   for (Int_t i = 0; i < nsteps; i++){
     li9_smeared[i] = 0;
   }
 
   TH1D * h_li9_smeared = new TH1D("h_li9_smeared","h_li9_smeared",nsteps,e_min,e_max);
-  
+
   TF1 * true_spec = GetSpectrum();
 
   for (Int_t i = 0; i < nsteps; i++){
@@ -129,7 +129,7 @@ void SmearSpectrum(){
     // }else{
     //   amp = 0;
     // }
-    
+
     Double_t sigma = e * 0.01 * (7.5/sqrt(e) + 0.9);
     //    cout << e << " " << amp << " " << sigma << endl;
     for (Int_t j = 0; j < nsteps; j++){
@@ -151,15 +151,15 @@ void SmearSpectrum(){
   true_spec->SetLineStyle(2);
   true_spec->Draw("same");
 
-  //li9 spectrum for fit 
+  //li9 spectrum for fit
   TH1D * h_li9_smeared_rebin = (TH1D*)h_li9_smeared->Rebin(n_evis_bins,"h_li9_smeared_rebin",&evis_bins[0]);
-  
-  //li9 spectrum for toy 
+
+  //li9 spectrum for toy
   TH1D * h_li9_smeared_toy = (TH1D*)h_li9_smeared->Rebin(n_evis_bins_toy,"h_li9_smeared_toy",&evis_bins_toy[0]);
   h_li9_smeared_toy->GetXaxis()->SetTitle("E_{prompt} (MeV)");
   h_li9_smeared_toy->GetYaxis()->SetTitle("arbitrary units");
   h_li9_smeared_toy->SetTitle("");
-  
+
   /*for(int ibin=1;ibin<=h_li9_smeared->GetXaxis()->GetNbins();++ibin){
     h_li9_smeared_toy->Fill(h_li9_smeared->GetBinCenter(ibin),h_li9_smeared->GetBinContent(ibin));
     }*/
@@ -176,5 +176,5 @@ void SmearSpectrum(){
   h_li9_smeared_rebin->Write();
   h_li9_smeared_toy->Write();
   fout->Close();
-  
+
 }

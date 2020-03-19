@@ -21,7 +21,7 @@ IsotopeTable::IsotopeTable()
     m_meanEnergyPerFission[isoId] = 0;
     m_nominalFissionFraction[isoId] = 0;
     m_FissionFractionErr1D[isoId] = 0;
-    
+
     for(int idx=0; idx<MAX_ISOTOPE_SAMPLES; idx++){
       m_dNdE[isoId][idx] = 0;
     }
@@ -29,8 +29,8 @@ IsotopeTable::IsotopeTable()
   isIsotopeTableLoaded = false;
   isIsotopeCovMatrixLoaded = false;
   ran = new TRandom3();
-  
-  
+
+
 }
 
 IsotopeTable::~IsotopeTable()
@@ -73,7 +73,7 @@ double IsotopeTable::antiNuSpectrum(unsigned int isotopeId, double e_nu)
     int binIdxHigh = binIdxLow+1;
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
-    double slope = (m_dNdE[isotopeId][binIdxHigh] 
+    double slope = (m_dNdE[isotopeId][binIdxHigh]
                     - m_dNdE[isotopeId][binIdxLow])/m_binWidth;
     value += dE*slope;
   }
@@ -113,12 +113,12 @@ void IsotopeTable::loadIsotopes(const char* filename)
 
 void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
 {
-  
+
   if (!isIsotopeTableLoaded){
     cout << "you must load isotope table first!!! " << endl;
     return;
   }
-    
+
   // Load isotope data file
   ifstream fileData(filename);
   if(!fileData.is_open() || !fileData.good()){
@@ -142,7 +142,7 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
       break;
     }
   }
-  
+
   // Second line should be an array of the relative errors
   while(true){
     if(fileData.peek()=='#'){
@@ -157,7 +157,7 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
       for (int i = 0; i < m_nDimCovMatrix; i++)
         cout << " " <<  relErrors[i];
       cout << endl;
-      
+
       break;
     }
   }
@@ -188,7 +188,7 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
     }
   }
 
-  // since the fission fraction table start from 1 though 4, a special care is taken  
+  // since the fission fraction table start from 1 though 4, a special care is taken
   for (int i = 0; i < m_nDimCovMatrix; i++){
     for (int j = 0; j < m_nDimCovMatrix; j++){
       m_FissionFractionErr[i][j]
@@ -196,7 +196,7 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
         * m_nominalFissionFraction[i+1] * m_nominalFissionFraction[j+1];
     }
   }
-  
+
 
   TMatrixD covmatrix(MAX_ISOTOPE_ID,MAX_ISOTOPE_ID,&m_FissionFractionErr[0][0]);
 
@@ -206,18 +206,18 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
   // Double_t tmpvec[NBins];
   // TMatrixD ranvec(NBins,1);
   // TMatrixD parvec(NBins,1);
-  
+
   TDecompChol chol(covmatrix);
   chol.Decompose();
-  
+
   TMatrixD cmat(chol.GetU());
   //  cmat.Print();
   TMatrixD tcmat(cmat.Transpose(cmat));
   // std::cout << "Cholesky matrix---------" << std::endl;
-  // tcmat.Print();      
+  // tcmat.Print();
 
   // Finally, add zeros to column and ring 0, to match the fission fraction data
-  
+
   double * tmp_matrix = tcmat.GetMatrixArray();
 
   for (int i = 0; i < MAX_ISOTOPE_ID; i++){
@@ -232,9 +232,9 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
   }
 
 
-  
+
   isIsotopeCovMatrixLoaded = true;
-  
+
   return;
 }
 
@@ -255,7 +255,7 @@ void IsotopeTable::setRandomFissionFractionCorr()
 
   double sum_nominal = 0;
   double sum_new = 0;
-  
+
   for (int i = 0; i < MAX_ISOTOPE_ID; i++){
     m_FissionFraction[i] = m_nominalFissionFraction[i];
     for (int j = 0; j < MAX_ISOTOPE_ID; j++){
@@ -265,7 +265,7 @@ void IsotopeTable::setRandomFissionFractionCorr()
     sum_nominal += m_nominalFissionFraction[i];
     sum_new += m_FissionFraction[i];
   }
-  for (int i = 0; i < MAX_ISOTOPE_ID; i++){ // renormalize 
+  for (int i = 0; i < MAX_ISOTOPE_ID; i++){ // renormalize
     m_FissionFraction[i] = m_FissionFraction[i]*sum_nominal/sum_new;
   }
 
@@ -274,23 +274,23 @@ void IsotopeTable::setRandomFissionFractionCorr()
   // }
   // cout << "Sum: \t" << sum_nominal << "\t" << sum_new << endl;
   // cout << endl;
-  
-  
+
+
 }
 
 void IsotopeTable::setRandomFissionFraction()
 {
   // set random fission fraction assuming they are uncorrelated (i.e. not using covariance matrix.
-  
+
   double sum_nominal = 0;
   double sum_new = 0;
-  
+
   for (int i = 0; i < MAX_ISOTOPE_ID; i++){
     m_FissionFraction[i]
       = (1 + ran->Gaus(0,1) * m_FissionFractionErr1D[i])
       * m_nominalFissionFraction[i];
   }
-  
+
 }
 
 

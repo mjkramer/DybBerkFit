@@ -16,15 +16,15 @@ CoreSpectrum::CoreSpectrum()
     m_nSamples(0),
     m_binWidth(1.0)
 {
-    
+
   isCoreSpectrumLoaded = false;
   isAbInitioSpectraUsed = false;
   ran = new TRandom3();
 
   m_xsec = new CrossSectionTable();
 
-  
-  
+
+
 }
 
 CoreSpectrum::~CoreSpectrum()
@@ -40,25 +40,25 @@ double CoreSpectrum::antiNuSpectrum(unsigned int coreId, double e_nu)
   if(e_nu>=m_eMax) return 0.0;
   // By default, use linear interpolation between nearest sample points
 
-  
+
   // Christine's spectra starts from 1.85 MeV, while we want spectra from 1.80 MeV. So changed it so that it can do linear extrapolation below 1.85 MeV.
-  
+
   int binIdxLow = 0;
   if (e_nu > m_eMin)
     binIdxLow = (int)((e_nu-m_eMin)/m_binWidth);
-  
+
   double value = m_dNdE[coreId][binIdxLow];
   static bool linearInterp = true;
   if(linearInterp){
     int binIdxHigh = binIdxLow+1;
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
-    double slope = (m_dNdE[coreId][binIdxHigh] 
+    double slope = (m_dNdE[coreId][binIdxHigh]
                     - m_dNdE[coreId][binIdxLow])/m_binWidth;
     value += dE*slope;
   }
   return value * 1.0e18;
-  
+
 }
 
 double CoreSpectrum::IBDSpectrum(unsigned int coreId, double e_nu)
@@ -68,20 +68,20 @@ double CoreSpectrum::IBDSpectrum(unsigned int coreId, double e_nu)
   if(e_nu>=m_eMax) return 0.0;
   // By default, use linear interpolation between nearest sample points
 
-  
+
   // Christine's spectra starts from 1.85 MeV, while we want spectra from 1.80 MeV. So changed it so that it can do linear extrapolation below 1.85 MeV.
-  
+
   int binIdxLow = 0;
   if (e_nu > m_eMin)
     binIdxLow = (int)((e_nu-m_eMin)/m_binWidth);
   int binIdxHigh = binIdxLow+1;
 
-  
+
   double value_low = m_dNdE[coreId][binIdxLow] * m_xsec->inverseBetaDecay(m_eMin + binIdxLow*m_binWidth);
   double value_high = m_dNdE[coreId][binIdxHigh] * m_xsec->inverseBetaDecay(m_eMin + binIdxHigh*m_binWidth);
   double value = value_low;
   //  cout << "=============================" << coreId << " " << e_nu << " " << binIdxLow  << " " << value_low << " " << m_dNdE[coreId][binIdxLow] << endl;
-  
+
   static bool linearInterp = true;
   if(linearInterp){
     double binLowE = m_eMin + binIdxLow*m_binWidth;
@@ -92,7 +92,7 @@ double CoreSpectrum::IBDSpectrum(unsigned int coreId, double e_nu)
   if (value < 0) value = 0;
 
   return value * 1.0e18;
-  
+
 }
 
 double CoreSpectrum::IBDSpectrumBCW(unsigned int coreId, double e_nu){
@@ -114,7 +114,7 @@ double CoreSpectrum::IBDSpectrumBCW(unsigned int coreId, double e_nu){
         break;
       }
     }
-  
+
   }
 
   return value;
@@ -141,7 +141,7 @@ void CoreSpectrum::setRandomAntiNuSpectra(){
   for (int i = 0; i < Ncores*m_nSamples; i++){
     ranvec[i] = ran->Gaus(0,1);
   }
-  
+
   for (int iCore = 0; iCore < Ncores; iCore++){
     for (int iSample = 0; iSample < m_nSamples; iSample++){
       m_dNdE[iCore][iSample] = m_dNdE_nom[iCore][iSample];
@@ -152,10 +152,10 @@ void CoreSpectrum::setRandomAntiNuSpectra(){
         }
       }
       //      cout << m_dNdE_nom[iCore][iSample] << "\t" << m_dNdE[iCore][iSample] << endl;
-      
+
     }
   }
-   
+
 }
 
 void CoreSpectrum::setRandomIBDSpectraBCW(){
@@ -178,7 +178,7 @@ void CoreSpectrum::setRandomIBDSpectraBCW(){
         }
       }
       //      cout << m_dIBDdE_nom[iCore][iSample] << "\t" << m_dIBDdE[iCore][iSample] << endl;
-      
+
     }
   }
 
@@ -257,7 +257,7 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
     for (int j = 0; j < m_nSamples*Ncores; j++){
       fileData_mcov >> m_dNdE_mcov[i][j];
       //      cout << "\t" << m_dNdE_mcov[i][j] << endl;
-      
+
     }
     //    cout << endl;
   }
@@ -275,22 +275,22 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
 
   TMatrixD covmatrix(Ncores*MAX_CORESPECTRA_SAMPLES,Ncores*MAX_CORESPECTRA_SAMPLES,&m_dNdE_mcov[0][0]);
   covmatrix.ResizeTo(m_nSamples*Ncores,m_nSamples*Ncores);
-  
+
   //  covmatrix.Print();
   // //  ematrix_fakedata.Print();
   // Double_t tmpvec[NBins];
   // TMatrixD ranvec(NBins,1);
   // TMatrixD parvec(NBins,1);
-  
+
   TDecompChol chol(covmatrix);
   Bool_t decomp_success = chol.Decompose();
-  
+
   TMatrixD cmat(chol.GetU());
   //  cmat.Print();
   TMatrixD tcmat(cmat.Transpose(cmat));
   //  std::cout << "Cholesky matrix---------" << std::endl;
-  //  tcmat.Print();      
-  
+  //  tcmat.Print();
+
   double * tmp_matrix = tcmat.GetMatrixArray();
 
   for (int i = 0; i < m_nSamples*Ncores; i++){
@@ -301,9 +301,9 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
     //    cout << endl;
   }
 
-  
+
   isCoreSpectrumLoaded = true;
-  
+
   return decomp_success;
 }
 //////////
@@ -368,7 +368,7 @@ Bool_t CoreSpectrum::loadAbInitioSpectra(const char* filename_nom)
   m_binWidth = binWidth;
 
   cout << "Finished reading ab initio spectra: eMin = " << m_eMin << " eMax = " << m_eMax << " nSamples = " << m_nSamples << " binWidth = "<< m_binWidth << endl;
-  
+
   isAbInitioSpectraUsed = true;
   return true;
 }
@@ -410,7 +410,7 @@ Bool_t CoreSpectrum::loadCovMatrixBCW(const char* filename_mcov)
       m_dIBDdE[iCore][ibin] = m_dIBDdE_nom[iCore][ibin];
     }
   }
-  
+
   // Read covariancematrix
 
   TFile *  fileData_mcov = new TFile(filename_mcov);
@@ -446,18 +446,18 @@ Bool_t CoreSpectrum::loadCovMatrixBCW(const char* filename_mcov)
 
   TMatrixD cmat_abs(Ncores*m_nBcwBins,Ncores*m_nBcwBins);
   cmat_abs.SetMatrixArray(&covmatrix_abs[0][0]);
-  
+
   //  cmat_abs.Print();
-  
+
   TDecompChol chol(cmat_abs);
   Bool_t decomp_success = chol.Decompose();
-  
+
   TMatrixD cmat(chol.GetU());
   //  cmat.Print();
   TMatrixD tcmat(cmat.Transpose(cmat));
   //  std::cout << "Cholesky matrix---------" << std::endl;
-  //  tcmat.Print();      
-  
+  //  tcmat.Print();
+
   double * tmp_matrix = tcmat.GetMatrixArray();
 
   for (int i = 0; i < m_nBcwBins*Ncores; i++){
@@ -469,8 +469,8 @@ Bool_t CoreSpectrum::loadCovMatrixBCW(const char* filename_mcov)
   }
 
   isBcwCovMatrixLoaded = true;
-  
-  
+
+
   return decomp_success;
 }
 
