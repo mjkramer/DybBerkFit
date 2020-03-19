@@ -11,7 +11,7 @@ const  int m_nBcwBins = 26;
 class TRandom3;
 
 class CoreSpectrum {
- public:
+public:
   CoreSpectrum();
   virtual ~CoreSpectrum();
   // Return the antineutrino energy spectrum for this fission isotope
@@ -32,7 +32,7 @@ class CoreSpectrum {
   double eMin();
   double eMax();
 
- private:
+private:
   double m_eMin; // Minimum Enu energy in spectrum
   double m_eMax; // Maximum Enu energy in spectrum
   int m_nSamples; // Samples in current data

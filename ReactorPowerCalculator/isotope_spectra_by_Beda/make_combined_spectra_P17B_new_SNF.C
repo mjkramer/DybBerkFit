@@ -25,9 +25,9 @@ Double_t e_noneq[5] = {2,2.5,3.0,3.5, 4.0};
 // Double_t noneq_p241[5] = {1.9, 1.5, 0.5, 0.0, 0.0};
 
 Double_t noneq_corr[4][5] = {{5.7, 4.4, 1.5, 0.7, 0.1},
-			     {0.0, 0.0, 0.0, 0.0, 0.0},
-			     {2.1, 1.7, 0.5, 0.0, 0.0},
-			     {1.9, 1.5, 0.5, 0.0, 0.0}};
+                             {0.0, 0.0, 0.0, 0.0, 0.0},
+                             {2.1, 1.7, 0.5, 0.0, 0.0},
+                             {1.9, 1.5, 0.5, 0.0, 0.0}};
 Double_t noneq_ave[5];
 
 TString isotope[4] = {"U235","U238","Pu239","Pu241"};
@@ -119,7 +119,7 @@ void make_combined_spectra() {
       flux_wo_snf_total[j] = 0;
       flux_snf_total[j] = 0;
       for (Int_t i = 0; i < 220; i ++){
-	flux_wo_snf[j][i] = 0;
+        flux_wo_snf[j][i] = 0;
       }
     }
 
@@ -127,19 +127,19 @@ void make_combined_spectra() {
     for (Int_t ii = 0; ii < 4; ii++){
       ifstream fin(Form("reactor_%s_%s_unblinded.txt",stage_name[istage].Data(),isotope[ii].Data()));
       for (Int_t i = 0; i < 220; i ++){
-	fin >> enu_tmp;
-	enu[i] = enu_tmp;
-	//	cout << enu_tmp << " " << get_noneq_corr(ii,enu_tmp) << endl;
-	for (Int_t j = 0; j < 6; j++){
-	  fin >> flux_tmp;
-	  if (AddNonEq)
-	    flux_tmp_corr = flux_tmp * (1 + get_noneq_corr(ii,enu_tmp));
-	  else
-	    flux_tmp_corr = flux_tmp;
-	  flux_wo_snf[j][i] += flux_tmp_corr;
-	  flux_wo_snf_total[j] += flux_tmp_corr * get_ibd_xsec(enu_tmp);
-	  flux_wo_snf_total_ave += flux_tmp_corr * get_ibd_xsec(enu_tmp);
-	}
+        fin >> enu_tmp;
+        enu[i] = enu_tmp;
+        //	cout << enu_tmp << " " << get_noneq_corr(ii,enu_tmp) << endl;
+        for (Int_t j = 0; j < 6; j++){
+          fin >> flux_tmp;
+          if (AddNonEq)
+            flux_tmp_corr = flux_tmp * (1 + get_noneq_corr(ii,enu_tmp));
+          else
+            flux_tmp_corr = flux_tmp;
+          flux_wo_snf[j][i] += flux_tmp_corr;
+          flux_wo_snf_total[j] += flux_tmp_corr * get_ibd_xsec(enu_tmp);
+          flux_wo_snf_total_ave += flux_tmp_corr * get_ibd_xsec(enu_tmp);
+        }
       }
       fin.close();
     }
@@ -147,39 +147,39 @@ void make_combined_spectra() {
     
     // Read SNF spectra
     //additioanl percentage of SNF is taken from DocDB-11687
-      double snf_coarse_energy[11];
-      for(int ien=0; ien<11;++ien) snf_coarse_energy[ien]=1.75+0.25*ien;
+    double snf_coarse_energy[11];
+    for(int ien=0; ien<11;++ien) snf_coarse_energy[ien]=1.75+0.25*ien;
       
-      double snf_coarse_percentage[6][11]={{1.169,1.317,1.329,0.9747,0.8996,0.7766,0.3185,0.2475,0.03444,0.0001644,0.},{1.186,1.334,1.345,0.9816,0.9050,0.7812,0.3200,0.2487,0.03460,0.0001657,0.},{1.196,1.367,1.412,1.118,1.043,0.9007,0.3691,0.2870,0.03996,0.0002051,0.},{1.158,1.321,1.362,1.077,1.003,0.8666,0.3560,0.2769,0.003857,0.0002021,0.},{1.087,1.265,1.342,1.175,1.107,0.9545,0.3854,0.2998,0.04178,0.0002208,0.},{0.9552,1.115,1.184,1.009,0.9525,0.8192,0.3258,0.2532,0.03527,0.0002063}}; //in percent
+    double snf_coarse_percentage[6][11]={{1.169,1.317,1.329,0.9747,0.8996,0.7766,0.3185,0.2475,0.03444,0.0001644,0.},{1.186,1.334,1.345,0.9816,0.9050,0.7812,0.3200,0.2487,0.03460,0.0001657,0.},{1.196,1.367,1.412,1.118,1.043,0.9007,0.3691,0.2870,0.03996,0.0002051,0.},{1.158,1.321,1.362,1.077,1.003,0.8666,0.3560,0.2769,0.003857,0.0002021,0.},{1.087,1.265,1.342,1.175,1.107,0.9545,0.3854,0.2998,0.04178,0.0002208,0.},{0.9552,1.115,1.184,1.009,0.9525,0.8192,0.3258,0.2532,0.03527,0.0002063}}; //in percent
       
       
-      TGraph* gr_snf_percentage[6];
-      TCanvas* c_snf=new TCanvas("c_snf","c_snf",1000,500);
-      c_snf->Divide(3,2);
+    TGraph* gr_snf_percentage[6];
+    TCanvas* c_snf=new TCanvas("c_snf","c_snf",1000,500);
+    c_snf->Divide(3,2);
       
-      for(int icore=0; icore<6; ++icore){
-          gr_snf_percentage[icore]=new TGraph();
-          for(int ienfine=0; ienfine<220; ++ienfine){
-              double fine_energy=1.85+0.05*ienfine;
-              int coarse_energy_bin=-1;
+    for(int icore=0; icore<6; ++icore){
+      gr_snf_percentage[icore]=new TGraph();
+      for(int ienfine=0; ienfine<220; ++ienfine){
+        double fine_energy=1.85+0.05*ienfine;
+        int coarse_energy_bin=-1;
               
-              for(int ien=0; ien<11;++ien){
-                  if(fine_energy<snf_coarse_energy[ien]){
-                      coarse_energy_bin=ien-1;
-                      break;
-                  }
-              }
-              
-              cout<<"coarse_energy_bin is "<<coarse_energy_bin<<endl;
-              if(coarse_energy_bin==-1) snf_percentage[icore][ienfine]=0.;
-              else{
-                  snf_percentage[icore][ienfine]=snf_coarse_percentage[icore][coarse_energy_bin]+(fine_energy-snf_coarse_energy[coarse_energy_bin])*(snf_coarse_percentage[icore][coarse_energy_bin+1]-snf_coarse_percentage[icore][coarse_energy_bin])/(snf_coarse_energy[coarse_energy_bin+1]-snf_coarse_energy[coarse_energy_bin]);
-              }
-              gr_snf_percentage[icore]->SetPoint(ienfine,fine_energy,snf_percentage[icore][ienfine]);
+        for(int ien=0; ien<11;++ien){
+          if(fine_energy<snf_coarse_energy[ien]){
+            coarse_energy_bin=ien-1;
+            break;
           }
-          c_snf->cd(icore+1);
-          gr_snf_percentage[icore]->Draw("AL");
+        }
+              
+        cout<<"coarse_energy_bin is "<<coarse_energy_bin<<endl;
+        if(coarse_energy_bin==-1) snf_percentage[icore][ienfine]=0.;
+        else{
+          snf_percentage[icore][ienfine]=snf_coarse_percentage[icore][coarse_energy_bin]+(fine_energy-snf_coarse_energy[coarse_energy_bin])*(snf_coarse_percentage[icore][coarse_energy_bin+1]-snf_coarse_percentage[icore][coarse_energy_bin])/(snf_coarse_energy[coarse_energy_bin+1]-snf_coarse_energy[coarse_energy_bin]);
+        }
+        gr_snf_percentage[icore]->SetPoint(ienfine,fine_energy,snf_percentage[icore][ienfine]);
       }
+      c_snf->cd(icore+1);
+      gr_snf_percentage[icore]->Draw("AL");
+    }
       
     
     
@@ -192,15 +192,15 @@ void make_combined_spectra() {
       fout <<  std::setprecision(3)  << enu[i]  << std::setprecision(12);
       cout << enu[i];
       for (Int_t j = 0; j < 6; j++){
-	if (AddSNF)
-        flux_w_snf[j][i] = flux_wo_snf[j][i]*(1.+snf_percentage[j][i]/100.);  // /100. due to values are in percentage
- 	else
-	  flux_w_snf[j][i] = flux_wo_snf[j][i];
+        if (AddSNF)
+          flux_w_snf[j][i] = flux_wo_snf[j][i]*(1.+snf_percentage[j][i]/100.);  // /100. due to values are in percentage
+        else
+          flux_w_snf[j][i] = flux_wo_snf[j][i];
 	
 	
-	//cout <<  "\t" << snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
-    cout << "\t" << flux_w_snf[j][i];
-	fout << "\t" << flux_w_snf[j][i];
+        //cout <<  "\t" << snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
+        cout << "\t" << flux_w_snf[j][i];
+        fout << "\t" << flux_w_snf[j][i];
 	
       }
       cout << endl;
@@ -208,4 +208,4 @@ void make_combined_spectra() {
     }
   }
 
- }
+}

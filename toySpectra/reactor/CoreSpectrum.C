@@ -11,10 +11,10 @@
 
 
 CoreSpectrum::CoreSpectrum()
-: m_eMin(0),
-  m_eMax(0),
-  m_nSamples(0),
-  m_binWidth(1.0)
+  : m_eMin(0),
+    m_eMax(0),
+    m_nSamples(0),
+    m_binWidth(1.0)
 {
     
   isCoreSpectrumLoaded = false;
@@ -54,7 +54,7 @@ double CoreSpectrum::antiNuSpectrum(unsigned int coreId, double e_nu)
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
     double slope = (m_dNdE[coreId][binIdxHigh] 
-		    - m_dNdE[coreId][binIdxLow])/m_binWidth;
+                    - m_dNdE[coreId][binIdxLow])/m_binWidth;
     value += dE*slope;
   }
   return value * 1.0e18;
@@ -191,7 +191,7 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
   ifstream fileData(filename_nom);
   if(!fileData.is_open() || !fileData.good()){
     std::cout << "CoreSpectrum::loadSpectra: "
-	      << "Error: Failed to open data file " << filename_nom << std::endl;
+              << "Error: Failed to open data file " << filename_nom << std::endl;
     return false;
   }
   std::cout << "CoreSpectrum::loadSpectra: "
@@ -234,7 +234,7 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
   if(delta*delta > epsilon){
     // Doesn't appear to be uniform binning
     std::cout << "CoreSpectrum: Error: binning not uniform in " << filename_nom
-	      << std::endl;
+              << std::endl;
     return false;
   }
   m_eMin = eMin;
@@ -247,7 +247,7 @@ Bool_t CoreSpectrum::loadSpectra(const char* filename_nom,const char* filename_m
   ifstream fileData_mcov(filename_mcov);
   if(!fileData_mcov.is_open() || !fileData_mcov.good()){
     std::cout << "CoreSpectrum::loadSpectra: "
-	      << "Error: Failed to open data file " << filename_mcov << std::endl;
+              << "Error: Failed to open data file " << filename_mcov << std::endl;
     return false;
   }
   std::cout << "CoreSpectrum::loadSpectra: "
@@ -359,7 +359,7 @@ Bool_t CoreSpectrum::loadAbInitioSpectra(const char* filename_nom)
   if(delta*delta > epsilon){
     // Doesn't appear to be uniform binning
     std::cout << "CoreSpectrum: Error: binning not uniform in " << filename_nom
-	      << std::endl;
+              << std::endl;
     return false;
   }
   m_eMin = eMin;
@@ -416,7 +416,7 @@ Bool_t CoreSpectrum::loadCovMatrixBCW(const char* filename_mcov)
   TFile *  fileData_mcov = new TFile(filename_mcov);
   if(!fileData_mcov->IsOpen()){
     std::cout << "CoreSpectrum::loadSpectra: "
-	      << "Error: Failed to open data file " << filename_mcov << std::endl;
+              << "Error: Failed to open data file " << filename_mcov << std::endl;
     return false;
   }
   std::cout << "CoreSpectrum::loadSpectra: "

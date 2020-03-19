@@ -25,9 +25,9 @@ Double_t e_noneq[5] = {2,2.5,3.0,3.5, 4.0};
 // Double_t noneq_p241[5] = {1.9, 1.5, 0.5, 0.0, 0.0};
 
 Double_t noneq_corr[4][5] = {{5.7, 4.4, 1.5, 0.7, 0.1},
-			     {0.0, 0.0, 0.0, 0.0, 0.0},
-			     {2.1, 1.7, 0.5, 0.0, 0.0},
-			     {1.9, 1.5, 0.5, 0.0, 0.0}};
+                             {0.0, 0.0, 0.0, 0.0, 0.0},
+                             {2.1, 1.7, 0.5, 0.0, 0.0},
+                             {1.9, 1.5, 0.5, 0.0, 0.0}};
 Double_t noneq_ave[5];
 
 TString isotope[4] = {"U235","U238","Pu239","Pu241"};
@@ -124,7 +124,7 @@ void make_combined_spectra_P17B_unblinded() {
       flux_wo_snf_total[j] = 0;
       flux_snf_total[j] = 0;
       for (Int_t i = 0; i < 220; i ++){
-	flux_wo_snf[j][i] = 0;
+        flux_wo_snf[j][i] = 0;
       }
     }
 
@@ -132,19 +132,19 @@ void make_combined_spectra_P17B_unblinded() {
     for (Int_t ii = 0; ii < 4; ii++){
       ifstream fin(Form("reactor_%s_%s_unblinded.txt",stage_name[istage].Data(),isotope[ii].Data()));
       for (Int_t i = 0; i < 220; i ++){
-	fin >> enu_tmp;
-	enu[i] = enu_tmp;
-	//	cout << enu_tmp << " " << get_noneq_corr(ii,enu_tmp) << endl;
-	for (Int_t j = 0; j < 6; j++){
-	  fin >> flux_tmp;
-	  if (AddNonEq)
-	    flux_tmp_corr = flux_tmp * (1 + get_noneq_corr(ii,enu_tmp));
-	  else
-	    flux_tmp_corr = flux_tmp;
-	  flux_wo_snf[j][i] += flux_tmp_corr;
-	  flux_wo_snf_total[j] += flux_tmp_corr * get_ibd_xsec(enu_tmp);
-	  flux_wo_snf_total_ave += flux_tmp_corr * get_ibd_xsec(enu_tmp);
-	}
+        fin >> enu_tmp;
+        enu[i] = enu_tmp;
+        //	cout << enu_tmp << " " << get_noneq_corr(ii,enu_tmp) << endl;
+        for (Int_t j = 0; j < 6; j++){
+          fin >> flux_tmp;
+          if (AddNonEq)
+            flux_tmp_corr = flux_tmp * (1 + get_noneq_corr(ii,enu_tmp));
+          else
+            flux_tmp_corr = flux_tmp;
+          flux_wo_snf[j][i] += flux_tmp_corr;
+          flux_wo_snf_total[j] += flux_tmp_corr * get_ibd_xsec(enu_tmp);
+          flux_wo_snf_total_ave += flux_tmp_corr * get_ibd_xsec(enu_tmp);
+        }
       }
       fin.close();
     }
@@ -157,9 +157,9 @@ void make_combined_spectra_P17B_unblinded() {
     for (Int_t i = 0; i < 220; i ++){
       fin >> enu_tmp;
       for (Int_t j = 0; j < 6; j++){
-	fin >> flux_tmp;
-	flux_snf[j][i] = flux_tmp;
-	flux_snf_total[j] += flux_snf[j][i] * get_ibd_xsec(enu_tmp);    
+        fin >> flux_tmp;
+        flux_snf[j][i] = flux_tmp;
+        flux_snf_total[j] += flux_snf[j][i] * get_ibd_xsec(enu_tmp);    
       }
     }
     fin.close();
@@ -171,15 +171,15 @@ void make_combined_spectra_P17B_unblinded() {
       fout <<  std::setprecision(3)  << enu[i]  << std::setprecision(12);
       cout << enu[i];
       for (Int_t j = 0; j < 6; j++){
-	if (AddSNF)
-	  flux_w_snf[j][i] = flux_wo_snf[j][i]
-	    + snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
-	else
-	  flux_w_snf[j][i] = flux_wo_snf[j][i];
+        if (AddSNF)
+          flux_w_snf[j][i] = flux_wo_snf[j][i]
+            + snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
+        else
+          flux_w_snf[j][i] = flux_wo_snf[j][i];
 	
 	
-	cout <<  "\t" << snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
-	fout << "\t" << flux_w_snf[j][i];
+        cout <<  "\t" << snf_fraction * flux_snf[0][i] /flux_snf_total[0]*flux_wo_snf_total_ave;
+        fout << "\t" << flux_w_snf[j][i];
 	
       }
       cout << endl;
@@ -187,4 +187,4 @@ void make_combined_spectra_P17B_unblinded() {
     }
   }
 
- }
+}

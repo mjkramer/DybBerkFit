@@ -23,10 +23,10 @@ Double_t nl_func_ihep(Double_t * x, Double_t * par);
 
 
 double NonLinearity(double depositE,
-                   double delta_a1,
-                   double delta_a2,
-                   double delta_a3,
-                   double delta_a4,
+                    double delta_a1,
+                    double delta_a2,
+                    double delta_a3,
+                    double delta_a4,
                     double delta_a5);
 
 // LBNL non linearity model
@@ -47,12 +47,12 @@ double m_lbnl_positron_nl_err[3][300];
 const Int_t n_unified_nl_points = 500;
 
 // conversion from neutrino energy to positron energy
-  Double_t enu_to_epositron(Double_t * x, Double_t * par); 
-  Double_t enu_to_epositron_0th(Double_t * x, Double_t * par); 
+Double_t enu_to_epositron(Double_t * x, Double_t * par); 
+Double_t enu_to_epositron_0th(Double_t * x, Double_t * par); 
 
 
 class Spectrum {
- public:
+public:
   Spectrum();
   virtual ~Spectrum();
   // Return the nuebar spectrum (events / MeV)
@@ -89,10 +89,10 @@ class Spectrum {
   void loadDistances(const char *distancematrixname);
   // load bg spectra (they have different binning to the ones used by ShapeFit, which are loaded by Predictor)
   void loadBgSpecForToy(TString *accspecname, 
-			const Char_t *li9specname, 
-			const Char_t *amcspecname,
-			const Char_t *fnspecname,
-			const Char_t *alnspecname);
+                        const Char_t *li9specname, 
+                        const Char_t *amcspecname,
+                        const Char_t *fnspecname,
+                        const Char_t *alnspecname);
   void setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag, 
                        bool amc_flag, bool aln_flag);
   
@@ -137,7 +137,7 @@ class Spectrum {
 
 
   
- private:
+private:
   
   //Bg spectra
   TH1F *CorrAccEvtsSpec[Nstage][Ndetectors];
@@ -165,7 +165,7 @@ class Spectrum {
 
   void setRandomDetectorEfficiency();
     
- private:
+private:
   double m_eMin; // Minimum energy in spectra
   double m_eMax; // Maximum energy in spectra
   int m_nSamples; // Samples in current data

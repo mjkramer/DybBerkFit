@@ -60,8 +60,8 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
     ++cont;
   }
     
-   // infile_alpha.close();
-    //infile_neutron.close();
+  // infile_alpha.close();
+  //infile_neutron.close();
  
   //right now getting alphas and neutrons from bcw, electron and gammas from ihep
   TGraph *graph_bcw_alpha = new TGraph(Nalpha,Alpha_energy,Alpha_model);
@@ -194,7 +194,7 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
     delete graph_bcw_neutron;
     delete h_eVis;
     delete h_eVis_eTrue;
-      infile->Close();
+    infile->Close();
   }
 
   return h_eVisAllSmeared;
@@ -204,27 +204,27 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
 /*
 //From Yasu 
 Double_t nl_func_ihep_electron(Double_t * x, Double_t * par){
-  Double_t e_true = x[0];
-  Double_t escale_par = par[5]; // Add flat energy scale parameter
-  Double_t escale_offset = par[6]; // Add fixed energy offset
+Double_t e_true = x[0];
+Double_t escale_par = par[5]; // Add flat energy scale parameter
+Double_t escale_offset = par[6]; // Add fixed energy offset
 
-  Double_t nl_fac_511 = par[4]; // magic factor read from Soren's slides
+Double_t nl_fac_511 = par[4]; // magic factor read from Soren's slides
 
   
-  // if e_true  < 0, assume e_true = 0 and calculate non-linearlity factor
-  // Then apply to the true positron + gamma energy
-  // this is needed since true energy sometimes become below 0 after IAV correction.
+// if e_true  < 0, assume e_true = 0 and calculate non-linearlity factor
+// Then apply to the true positron + gamma energy
+// this is needed since true energy sometimes become below 0 after IAV correction.
 
-  if (e_true < 0){
-    e_true = 0;
-  }
+if (e_true < 0){
+e_true = 0;
+}
   
-  Double_t e_nonlinear_fac
-    = ((par[0] + par[3]*e_true)/(1+par[1]*exp(-par[2]*e_true))*e_true)
-    / (e_true);
+Double_t e_nonlinear_fac
+= ((par[0] + par[3]*e_true)/(1+par[1]*exp(-par[2]*e_true))*e_true)
+/ (e_true);
 
-  //  Double_t e_nonlinear = x[0] * e_nonlinear_fac * escale_par + escale_offset;
+//  Double_t e_nonlinear = x[0] * e_nonlinear_fac * escale_par + escale_offset;
 
-  return e_nonlinear_fac;
+return e_nonlinear_fac;
 
-  }*/
+}*/

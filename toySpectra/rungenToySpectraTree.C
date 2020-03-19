@@ -2,7 +2,7 @@ void rungenToySpectraTree(int x){
 
   gROOT->ProcessLine(".x LoadClasses.C");
   gROOT->ProcessLine(".L genToySpectraTree.C+");
-   // gROOT->ProcessLine(".L genToySpectraTree_postP15A.C+");
+  // gROOT->ProcessLine(".L genToySpectraTree_postP15A.C+");
   
   const Int_t nopts = 19;
   TString options[nopts] = {
@@ -31,24 +31,24 @@ void rungenToySpectraTree(int x){
   
   // Set of variation only affected by the reactor flux covariance matrix
   /*
-  const Int_t nopts = 2;
-  TString options[nopts] = {
+    const Int_t nopts = 2;
+    TString options[nopts] = {
     //"allsys_and_stat", //0
     //"allsys",//1
     "sigsys",//2
     //"core_spectra",//5
     "bgsys"//3
     //"nominal"
-  };
+    };
   */
   TString dataset_name_base = "dyb_data_v1_";
   
   //for (Int_t i = 0; i < nopts; i++){
   //for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
-    //  for (Int_t i = 22; i < 23; i++){
-    TString dataset_filename = "data_file/" + dataset_name_base + options[i] + ".txt";
-    TString output_filename = "../outputs/toySpectra_" + options[i] + ".root";
-    cout << dataset_filename << "\t" << output_filename << endl;
-    genToySpectraTree(dataset_filename,output_filename);
-    //}
+  //  for (Int_t i = 22; i < 23; i++){
+  TString dataset_filename = "data_file/" + dataset_name_base + options[i] + ".txt";
+  TString output_filename = "../outputs/toySpectra_" + options[i] + ".root";
+  cout << dataset_filename << "\t" << output_filename << endl;
+  genToySpectraTree(dataset_filename,output_filename);
+  //}
 }

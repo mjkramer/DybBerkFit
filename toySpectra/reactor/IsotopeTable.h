@@ -7,7 +7,7 @@ const int MAX_ISOTOPE_SAMPLES = 1000;
 class TRandom3;
 
 class IsotopeTable {
- public:
+public:
   IsotopeTable();
   virtual ~IsotopeTable();
   // Return the antineutrino energy spectrum for this fission isotope
@@ -25,7 +25,7 @@ class IsotopeTable {
   void setRandomFissionFraction();
   double eMin();
   double eMax();
- private:
+private:
   bool m_isActive[MAX_ISOTOPE_ID]; // Is isotope loaded and active?
   double m_meanEnergyPerFission[MAX_ISOTOPE_ID]; // Mean energy per fission
   double m_nominalFissionFraction[MAX_ISOTOPE_ID]; // Nominal fission fraction

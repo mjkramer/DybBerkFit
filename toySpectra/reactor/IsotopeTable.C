@@ -11,10 +11,10 @@
 
 
 IsotopeTable::IsotopeTable()
-: m_eMin(0),
-  m_eMax(0),
-  m_nSamples(0),
-  m_binWidth(1.0)
+  : m_eMin(0),
+    m_eMax(0),
+    m_nSamples(0),
+    m_binWidth(1.0)
 {
   for(int isoId=0; isoId<MAX_ISOTOPE_ID; isoId++){
     m_isActive[isoId] = false;
@@ -74,7 +74,7 @@ double IsotopeTable::antiNuSpectrum(unsigned int isotopeId, double e_nu)
     double binLowE = m_eMin + binIdxLow*m_binWidth;
     double dE = e_nu - binLowE;
     double slope = (m_dNdE[isotopeId][binIdxHigh] 
-		    - m_dNdE[isotopeId][binIdxLow])/m_binWidth;
+                    - m_dNdE[isotopeId][binIdxLow])/m_binWidth;
     value += dE*slope;
   }
   return value;
@@ -86,7 +86,7 @@ void IsotopeTable::loadIsotopes(const char* filename)
   ifstream fileData(filename);
   if(!fileData.is_open() || !fileData.good()){
     std::cout << "IsotopeTable::loadIsotopes: "
-	      << "Error: Failed to open data file " << filename << std::endl;
+              << "Error: Failed to open data file " << filename << std::endl;
     return;
   }
   std::string line;
@@ -123,7 +123,7 @@ void IsotopeTable::loadIsotopeCovMatrix(const char* filename)
   ifstream fileData(filename);
   if(!fileData.is_open() || !fileData.good()){
     std::cout << "IsotopeTable::loadIsotopeCovMatrix: "
-	      << "Error: Failed to open data file " << filename << std::endl;
+              << "Error: Failed to open data file " << filename << std::endl;
     return;
   }
   std::string line;
@@ -301,7 +301,7 @@ void IsotopeTable::loadSpectra(const char* filename)
   ifstream fileData(filename);
   if(!fileData.is_open() || !fileData.good()){
     std::cout << "IsotopeTable::loadSpectra: "
-	      << "Error: Failed to open data file " << filename << std::endl;
+              << "Error: Failed to open data file " << filename << std::endl;
     return;
   }
   std::string line;
@@ -341,7 +341,7 @@ void IsotopeTable::loadSpectra(const char* filename)
   if(delta*delta > epsilon){
     // Doesn't appear to be uniform binning
     std::cout << "IsotopeTable: Error: binning not uniform in " << filename
-	      << std::endl;
+              << std::endl;
     return;
   }
   m_eMin = eMin;

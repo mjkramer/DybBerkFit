@@ -4,7 +4,7 @@
 #define MAX_XSEC_SAMPLES 1050
 
 class CrossSectionTable {
- public:
+public:
   CrossSectionTable();
   virtual ~CrossSectionTable();
   // Return the inverse beta decay cross section
@@ -14,7 +14,7 @@ class CrossSectionTable {
   int loadOneFile(const char* filename, double* xData, double* yData);
   double eMin();
   double eMax();
- private:
+private:
   double m_eMin; // Minimum Enu energy in spectrum
   double m_eMax; // Maximum Enu energy in spectrum
   double m_nSamples; // Samples in current data

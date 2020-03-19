@@ -17,7 +17,7 @@ const Int_t nNearHalls = 2; //number of near halls
 
 class Predictor : public TObject {
 
- public:
+public:
   Predictor();
   ~Predictor();
   //general stuff
@@ -29,10 +29,10 @@ class Predictor : public TObject {
   void LoadToyMCEntry(Int_t i, bool correct=true);
   void LoadToyMCNominalSpec();
   void LoadBgSpec(TString *accspecname, 
-		  const Char_t *li9specname, 
-		  const Char_t *amcspecname,
-		  const Char_t *fnspecname,
-		  const Char_t *alnspecname);
+                  const Char_t *li9specname, 
+                  const Char_t *amcspecname,
+                  const Char_t *fnspecname,
+                  const Char_t *alnspecname);
   FluxCalculator *  GetFluxCalculator(){return fluxcalc;}
   
   void MakePrediction(double sin2theta13, double dm2, Double_t sin22t14, Double_t dm2_41, int tperiod, TimePeriodData &tperdat); //, PredSet *predout);//<--use dm2=-1 to get default value
@@ -102,7 +102,7 @@ class Predictor : public TObject {
 
   void FixCovMatrix(Double_t sin22t13, Double_t dm2_ee,Double_t sin22t14, Double_t dm2_41);
 
- public:
+public:
   FluxCalculator *fluxcalc;
 
   Double_t * CombineMatrix(Int_t mode = 1, Bool_t MakeSum = false);
@@ -120,7 +120,7 @@ class Predictor : public TObject {
   Double_t* GetEnuBins(){return &enu_bins[0];}
   
 
- private:
+private:
   Double_t LookupOscFunc[Ndetectors][Ndetectors][NpointsS];
   Double_t LookupS[NpointsS];
  
@@ -230,7 +230,7 @@ class Predictor : public TObject {
   Bool_t CalculateStageCoeff;
   Bool_t RecalculateCovMatrix;
   
- public:
+public:
   ClassDef(Predictor,1);
 
 private:

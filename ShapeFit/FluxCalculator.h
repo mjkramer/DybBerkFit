@@ -20,14 +20,14 @@ const int Nstage = 3;
 const int NdetectorsConfig[3][Ndetectors]= { {1,1,1,0,1,1,1,0} , {1,1,1,1,1,1,1,1} , {0,1,1,1,1,1,1,1} };
 
 /*
-const int Nhalls = 3;
-const int MaxPredictions = 16; //4 near AD predicting 4 far AD: 4 x 4 = 16
-const int detConfigEH[Ndetectors] = {1,1,2,2,3,3,3,3}; //EH
-const int detConfigAD[Ndetectors] = {1,2,1,2,1,2,3,4}; //AD
+  const int Nhalls = 3;
+  const int MaxPredictions = 16; //4 near AD predicting 4 far AD: 4 x 4 = 16
+  const int detConfigEH[Ndetectors] = {1,1,2,2,3,3,3,3}; //EH
+  const int detConfigAD[Ndetectors] = {1,2,1,2,1,2,3,4}; //AD
 
-//This part needs to be modified when the detector config changes
-const int Nstage = 3;
-const int NdetectorsConfig[3][Ndetectors]= { {1,1,1,1,1,1,1,1},{0,1,1,1,1,1,1,1},{1,1,1,0,1,1,1,0}};
+  //This part needs to be modified when the detector config changes
+  const int Nstage = 3;
+  const int NdetectorsConfig[3][Ndetectors]= { {1,1,1,1,1,1,1,1},{0,1,1,1,1,1,1,1},{1,1,1,0,1,1,1,0}};
 
 */
 
@@ -46,7 +46,7 @@ const double Dmax=3.5e-3;
 
 class FluxCalculator : public TObject { 
 
- public: 
+public: 
   FluxCalculator();
   ~FluxCalculator();
   FluxCalculator(const Char_t *distancesfile, const Char_t *weeklyfluxdataname, int nweeks_in);
@@ -62,7 +62,7 @@ class FluxCalculator : public TObject {
   TH1F *h_super[Nstage][Ndetectors][Ncores];
   OscCalc *osccalc;
 
-   //Super-matrix
+  //Super-matrix
   //  double *SuperMatrixRow(int idet, double s22t13, int iweek, double dm2=-1);
   //void LoadSuperMatrix(Char_t *fluxmatrixname);  //<--- now discontinued
   //bool useSuperMatrix; //<-- now discontinued
@@ -77,7 +77,7 @@ class FluxCalculator : public TObject {
   
   int nweeks;
 
- private:
+private:
   double LookupOscSpecInt[Ndetectors][Ncores][Nstage][NpointsS][NpointsD];
   double LookupS[NpointsS];
   double LookupD[NpointsD];
@@ -99,7 +99,7 @@ class FluxCalculator : public TObject {
 
   Bool_t FirstTime;
   
- public:
+public:
   ClassDef(FluxCalculator,1);
 
 };

@@ -100,7 +100,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   pred->SetEnuBins(Binning::n_enu(),enu_bins);
   
   pred->LoadEvisToEnuMatrix(response_filename);
-   // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
+  // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
   
   pred->LoadCovMatrix(sig_matrix_filename,bg_matrix_filename);
   
@@ -122,7 +122,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   TH1F *h_data[2];
 
   for(Int_t istage=0;istage<Nstage;istage++){
-    h_data[istage] = (TH1F*)pred->GetCorrEvtsSpec(istage,4)->Clone(Form("h_data_stage%i",istage));
+  h_data[istage] = (TH1F*)pred->GetCorrEvtsSpec(istage,4)->Clone(Form("h_data_stage%i",istage));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,5));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,6));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,7));
@@ -257,7 +257,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     Int_t check = 0;
     
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
-        cout<<"Running dm2_step="<<step_dm2<<" out of "<<nsteps_dm2<<endl;
+      cout<<"Running dm2_step="<<step_dm2<<" out of "<<nsteps_dm2<<endl;
 
       //if ( check % (Int_t)((nsteps_dm2-1)/10) == 0 ){
       //cout << 100 * check / (nsteps_dm2-1) << "%" << endl;
@@ -266,11 +266,11 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
 	
       for(int step=0;step<nsteps;++step){
 
-	sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;      
+        sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;      
         dm2ee[step_dm2][step]=(dm2eeend-dm2eestart)*step_dm2*1./(nsteps_dm2-1)+dm2eestart;  
 
-	chi2result[step_dm2][step]=pred->CalculateChi2Cov(sin22t13[step_dm2][step],dm2ee[step_dm2][step],0,-1);
-	h_chi2_temp->SetBinContent(step+1,step_dm2+1,chi2result[step_dm2][step]);
+        chi2result[step_dm2][step]=pred->CalculateChi2Cov(sin22t13[step_dm2][step],dm2ee[step_dm2][step],0,-1);
+        h_chi2_temp->SetBinContent(step+1,step_dm2+1,chi2result[step_dm2][step]);
 
         delete predset;
       }
@@ -282,7 +282,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     //subtract minchi2 from h_chi2_temp
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       for(int step=0;step<nsteps;++step){
-	h_chi2_temp->SetBinContent(step+1,step_dm2+1,h_chi2_temp->GetBinContent(step+1,step_dm2+1)-minchi2);
+        h_chi2_temp->SetBinContent(step+1,step_dm2+1,h_chi2_temp->GetBinContent(step+1,step_dm2+1)-minchi2);
       }
     }
     h_chi2_all->Add(h_chi2_temp,1);
@@ -307,13 +307,13 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   PredSet * tmp_set;
   PredSet * bestpred = new PredSet();
  
-    cout<<"Making best prediction"<<endl;
+  cout<<"Making best prediction"<<endl;
   tmp_set = pred->MakeOneSuperPrediction(bests22t13,bestdm2ee,0,-1,true);
-    cout<<"Best prediction done!"<<endl;
+  cout<<"Best prediction done!"<<endl;
   for(Int_t istage=0;istage<Nstage;istage++)
     for(Int_t idet=4;idet<8;idet++) 
       for(Int_t idet2=0;idet2<4;idet2++) 
-	bestpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
+        bestpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
   
   TCanvas * c0 = new TCanvas ("c0","c0",600,600);
   h_chi2_map->Draw("zcol");
@@ -408,12 +408,12 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
       
       for (Int_t istage = 0; istage<Nstage; istage++){
 	
-	h_final_obs[istage][iMode][i] = new TH1D(Form("h_final_obs_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
-	h_final_obs[istage][iMode][i]->GetXaxis()->SetTitle("Visible energy");
-	h_final_obs[istage][iMode][i]->GetYaxis()->SetTitle("Events per day");
+        h_final_obs[istage][iMode][i] = new TH1D(Form("h_final_obs_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
+        h_final_obs[istage][iMode][i]->GetXaxis()->SetTitle("Visible energy");
+        h_final_obs[istage][iMode][i]->GetYaxis()->SetTitle("Events per day");
 	
-	h_final_pred[istage][iMode][i] = new TH1D(Form("h_final_pred_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
-	h_final_pred_null[istage][iMode][i] = new TH1D(Form("h_final_pred_null_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
+        h_final_pred[istage][iMode][i] = new TH1D(Form("h_final_pred_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
+        h_final_pred_null[istage][iMode][i] = new TH1D(Form("h_final_pred_null_stage%d_mode%d_%d",istage,iMode,i),hnames[iMode][i].Data(),n_rebinned_evis_bins,rebinned_evis_bins);
       } 
     }
     
@@ -430,12 +430,12 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
   
   PredSet * nullpred = new PredSet();
   
-    cout<<"Making zero prediction"<<endl;
+  cout<<"Making zero prediction"<<endl;
   tmp_set = pred->MakeOneSuperPrediction(0,-1,0,-1,true);
   for(Int_t istage=0;istage<Nstage;istage++)
     for(Int_t idet=4;idet<8;idet++) 
       for(Int_t idet2=0;idet2<4;idet2++) 
-	nullpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
+        nullpred->SetPred(istage,idet,idet2, (TH1F*)tmp_set->GetPred(istage,idet,idet2)->Clone());
     
   // try to dump final covariance matrix
   ofstream fout_cmat("final_covmatrix_mode1.txt");
@@ -444,7 +444,7 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     for (Int_t j = 0; j < nPredictions[1]*Nstage*n_rebinned_evis_bins; j++){
       fout_cmat << " " << tmp_vector[i*nPredictions[1]*Nstage*n_rebinned_evis_bins+j];
     }
-   fout_cmat << endl;
+    fout_cmat << endl;
   }
   fout_cmat.close();
   
@@ -527,215 +527,215 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
   
       for (Int_t istage = 0; istage <Nstage; istage++){
-	for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
-	  //cout << "evis: " << i << endl;
+        for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
+          //cout << "evis: " << i << endl;
 
-	  h_final_obs[istage][iMode][iPred]->SetBinContent(i+1,final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
-	  h_final_obs[istage][iMode][iPred]->SetBinError(i+1,final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
+          h_final_obs[istage][iMode][iPred]->SetBinContent(i+1,final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
+          h_final_obs[istage][iMode][iPred]->SetBinError(i+1,final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
 	  
-	  //cout << "h_final_obs: " << final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
+          //cout << "h_final_obs: " << final_obs[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << final_obserror[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
 
-	  h_final_pred[istage][iMode][iPred]->SetBinContent(i+1,final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
-	  h_final_pred[istage][iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]));
-	  //cout << "h_final_pred: " << final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]) << endl;
+          h_final_pred[istage][iMode][iPred]->SetBinContent(i+1,final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
+          h_final_pred[istage][iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]));
+          //cout << "h_final_pred: " << final_pred[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << ", " << sqrt(final_covmatrix[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]) << endl;
 	  
-	  h_final_pred_null[istage][iMode][iPred]->SetBinContent(i+1,final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
-	  h_final_pred_null[istage][iMode][iPred]->SetBinError(i+1,0);
+          h_final_pred_null[istage][iMode][iPred]->SetBinContent(i+1,final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]);
+          h_final_pred_null[istage][iMode][iPred]->SetBinError(i+1,0);
 
-	  //cout << "h_final_pred_null: " << final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
+          //cout << "h_final_pred_null: " << final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i] << endl;
  
-	}
+        }
 	
 	
-	h_final_pred[istage][iMode][iPred]->SetLineStyle(2);
-	h_final_pred[istage][iMode][iPred]->SetLineColor(2);
-	h_final_pred[istage][iMode][iPred]->SetFillStyle(1001);
-	//  h_final_pred[iMode][iPred]->SetFillColor(kGray);
-	h_final_pred[istage][iMode][iPred]->SetFillColor(2);
-	h_final_pred_null[istage][iMode][iPred]->SetLineColor(4);
+        h_final_pred[istage][iMode][iPred]->SetLineStyle(2);
+        h_final_pred[istage][iMode][iPred]->SetLineColor(2);
+        h_final_pred[istage][iMode][iPred]->SetFillStyle(1001);
+        //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
+        h_final_pred[istage][iMode][iPred]->SetFillColor(2);
+        h_final_pred_null[istage][iMode][iPred]->SetLineColor(4);
 	
-	savefile->cd();
+        savefile->cd();
 	
-	h_final_obs_ratio[istage][iMode][iPred] = (TH1D*)h_final_obs[istage][iMode][iPred]->Clone(Form("h_final_obs_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
-	h_final_obs_ratio[istage][iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
-	h_final_pred_ratio[istage][iMode][iPred] = (TH1D*)h_final_pred[istage][iMode][iPred]->Clone(Form("h_final_pred_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
-	h_final_pred_null_ratio[istage][iMode][iPred] = (TH1D*)h_final_pred_null[istage][iMode][iPred]->Clone(Form("h_final_pred_null_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
+        h_final_obs_ratio[istage][iMode][iPred] = (TH1D*)h_final_obs[istage][iMode][iPred]->Clone(Form("h_final_obs_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
+        h_final_obs_ratio[istage][iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
+        h_final_pred_ratio[istage][iMode][iPred] = (TH1D*)h_final_pred[istage][iMode][iPred]->Clone(Form("h_final_pred_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
+        h_final_pred_null_ratio[istage][iMode][iPred] = (TH1D*)h_final_pred_null[istage][iMode][iPred]->Clone(Form("h_final_pred_null_ratio_stage%d_mode%d_%d",istage,iMode,iPred));
 
-	if(h_final_pred_null[istage][iMode][iPred]->Integral() > 0){ //Check to not do division by zero
-	  h_final_obs_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
-	  h_final_pred_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
-	  h_final_pred_null_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
-	}
-	else{
-	  h_final_obs_ratio[istage][iMode][iPred]->Scale(0);
-	  h_final_pred_ratio[istage][iMode][iPred]->Scale(0);
-	  h_final_pred_null_ratio[istage][iMode][iPred]->Scale(0);
-	}
+        if(h_final_pred_null[istage][iMode][iPred]->Integral() > 0){ //Check to not do division by zero
+          h_final_obs_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
+          h_final_pred_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
+          h_final_pred_null_ratio[istage][iMode][iPred]->Divide(h_final_pred_null[istage][iMode][iPred]);
+        }
+        else{
+          h_final_obs_ratio[istage][iMode][iPred]->Scale(0);
+          h_final_pred_ratio[istage][iMode][iPred]->Scale(0);
+          h_final_pred_null_ratio[istage][iMode][iPred]->Scale(0);
+        }
 
-	dir->cd();	
+        dir->cd();	
       }
     }
     
-     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
-       for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
+    for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
+      for (Int_t i = 0; i <n_rebinned_evis_bins; i++){
          
-         h_final_obs_sum[iMode][iPred]->SetBinContent(i+1,final_obs_sum[iMode][iPred*n_rebinned_evis_bins+i]);
-         h_final_obs_sum[iMode][iPred]->SetBinError(i+1,final_obserror_sum[iMode][iPred*n_rebinned_evis_bins+i]);
+        h_final_obs_sum[iMode][iPred]->SetBinContent(i+1,final_obs_sum[iMode][iPred*n_rebinned_evis_bins+i]);
+        h_final_obs_sum[iMode][iPred]->SetBinError(i+1,final_obserror_sum[iMode][iPred*n_rebinned_evis_bins+i]);
          
-         h_final_pred_sum[iMode][iPred]->SetBinContent(i+1,final_pred_sum[iMode][iPred*n_rebinned_evis_bins+i]);
-         h_final_pred_sum[iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix_sum[iMode][iPred*n_rebinned_evis_bins+i][iPred*n_rebinned_evis_bins+i]));
+        h_final_pred_sum[iMode][iPred]->SetBinContent(i+1,final_pred_sum[iMode][iPred*n_rebinned_evis_bins+i]);
+        h_final_pred_sum[iMode][iPred]->SetBinError(i+1,sqrt(final_covmatrix_sum[iMode][iPred*n_rebinned_evis_bins+i][iPred*n_rebinned_evis_bins+i]));
          
-         h_final_pred_null_sum[iMode][iPred]->SetBinContent(i+1,final_pred_null_sum[iMode][iPred*n_rebinned_evis_bins+i]);
-         h_final_pred_null_sum[iMode][iPred]->SetBinError(i+1,0);
-       }
+        h_final_pred_null_sum[iMode][iPred]->SetBinContent(i+1,final_pred_null_sum[iMode][iPred*n_rebinned_evis_bins+i]);
+        h_final_pred_null_sum[iMode][iPred]->SetBinError(i+1,0);
+      }
 	
 	
-       h_final_pred_sum[iMode][iPred]->SetLineStyle(2);
-       h_final_pred_sum[iMode][iPred]->SetLineColor(2);
-       h_final_pred_sum[iMode][iPred]->SetFillStyle(1001);
-       //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
-       h_final_pred_sum[iMode][iPred]->SetFillColor(2);
-       h_final_pred_null_sum[iMode][iPred]->SetLineColor(4);
+      h_final_pred_sum[iMode][iPred]->SetLineStyle(2);
+      h_final_pred_sum[iMode][iPred]->SetLineColor(2);
+      h_final_pred_sum[iMode][iPred]->SetFillStyle(1001);
+      //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
+      h_final_pred_sum[iMode][iPred]->SetFillColor(2);
+      h_final_pred_null_sum[iMode][iPred]->SetLineColor(4);
 	
-	savefile->cd();
+      savefile->cd();
 	
-	h_final_obs_ratio_sum[iMode][iPred] = (TH1D*)h_final_obs_sum[iMode][iPred]->Clone(Form("h_final_obs_ratio_sum_mode%d_%d",iMode,iPred));
-	h_final_obs_ratio_sum[iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
-	h_final_pred_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_sum[iMode][iPred]->Clone(Form("h_final_pred_ratio_sum_mode%d_%d",iMode,iPred));
-	h_final_pred_null_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_null_sum[iMode][iPred]->Clone(Form("h_final_pred_null_ratio_sum_mode%d_%d",iMode,iPred));
+      h_final_obs_ratio_sum[iMode][iPred] = (TH1D*)h_final_obs_sum[iMode][iPred]->Clone(Form("h_final_obs_ratio_sum_mode%d_%d",iMode,iPred));
+      h_final_obs_ratio_sum[iMode][iPred]->GetYaxis()->SetTitle("Ratio to null osc. prediction");
+      h_final_pred_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_sum[iMode][iPred]->Clone(Form("h_final_pred_ratio_sum_mode%d_%d",iMode,iPred));
+      h_final_pred_null_ratio_sum[iMode][iPred] = (TH1D*)h_final_pred_null_sum[iMode][iPred]->Clone(Form("h_final_pred_null_ratio_sum_mode%d_%d",iMode,iPred));
 	
-	if(h_final_pred_null_sum[iMode][iPred]->Integral() > 0){ //Check to not do division by zero
-	  h_final_obs_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
-	  h_final_pred_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
-	  h_final_pred_null_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
-	}
-	else{
-	  h_final_obs_ratio_sum[iMode][iPred]->Scale(0);
-	  h_final_pred_ratio_sum[iMode][iPred]->Scale(0);
-	  h_final_pred_null_ratio_sum[iMode][iPred]->Scale(0);
-	}
+      if(h_final_pred_null_sum[iMode][iPred]->Integral() > 0){ //Check to not do division by zero
+        h_final_obs_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
+        h_final_pred_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
+        h_final_pred_null_ratio_sum[iMode][iPred]->Divide(h_final_pred_null_sum[iMode][iPred]);
+      }
+      else{
+        h_final_obs_ratio_sum[iMode][iPred]->Scale(0);
+        h_final_pred_ratio_sum[iMode][iPred]->Scale(0);
+        h_final_pred_null_ratio_sum[iMode][iPred]->Scale(0);
+      }
 	
-	dir->cd();	
-     }
+      dir->cd();	
+    }
     
 
-     for (Int_t i = 0; i <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
-       for (Int_t j = 0; j <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; j++){
+    for (Int_t i = 0; i <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; i++){
+      for (Int_t j = 0; j <nPredictions[iMode]*Nstage*n_rebinned_evis_bins; j++){
 	 
-	 if (final_covmatrix[iMode][i][i] == 0) continue;
-	 if (final_covmatrix[iMode][j][j] == 0) continue;
+        if (final_covmatrix[iMode][i][i] == 0) continue;
+        if (final_covmatrix[iMode][j][j] == 0) continue;
 	 
-	 h_final_covmatrix[iMode]->SetBinContent(i+1,j+1,final_covmatrix[iMode][i][j]/sqrt(final_covmatrix[iMode][i][i]*final_covmatrix[iMode][j][j]));
-       }
-     }
+        h_final_covmatrix[iMode]->SetBinContent(i+1,j+1,final_covmatrix[iMode][i][j]/sqrt(final_covmatrix[iMode][i][i]*final_covmatrix[iMode][j][j]));
+      }
+    }
      
      
 
   }
   /*
-  TCanvas * c2 = new TCanvas("c2","c2",1200,1000);
+    TCanvas * c2 = new TCanvas("c2","c2",1200,1000);
 
-  TCanvas * c3 = new TCanvas("c3","c3",600,600);
+    TCanvas * c3 = new TCanvas("c3","c3",600,600);
 
-  c2->Print("./fit_result_files/fit_shape_2d.pdf["); //Open PDF file
+    c2->Print("./fit_result_files/fit_shape_2d.pdf["); //Open PDF file
 
-  for (Int_t iMode = 0; iMode < nModes; iMode++){
+    for (Int_t iMode = 0; iMode < nModes; iMode++){
     c3->Clear();
     for(Int_t istage=0;istage<Nstage;istage++){
-      c2->Clear();
+    c2->Clear();
       
-      if (iMode == 0){
-	c2->Divide(4,4);
-      }
-      if (iMode == 1){
-	c2->SetWindowSize(1200,600);
-	c2->Divide(2,1);
-      }
-      if (iMode == 2){
-	c2->SetWindowSize(1200,1000);
-	c2->Divide(2,2);
-      }
-      if (iMode == 3){
-	c2->SetWindowSize(1200,1000);
-	c2->Divide(1,1);
-      }
+    if (iMode == 0){
+    c2->Divide(4,4);
+    }
+    if (iMode == 1){
+    c2->SetWindowSize(1200,600);
+    c2->Divide(2,1);
+    }
+    if (iMode == 2){
+    c2->SetWindowSize(1200,1000);
+    c2->Divide(2,2);
+    }
+    if (iMode == 3){
+    c2->SetWindowSize(1200,1000);
+    c2->Divide(1,1);
+    }
       
-      for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
-	c2->cd(iPred+1);
-	TVirtualPad * pad = c2->GetPad(iPred+1);
-	pad->Divide(1,2,0,0);
-	pad->cd(1);
-	pad->GetPad(1)->SetRightMargin(0.05);;
-	pad->GetPad(1)->SetLeftMargin(0.15);;
-	h_final_obs[istage][iMode][iPred]->SetTitle(";;Events per day");
-	h_final_obs[istage][iMode][iPred]->SetTitleOffset(1.5,"Y");
-	h_final_obs[istage][iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
-	h_final_obs[istage][iMode][iPred]->Draw();
-	h_final_pred_null[istage][iMode][iPred]->Draw("hist same");
-	h_final_pred[istage][iMode][iPred]->Draw("e2 same");
-	h_final_obs[istage][iMode][iPred]->Draw("same");
+    for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
+    c2->cd(iPred+1);
+    TVirtualPad * pad = c2->GetPad(iPred+1);
+    pad->Divide(1,2,0,0);
+    pad->cd(1);
+    pad->GetPad(1)->SetRightMargin(0.05);;
+    pad->GetPad(1)->SetLeftMargin(0.15);;
+    h_final_obs[istage][iMode][iPred]->SetTitle(";;Events per day");
+    h_final_obs[istage][iMode][iPred]->SetTitleOffset(1.5,"Y");
+    h_final_obs[istage][iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
+    h_final_obs[istage][iMode][iPred]->Draw();
+    h_final_pred_null[istage][iMode][iPred]->Draw("hist same");
+    h_final_pred[istage][iMode][iPred]->Draw("e2 same");
+    h_final_obs[istage][iMode][iPred]->Draw("same");
 	
-	pad->cd(2);
-	pad->GetPad(2)->SetRightMargin(0.05);;
-	pad->GetPad(2)->SetLeftMargin(0.15);;
-	h_final_pred_ratio[istage][iMode][iPred]->SetTitle(";;Ratio");
-	h_final_pred_ratio[istage][iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
-	h_final_pred_ratio[istage][iMode][iPred]->SetTitleOffset(1.5,"Y");
-	h_final_pred_ratio[istage][iMode][iPred]->SetMinimum(0.8);
-	h_final_pred_ratio[istage][iMode][iPred]->SetMaximum(1.2);
-	h_final_pred_ratio[istage][iMode][iPred]->Draw("e2");
-	h_final_pred_null_ratio[istage][iMode][iPred]->Draw("hist same");
-	h_final_obs_ratio[istage][iMode][iPred]->Draw("e0 same");
+    pad->cd(2);
+    pad->GetPad(2)->SetRightMargin(0.05);;
+    pad->GetPad(2)->SetLeftMargin(0.15);;
+    h_final_pred_ratio[istage][iMode][iPred]->SetTitle(";;Ratio");
+    h_final_pred_ratio[istage][iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
+    h_final_pred_ratio[istage][iMode][iPred]->SetTitleOffset(1.5,"Y");
+    h_final_pred_ratio[istage][iMode][iPred]->SetMinimum(0.8);
+    h_final_pred_ratio[istage][iMode][iPred]->SetMaximum(1.2);
+    h_final_pred_ratio[istage][iMode][iPred]->Draw("e2");
+    h_final_pred_null_ratio[istage][iMode][iPred]->Draw("hist same");
+    h_final_obs_ratio[istage][iMode][iPred]->Draw("e0 same");
         
-      }
+    }
       
-      c2->Print("./fit_result_files/fit_shape_2d.pdf");
+    c2->Print("./fit_result_files/fit_shape_2d.pdf");
     }
     
     c2->Clear();
     
     if (iMode == 0){
-      c2->Divide(4,4);
+    c2->Divide(4,4);
     }
     if (iMode == 1){
-      c2->SetWindowSize(1200,600);
-      c2->Divide(2,1);
+    c2->SetWindowSize(1200,600);
+    c2->Divide(2,1);
     }
     if (iMode == 2){
-      c2->SetWindowSize(1200,1000);
-      c2->Divide(2,2);
+    c2->SetWindowSize(1200,1000);
+    c2->Divide(2,2);
     }
     if (iMode == 3){
-      c2->SetWindowSize(1200,1000);
-      c2->Divide(1,1);
+    c2->SetWindowSize(1200,1000);
+    c2->Divide(1,1);
     }
     
     for (Int_t iPred = 0; iPred <nPredictions[iMode]; iPred++){
-      c2->cd(iPred+1);
-      TVirtualPad * pad = c2->GetPad(iPred+1);
-      pad->Divide(1,2,0,0);
-      pad->cd(1);
-      pad->GetPad(1)->SetRightMargin(0.05);;
-      pad->GetPad(1)->SetLeftMargin(0.15);;
-      h_final_obs_sum[iMode][iPred]->SetTitle(";;Events per day");
-      h_final_obs_sum[iMode][iPred]->SetTitleOffset(1.5,"Y");
-      h_final_obs_sum[iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
-      h_final_obs_sum[iMode][iPred]->Draw();
-      h_final_pred_null_sum[iMode][iPred]->Draw("hist same");
-      h_final_pred_sum[iMode][iPred]->Draw("e2 same");
-      h_final_obs_sum[iMode][iPred]->Draw("same");
+    c2->cd(iPred+1);
+    TVirtualPad * pad = c2->GetPad(iPred+1);
+    pad->Divide(1,2,0,0);
+    pad->cd(1);
+    pad->GetPad(1)->SetRightMargin(0.05);;
+    pad->GetPad(1)->SetLeftMargin(0.15);;
+    h_final_obs_sum[iMode][iPred]->SetTitle(";;Events per day");
+    h_final_obs_sum[iMode][iPred]->SetTitleOffset(1.5,"Y");
+    h_final_obs_sum[iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
+    h_final_obs_sum[iMode][iPred]->Draw();
+    h_final_pred_null_sum[iMode][iPred]->Draw("hist same");
+    h_final_pred_sum[iMode][iPred]->Draw("e2 same");
+    h_final_obs_sum[iMode][iPred]->Draw("same");
       
-      pad->cd(2);
-      pad->GetPad(2)->SetRightMargin(0.05);;
-      pad->GetPad(2)->SetLeftMargin(0.15);;
-      h_final_pred_ratio_sum[iMode][iPred]->SetTitle(";;Ratio");
-      h_final_pred_ratio_sum[iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
-      h_final_pred_ratio_sum[iMode][iPred]->SetTitleOffset(1.5,"Y");
-      h_final_pred_ratio_sum[iMode][iPred]->SetMinimum(0.8);
-      h_final_pred_ratio_sum[iMode][iPred]->SetMaximum(1.2);
-      h_final_pred_ratio_sum[iMode][iPred]->Draw("e2");
-      h_final_pred_null_ratio_sum[iMode][iPred]->Draw("hist same");
-      h_final_obs_ratio_sum[iMode][iPred]->Draw("e0 same");
+    pad->cd(2);
+    pad->GetPad(2)->SetRightMargin(0.05);;
+    pad->GetPad(2)->SetLeftMargin(0.15);;
+    h_final_pred_ratio_sum[iMode][iPred]->SetTitle(";;Ratio");
+    h_final_pred_ratio_sum[iMode][iPred]->GetXaxis()->SetRangeUser(0.7,7.9);
+    h_final_pred_ratio_sum[iMode][iPred]->SetTitleOffset(1.5,"Y");
+    h_final_pred_ratio_sum[iMode][iPred]->SetMinimum(0.8);
+    h_final_pred_ratio_sum[iMode][iPred]->SetMaximum(1.2);
+    h_final_pred_ratio_sum[iMode][iPred]->Draw("e2");
+    h_final_pred_null_ratio_sum[iMode][iPred]->Draw("hist same");
+    h_final_obs_ratio_sum[iMode][iPred]->Draw("e0 same");
       
     }
     
@@ -745,9 +745,9 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
     //h_final_covmatrix[iMode]->Draw("zcol");
     //c3->Print("./fit_result_files/fit_shape_2d.pdf");
     
-  }
+    }
 
-  c2->Print("./fit_result_files/fit_shape_2d.pdf]"); //Close PDF file
+    c2->Print("./fit_result_files/fit_shape_2d.pdf]"); //Close PDF file
   */
   /////////////////////////////////////////////////////////////////////////////////////////
   
@@ -813,49 +813,49 @@ void fit_shape_2d_P17B(const char* savefilename = fit_result_filename,
 
   // dump final stat error and weighted mean coefficients for later use
   /*
-  ofstream fout_wmean("wmean_coeff.txt");
-  for (Int_t i = 0; i < n_rebinned_evis_bins; i++){
+    ofstream fout_wmean("wmean_coeff.txt");
+    for (Int_t i = 0; i < n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < 4; j++){
-      fout_wmean << "\t"<<pred->GetWmeanCoeff(i,j);
+    fout_wmean << "\t"<<pred->GetWmeanCoeff(i,j);
     }
     fout_wmean << endl;
-  }
-  fout_wmean.close();
+    }
+    fout_wmean.close();
   
 
 
-  ofstream fout_stat("covmatrix_nearsite_stat.txt");
-  tmp_vector = pred->GetFinalCovMatrix(0,bestpred,0);
-  for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
+    ofstream fout_stat("covmatrix_nearsite_stat.txt");
+    tmp_vector = pred->GetFinalCovMatrix(0,bestpred,0);
+    for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
-      fout_stat << pred->GetFracStatError(i,j) << endl;
+    fout_stat << pred->GetFracStatError(i,j) << endl;
       
     }
-   fout_stat << endl;
-  }
-  fout_stat.close();
+    fout_stat << endl;
+    }
+    fout_stat.close();
   
   
-  ofstream fout_stat_total("covmatrix_total_stat.txt");
-  tmp_vector = pred->GetFinalCovMatrix(-1,bestpred,0);
-  for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
+    ofstream fout_stat_total("covmatrix_total_stat.txt");
+    tmp_vector = pred->GetFinalCovMatrix(-1,bestpred,0);
+    for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
-      fout_stat_total << pred->GetFracStatError(i,j) << endl;
+    fout_stat_total << pred->GetFracStatError(i,j) << endl;
       
     }
-   fout_stat_total << endl;
-  }
-  fout_stat_total.close();
+    fout_stat_total << endl;
+    }
+    fout_stat_total.close();
   
-  ofstream fout_bg_total("covmatrix_frac_bg.txt");
-  for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
+    ofstream fout_bg_total("covmatrix_frac_bg.txt");
+    for (Int_t i = 0; i < nPredictions[0]*n_rebinned_evis_bins; i++){
     for (Int_t j = 0; j < nPredictions[0]*n_rebinned_evis_bins; j++){
-      fout_bg_total << pred->GetFracBgError(i,j) << endl;
+    fout_bg_total << pred->GetFracBgError(i,j) << endl;
       
     }
-   fout_bg_total << endl;
-  }
-  fout_bg_total.close();
+    fout_bg_total << endl;
+    }
+    fout_bg_total.close();
   */
   
 }//end of Test

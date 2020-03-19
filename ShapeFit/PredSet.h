@@ -7,7 +7,7 @@ using namespace std;
 
 class PredSet : public TObject {
 
- public:
+public:
   PredSet();
   ~PredSet();
   void SetPred(int istage, int idet1, int idet2, TH1F* val);
@@ -15,11 +15,11 @@ class PredSet : public TObject {
   void PrintToScreen(int istage);
 
   
- private:
+private:
   TH1F* PredEvts[Nstage][Ndetectors][Ndetectors];
   TH1F *h_comb;
 
- public:
+public:
   ClassDef(PredSet,1);
  
 };
