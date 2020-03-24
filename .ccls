@@ -1,0 +1,7 @@
+clang++
+%h -x
+%h c++-header
+-std=c++1z
+-m64
+-pthread
+-I/global/homes/m/mkramer/projscratch/apps/root-5.34.38-py27/include
