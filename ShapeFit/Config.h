@@ -1,5 +1,7 @@
 #pragma once
 
+#include "TROOT.h"
+
 // TODO add toySpectra path template
 
 namespace Config {

@@ -1,5 +1,21 @@
 #include "../ShapeFit/Config.h"
 
+#include <TStyle.h>
+#include <TFile.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TTree.h>
+#include <TCanvas.h>
+#include <TGraph.h>
+#include <TGraphAsymmErrors.h>
+#include <TGaxis.h>
+#include <TLine.h>
+#include <TMath.h>
+
+#include <iostream>
+
+using namespace std;
+
 void plot_LBNL_P17B_IHEP_official()
 {
   system("mkdir -p pics");
@@ -451,7 +467,7 @@ void plot_LBNL_P17B_IHEP_official()
                                 allowed_max_d[0] * 1000 - dm2_best * 1000);
 
   TGraph *gr_dm2_profile = new TGraph();
-  for (ipoint = 0; ipoint < nDM2; ++ipoint) {
+  for (int ipoint = 0; ipoint < nDM2; ++ipoint) {
     gr_dm2_profile->SetPoint(ipoint, chi2_dm2[ipoint], dm2[ipoint] * 1000);
     cout << chi2_dm2[ipoint] << " " << dm2[ipoint] * 1000 << endl;
   }
