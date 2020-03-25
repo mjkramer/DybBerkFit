@@ -2,12 +2,12 @@
 *.d
 *.so
 *.pdf
+*.log
 .projectile
 .ccls-cache
 doxygen/
 TAGS
 outputs/
-ShapeFit/Distances/
 ShapeFit/Inputs/
 ShapeFit/Spectra/
 ShapeFit/Flux/
@@ -15,7 +15,6 @@ ShapeFit/PredictedIBD/
 ShapeFit/covariance_matrices/
 ShapeFit/fit_result_files/
 ShapeFit/final_covmatrix_*.txt
-reactor_covmatrix/p17b_unblinded
 ReactorPowerCalculator/isotope_spectra*/reactor_P17B_*.txt
 toySpectra/data_file/dyb_data_v1_*.txt
 !dyb_data_v1_nominal.txt
