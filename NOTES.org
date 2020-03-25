@@ -288,3 +288,35 @@ root -b -q LoadClasses.C fit_shape_2d_P17B.C+
 * Headscratchers
 - Why does genPredictedIBD use a theta of zero whereas genToySpectraTree uses nominal?
 - What were the consequences of genPredictedIBD using fine evis binning previously?
+* Benchmarking test_chain.sh
+Whole things takes 72 minutes on Cori login
+** One-time steps
+- genReactor: 20sec
+- genToyConf: 1sec
+** Each-time steps, nToys-dependent => ~1hr @ 1000
+*** nToys = 10
+- genToys: 45sec
+- genCovMat: 40sec
+*** nToys = 30
+- genToys: 1min
+- genCovMat: 1min
+*** nToys = 100
++ genToys 1m40s => 16min @ 1000
++ genCovMat: 3m30s => 35 min @ 1000
+** Each-time steps, nToys-independent => 15min
++ genEvisEnu: 15min
+- genSuperHists: 20sec
+- genPredIBD: 15sec
+** The fit, grid-size (θ x Δ) dependent
+Default is 31 x 31
+*** (10 x 10)
+- shapeFit: 3min
+*** (20 x 20)
+- shapeFit: 8min
+*** (31 x 31)
++ shapeFit: 18min
+* Things to parallelize
+- genToys: toys
+- genCovMat: toys
+- genEvisEnu: bins
+- shapeFit: gridpoints
