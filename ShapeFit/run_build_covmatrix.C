@@ -54,5 +54,6 @@ void run_build_covmatrix(int x = 1){
     build_covmatrix(toymc_filename.Data(),covmatrix_filename.Data(),1);
   }
 
+  cout << "Bye bye!" << endl;
 
 }
