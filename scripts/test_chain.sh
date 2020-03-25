@@ -2,7 +2,10 @@
 
 # NOTE: Run prep_dirs.sh and install_example.sh first
 
-RECOMPILE=0
+step=$1; shift
+step=${step:-all}
+
+# RECOMPILE=1
 
 BASE=$(pwd)
 
@@ -102,17 +105,18 @@ genCovMat() {
 shapeFit() {
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C fit_shape_2d_P17B.C+
+}
+
+all() {
+    genReactor
+    genToyConf
+    genToys
+    genEvisEnu
+    genSuperHists
+    genPredIBD
+    genCovMat
+    shapeFit
 
 }
 
-# The following only must be run once
-genReactor
-genToyConf
-
-# The following must(?) be repeated for each selection
-genToys
-genEvisEnu
-genSuperHists
-genPredIBD
-genCovMat
-shapeFit
+eval $step
