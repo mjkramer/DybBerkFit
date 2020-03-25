@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "TFile.h"
-#include "TH1.h"
-#include "TH2.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include "TCanvas.h"
 #include "TTree.h"
 
@@ -12,11 +12,10 @@
 #include "Binning.h"
 
 using namespace Config;
-
+using namespace std;
 
 void genEvisToEnuMatrix(Double_t  s2t13 = -1, Double_t  dm2ee = -1, Double_t  s2t14 = -1, Double_t  dm241 = -1){
 
-  int nToys = 0;
   // string opt="_allerrors";
 
   // // define output histograms
