@@ -55,13 +55,13 @@ const char* fn_filename = "../fn_spectrum/P15A_fn_spectrum.root";
 // const char* fn_filename = "../fn_spectrum/P15A_fn_spectrum_IHEP.root";
 const char* aln_filename = "../alpha-n-spectrum/result-DocDB9667.root";
 
-const char* baselines_filename = "../ShapeFit/Distances/unblinded_baseline.txt";
+const char* baselines_filename = "../toySpectra/unblinded_baseline.txt";
 
 // relative to toySpectra
 const char* nominal_dataset_filename = "../toySpectra/data_file/dyb_data_v1_nominal.txt";
 const char* nominal_noosc_dataset_filename = "../toySpectra/data_file/dyb_data_v1_nominal_noosc.txt";
 
-const char* reactor_spectrum_filename_template = "../reactor_covmatrix/p17b_unblinded/reactor_P17B_%dAD_SNF_nonEq.txt";
+const char* reactor_spectrum_filename_template = "../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%dAD_SNF_nonEq.txt";
 const char* reactor_covmatrix_filename = "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt";
 
 // const char* unified_nl_2015_filename = "../toySpectra/unified_nl_data/consModel_450itr.root"; // Updated non-linearity model 2015//
