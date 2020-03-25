@@ -9,6 +9,7 @@
 #include <TH1D.h>
 
 using namespace Config;
+using namespace std;
 
 void make_evis_to_enu_matrix_fine_P17B(){
   TString input_file = response_root_filename;
