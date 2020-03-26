@@ -1,5 +1,4 @@
-#ifndef CROSSSECTIONTABLE_H
-#define CROSSSECTIONTABLE_H
+#pragma once
 
 #define MAX_XSEC_SAMPLES 1050
 
@@ -21,5 +20,3 @@ private:
   double m_binWidth; // Convenience variable for resolution
   double m_xsec[MAX_XSEC_SAMPLES]; // Anti-nu spectrum data
 };
-
-#endif // CROSSSECTIONTABLE_H

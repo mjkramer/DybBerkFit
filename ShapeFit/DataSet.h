@@ -1,10 +1,8 @@
+#pragma once
+
 // Generic Data Set (for comparison with a physics model)
 //
 // Created by: dandwyer@caltech.edu 2012/02/01
-
-
-#ifndef DATASET_H
-#define DATASET_H
 
 #include "TMap.h"
 
@@ -39,5 +37,3 @@ public :
 private:
   TMap m_data; // Container for data
 };
-
-#endif // DATASET_H
