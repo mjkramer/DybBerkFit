@@ -1,6 +1,6 @@
 #!/bin/bash
 
+BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+
 echo "Cleaning..."
-rm -f *.so *.d
-rm -f */*.so */*.d
-rm -f ../ShapeFit/*.so ../ShapeFit/*.d 
+find "$BASE" -regex '.*\.\(so\|d\|pcm\)$' | xargs rm
