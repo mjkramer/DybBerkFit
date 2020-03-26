@@ -176,14 +176,15 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     spectrumNorm->updateBgDetected();
 
     //this part is added to inflate low energy bin uncertainty
+    double rand_bin[8][3] = {}; //8 detectors and 3 bins
     double uncertainty = Config::lowBinInflation;
-    // TODO: Wrap in `if (uncertainty)`
-    double rand_bin[8][3]; //8 detectors and 3 bins
-    for(int idet=0; idet<Ndetectors; ++idet){
-      for(int ibin=0; ibin<3; ++ibin){
-        rand_bin[idet][ibin]=generator->Gaus(0.,uncertainty);
-        if(rand_bin[idet][ibin]<-1.) rand_bin[idet][ibin]=-1.;
-        cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;
+    if (uncertainty) {
+      for(int idet=0; idet<Ndetectors; ++idet){
+        for(int ibin=0; ibin<3; ++ibin){
+          rand_bin[idet][ibin]=generator->Gaus(0.,uncertainty);
+          if(rand_bin[idet][ibin]<-1.) rand_bin[idet][ibin]=-1.;
+          cout<<"Rand is "<<rand_bin[idet][ibin]<<endl;
+        }
       }
     }
 
