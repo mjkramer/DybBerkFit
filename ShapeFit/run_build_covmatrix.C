@@ -1,9 +1,13 @@
-void run_build_covmatrix(int x = 1){
+#include <TString.h>
 
-  gROOT->ProcessLine(".x LoadClasses.C");
-  gROOT->ProcessLine(".L build_covmatrix.C+");
-  //gROOT->ProcessLine(".L build_covmatrix_postP15A.C+");
+#include <iostream>
 
+using namespace std;
+
+void build_covmatrix(const Char_t * toymc_filename, const Char_t * output_filename, Int_t bkg_flag);
+
+void run_build_covmatrix(int x = 1)
+{
   Int_t i = x-1;
 
   const Int_t nopts_sig = 11;
