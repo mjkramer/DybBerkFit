@@ -3,77 +3,85 @@
 
 namespace Binning {
 
-static const int n_evis_lbnl = 37;
-static const int n_evis_bcw = 26;
-static const int n_evis_fine_ = 240;
+static const int _n_evis_lbnl = 37;
+static const int _n_evis_bcw = 26;
+static const int _n_evis_fine = 240;
+static const int _n_enu = 156;
 
-static const int n_enu_ = 156;
+static double _evis_lbnl[_n_evis_lbnl + 1];
+static double _evis_bcw[_n_evis_bcw + 1];
+static double _evis_fine[_n_evis_fine + 1];
+static double _enu[_n_enu + 1];
 
-static double* evis_lbnl()
+static void init_evis_lbnl() __attribute__((constructor));
+static void init_evis_lbnl()
 {
-  double* evis_bins = new double[n_evis_lbnl+1]; // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV. Single bin between 8.0 and 12 MeV. total 37 bins
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < n_evis_lbnl-1; i++){
-    evis_bins[i+1] = 0.2 *i + 1.0;
+  // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV.
+  // Single bin between 8.0 and 12 MeV. total 37 bins
+  _evis_lbnl[0] = 0.7;
+  for (Int_t i = 0; i < _n_evis_lbnl-1; i++){
+    _evis_lbnl[i+1] = 0.2 *i + 1.0;
   }
-  evis_bins[n_evis_lbnl] = 12.0;
-
-  return evis_bins;
+  _evis_lbnl[_n_evis_lbnl] = 12.0;
 }
 
-static double* evis_bcw()
+static void init_evis_bcw() __attribute__((constructor));
+static void init_evis_bcw()
 {
-  double* evis_bins = new double[n_evis_bcw+1];
-  evis_bins[0] = 0.7;
-  for (Int_t i = 0; i < n_evis_bcw-1; i++){
-    evis_bins[i+1] = 0.25 *i + 1.3;
+  _evis_bcw[0] = 0.7;
+  for (Int_t i = 0; i < _n_evis_bcw-1; i++){
+    _evis_bcw[i+1] = 0.25 *i + 1.3;
   }
-  evis_bins[n_evis_bcw] = 12.0;
+  _evis_bcw[_n_evis_bcw] = 12.0;
+}
 
-  return evis_bins;
+// Previously used by genPredictedIBD
+static void init_evis_fine() __attribute__((constructor));
+static void init_evis_fine()
+{
+  _evis_fine[0] = 0.0;
+  for (Int_t i = 0; i < _n_evis_fine-1; i++){
+    _evis_fine[i+1] = 0.05 *i + 0.05;
+  }
+  _evis_fine[_n_evis_fine] = 12.0;
+}
+
+static void init_enu() __attribute__((constructor));
+static void init_enu()
+{
+  for (Int_t i = 0; i < _n_enu+1; i++){
+    _enu[i] = 0.05 * i + 1.8;
+  }
 }
 
 double* evis()
 {
-  return Config::useBcwBinning ? evis_bcw() : evis_lbnl();
+  return Config::useBcwBinning ? _evis_bcw : _evis_lbnl;
 }
 
-int n_evis()
-{
-  return Config::useBcwBinning ? n_evis_bcw : n_evis_lbnl;
-}
-
-// Previously used by genPredictedIBD
 double* evis_fine()
 {
-  double* evis_bins = new double[n_evis_fine_+1];
-  evis_bins[0] = 0.0;
-  for (Int_t i = 0; i < n_evis_fine_-1; i++){
-    evis_bins[i+1] = 0.05 *i + 0.05;
-  }
-  evis_bins[n_evis_fine_] = 12.0;
-
-  return evis_bins;
-}
-
-int n_evis_fine()
-{
-  return n_evis_fine_;
+  return _evis_fine;
 }
 
 double* enu()
 {
-  double* enu_bins = new double[n_enu_+1];
-  for (Int_t i = 0; i < n_enu_+1; i++){
-    enu_bins[i] = 0.05 * i + 1.8;
-  }
+  return _enu;
+}
 
-  return enu_bins;
+int n_evis()
+{
+  return Config::useBcwBinning ? _n_evis_bcw : _n_evis_lbnl;
+}
+
+int n_evis_fine()
+{
+  return _n_evis_fine;
 }
 
 int n_enu()
 {
-  return n_enu_;
+  return _n_enu;
 }
 
-}
+} // namespace Binning
