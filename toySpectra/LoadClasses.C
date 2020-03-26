@@ -1,5 +1,7 @@
 // Compile and load fitter classes
 {
+  gROOT->Macro("../ShapeFit/EnableOpenMP.C");
+
   TString include = ".include ";
   TString load = ".L ";
 
