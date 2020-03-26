@@ -97,9 +97,11 @@ genPredIBD() {
 # ------------------------ Generate covariance matrices ------------------------
 genCovMat() {
     cd $BASE/ShapeFit
-    root -b -q 'run_build_covmatrix.C(9)'  #& # sigsys
+    ## sigsys
+    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(9)'  #&
     # sleep 60
-    root -b -q 'run_build_covmatrix.C(21)' #& # bgsys
+    ## bgsys
+    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(21)' #&
     # wait
 }
 
