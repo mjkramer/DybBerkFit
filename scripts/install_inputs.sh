@@ -1,6 +1,11 @@
 #!/bin/bash
 
-tag=${1:-LBNL}; shift
+rootdir=$1; shift
+
+if [ -z "$rootdir" ]; then
+    echo "Specify the location of the inputs"
+    exit 1
+fi
 
 makelink() {
     base=$1; shift
@@ -8,7 +13,7 @@ makelink() {
     dir=$1; shift
 
     for stage in 6ad 8ad 7ad; do
-        ln -rs example/$tag/${base}_${stage}*.$ext ShapeFit/$dir/${base}_$stage.$ext
+        ln -rsf $rootdir/${base}_${stage}*.$ext ShapeFit/$dir/${base}_$stage.$ext
     done
 }
 
