@@ -2,6 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+
+#include <TROOT.h>
+
 using namespace std;
 
 Bool_t AddSNF = true;
