@@ -1,3 +1,5 @@
+#include "genToySpectraTree.H"
+
 #include <TROOT.h>
 #include <TString.h>
 
@@ -5,18 +7,8 @@
 
 using namespace std;
 
-// CINT will complain about the lack of the definition
-#ifndef __CINT__
-void genToySpectraTree(TString dataset_filename, TString output_filename,
-                       double s2t13 = -1, double dm2ee = -1, double s2t14 = -1, double dm241 = -1);
-#endif
-
-void rungenToySpectraTree(int x){
-
-  gROOT->ProcessLine(".x LoadClasses.C");
-  gROOT->ProcessLine(".L genToySpectraTree.C+");
-  // gROOT->ProcessLine(".L genToySpectraTree_postP15A.C+");
-
+void rungenToySpectraTree(int x)
+{
   const Int_t nopts = 19;
   TString options[nopts] = {
     "allsys",//1

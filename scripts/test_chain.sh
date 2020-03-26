@@ -64,9 +64,11 @@ genToyConf() {
 # --------------------------- Generate ToyMC samples ---------------------------
 genToys() {
     cd $BASE/toySpectra
-    root -b -q 'rungenToySpectraTree.C(2)' #& # sigsys
+    ## sigsys:
+    root -b -q LoadClasses.C -e '.L genToySpectraTree.C+' 'rungenToySpectraTree.C(2)' #&
     # sleep 60
-    root -b -q 'rungenToySpectraTree.C(3)' #& # bgsys
+    ## bgsys
+    root -b -q LoadClasses.C -e '.L genToySpectraTree.C+' 'rungenToySpectraTree.C(3)' #&
     # wait
 }
 

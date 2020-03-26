@@ -1,19 +1,22 @@
+#include "genToySpectraTree.H"
+
+#include "DataSet.h"
+#include "Spectrum.h"
+#include "Config.h"
+#include "Binning.h"
+
 #include <iostream>
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TCanvas.h"
 #include "TTree.h"
-#include "DataSet.h"
-#include "Spectrum.h"
-#include "Config.h"
-#include "Binning.h"
 #include "TRandom3.h"
 
 using namespace Config;
 
 void genToySpectraTree(TString dataset_filename, TString output_filename,
-                       double s2t13 = -1, double dm2ee = -1, double s2t14 = -1, double dm241 = -1)
+                       double s2t13, double dm2ee, double s2t14, double dm241)
 {
   int nToys = 1000;
   // string opt="_allerrors";
