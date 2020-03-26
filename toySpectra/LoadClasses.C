@@ -5,9 +5,10 @@
   TString include = ".include ";
   TString load = ".L ";
 
+  TString prefix;
   TString suffix = gSystem->Getenv("LBNL_FIT_DEBUG") ? "g" : "";
 
-  TString prefix = "../ShapeFit";
+  prefix = "../ShapeFit";
   gROOT->ProcessLine( (include + prefix).Data() );
   gROOT->ProcessLine( (load + prefix + "/OscCalc.cc+" + suffix).Data() );
   gROOT->ProcessLine( (load + prefix + "/FluxCalculator.cc+" + suffix).Data() );
@@ -17,14 +18,14 @@
   gROOT->ProcessLine( (load + prefix + "/Binning.cc+" + suffix).Data() );
   gROOT->ProcessLine( (load + prefix + "/DataSet.cc+" + suffix).Data() );
 
-  // TString prefix = "./quickFit";
+  // prefix = "./quickFit";
   // gROOT->ProcessLine( (include + prefix).Data() );
   //gROOT->ProcessLine( (load + prefix + "/FitSummary.C+" + suffix).Data() );
   //gROOT->ProcessLine( (load + prefix + "/PhysicsModel.C+" + suffix).Data() );
   //gROOT->ProcessLine( (load + prefix + "/PoissonModel.C+" + suffix).Data() );
   //gROOT->ProcessLine( (load + prefix + "/QuickFitter.C+" + suffix).Data() );
 
-  TString prefix = "./reactor";
+  prefix = "./reactor";
   gROOT->ProcessLine( (include + prefix).Data() );
   gROOT->ProcessLine( (load + prefix + "/IsotopeTable.C+" + suffix).Data() );
   gROOT->ProcessLine( (load + prefix + "/CrossSectionTable.C+" + suffix).Data() );
