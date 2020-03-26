@@ -1,6 +1,7 @@
 *~
 *.d
 *.so
+*.pcm
 *.pdf
 *.log
 .projectile
