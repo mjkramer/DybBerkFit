@@ -1,5 +1,4 @@
-#ifndef ISOTOPETABLE_H
-#define ISOTOPETABLE_H
+#pragma once
 
 const int MAX_ISOTOPE_ID = 5;
 const int MAX_ISOTOPE_SAMPLES = 1000;
@@ -46,5 +45,3 @@ private:
   bool isIsotopeCovMatrixLoaded;
   TRandom3 * ran ;
 };
-
-#endif // ISOTOPETABLE_H

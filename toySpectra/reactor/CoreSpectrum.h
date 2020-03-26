@@ -1,5 +1,4 @@
-#ifndef CORESPECTRUM_H
-#define CORESPECTRUM_H
+#pragma once
 
 #include "Predictor.h"
 #include "CrossSectionTable.h"
@@ -63,5 +62,3 @@ private:
   bool isAbInitioSpectraUsed;
 
 };
-
-#endif // CORESPECTRUM_H

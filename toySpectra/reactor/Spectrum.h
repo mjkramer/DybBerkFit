@@ -1,5 +1,4 @@
-#ifndef SPECTRUM_H
-#define SPECTRUM_H
+#pragma once
 
 #include "Predictor.h"
 
@@ -405,5 +404,3 @@ private:
 
 
 };
-
-#endif // SPECTRUM_H

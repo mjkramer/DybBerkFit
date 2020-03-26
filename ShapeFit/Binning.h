@@ -1,5 +1,4 @@
-#ifndef BINNING_H_
-#define BINNING_H_
+#pragma once
 
 namespace Binning {
 
@@ -12,5 +11,3 @@ extern int n_evis_fine();
 extern int n_enu();
 
 }
-
-#endif

@@ -1,6 +1,4 @@
-#ifndef PREDICTOR_H
-#define PREDICTOR_H
-
+#pragma once
 
 #include "TObject.h"
 #include "TGraph.h"
@@ -236,5 +234,3 @@ public:
 private:
   friend class OscProbTable;    // Only used by fit_shape_sterile_hybrid_scan
 };
-
-#endif
