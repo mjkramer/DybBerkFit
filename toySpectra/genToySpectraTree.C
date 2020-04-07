@@ -73,14 +73,18 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     dm241 = mydata_nominal->getDouble("deltaMSq41");
 
 
-  // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
-  Predictor *myPred = new Predictor();
-
   const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
 
-  for(int istage=0;istage<Nstage;istage++){
-    myPred->LoadMainData(Theta13InputsLocation[istage]);
-  }
+  // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
+  static Predictor *myPred;
+#pragma omp threadprivate(myPred)
+#pragma omp parallel
+  {
+    myPred = new Predictor();
+    for(int istage=0;istage<Nstage;istage++){
+      myPred->LoadMainData(Theta13InputsLocation[istage]);
+    }
+  } // parallel
 
   cout<<"Data loaded"<<endl;
 
@@ -104,16 +108,22 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
 
   // Create Spectrum for toy
-  Spectrum *spectrumNorm = new Spectrum();
-  spectrumNorm->passPredictor(myPred);
-  //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
-  spectrumNorm->loadDistances(baselines_filename);
-  spectrumNorm->initialize(mydata);
-  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                 li9_filename,
-                                 amc_filename,
-                                 fn_filename,
-                                 aln_filename);
+  static Spectrum *spectrumNorm;
+#pragma omp threadprivate(spectrumNorm)
+#pragma omp parallel
+  {
+    spectrumNorm = new Spectrum();
+    spectrumNorm->passPredictor(myPred);
+    //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
+    spectrumNorm->loadDistances(baselines_filename);
+    spectrumNorm->initialize(mydata);
+    spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
+                                   li9_filename,
+                                   amc_filename,
+                                   fn_filename,
+                                   aln_filename);
+    spectrumNorm->setRandomSeed(1);
+  } // parallel
 
 
 
@@ -169,7 +179,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   TRandom3* generator=new TRandom3();
 
   //Generate toys
-  spectrumNorm->setRandomSeed(1);
+#pragma omp parallel for
   for(int itoy=0; itoy<nToys;itoy++){
     cout << "-------------------- Generating toy " << itoy << "-------------------" << endl;
     spectrumNorm->updateAntinu();
@@ -188,39 +198,37 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
       }
     }
 
+#pragma omp critical
+    {
+      for(int istage=0;istage<Nstage;++istage){
+        for(int idet=0;idet<Ndetectors;++idet){
+          h_ad[istage][idet]->Reset();
+          for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
+            h_ad[istage][idet]->Fill(spectrumNorm->energyArray(idet)[ibin],
+                                     spectrumNorm->positronDetectedArray(istage,idet)[ibin]*spectrumNorm->binWidth()
+                                     );
+            //cout << "The added positron at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->positronDetectedArray(idet)[ibin] << endl;//tmp
 
-    for(int istage=0;istage<Nstage;++istage){
-      for(int idet=0;idet<Ndetectors;++idet){
-        h_ad[istage][idet]->Reset();
-        for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
-          h_ad[istage][idet]->Fill(spectrumNorm->energyArray(idet)[ibin],
-                                   spectrumNorm->positronDetectedArray(istage,idet)[ibin]*spectrumNorm->binWidth()
-                                   );
-          //cout << "The added positron at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->positronDetectedArray(idet)[ibin] << endl;//tmp
+          }//ibin loop
+          for(int ibin=0;ibin<spectrumNorm->nSamplesBkg();++ibin){
+            h_ad[istage][idet]->Fill(spectrumNorm->energyArrayBkg(idet)[ibin],
+                                     spectrumNorm->bgDetectedArray(istage,idet)[ibin]
+                                     );
+            //cout << "The added bg at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->bgDetectedArray(idet)[ibin] << endl;//tmp
 
-        }//ibin loop
-        for(int ibin=0;ibin<spectrumNorm->nSamplesBkg();++ibin){
-          h_ad[istage][idet]->Fill(spectrumNorm->energyArrayBkg(idet)[ibin],
-                                   spectrumNorm->bgDetectedArray(istage,idet)[ibin]
-                                   );
-          //cout << "The added bg at energy " << spectrumNorm->energyArray(idet)[ibin] << " is " << spectrumNorm->bgDetectedArray(idet)[ibin] << endl;//tmp
+          }//ibin loop
 
-        }//ibin loop
+          for(int ibin=0;ibin<3;++ibin){
+            float bincontent=h_ad[istage][idet]->GetBinContent(ibin+1);
+            h_ad[istage][idet]->SetBinContent(ibin+1,bincontent*(1.+rand_bin[idet][ibin]));
+          }
 
+          //cout << "AD" << idet+1 << ": " << h_ad[idet]->Integral() << endl;//tmp
 
-
-
-
-        for(int ibin=0;ibin<3;++ibin){
-          float bincontent=h_ad[istage][idet]->GetBinContent(ibin+1);
-          h_ad[istage][idet]->SetBinContent(ibin+1,bincontent*(1.+rand_bin[idet][ibin]));
-        }
-
-        //cout << "AD" << idet+1 << ": " << h_ad[idet]->Integral() << endl;//tmp
-
-      }//idet loop
-    }//istage loop
-    tree->Fill();
+        }//idet loop
+      }//istage loop
+      tree->Fill();
+    } // critical
 
   }//itoy loop
 
