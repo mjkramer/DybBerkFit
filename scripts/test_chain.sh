@@ -12,7 +12,7 @@ BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
 ROOT=$(which root)
 root() {
     test $RECOMPILE && $BASE/toySpectra/clean.sh
-    $ROOT "$@"
+    time $ROOT "$@"
 }
 
 # Compile stuff in advance to avoid race conditions when we parallelize
