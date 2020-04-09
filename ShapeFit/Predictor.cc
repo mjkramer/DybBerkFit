@@ -663,7 +663,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       sprintf(name, "AD%i;1", AlphaAD[idet]);
       TH1F* htemp;
 #pragma omp critical
-      htemp = (TH1F*)m_alnspec->Get(name);
+      htemp = (TH1F*)m_alnspec->Get(name)->Clone();
       sprintf(name, "CorrAlnEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrAlnEvtsSpec[idet] =
           (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
