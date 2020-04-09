@@ -11,7 +11,7 @@ class TGraph;
 class TObject;
 
 class DataSet {
-public :
+public:
   DataSet();
   virtual ~DataSet();
   // Add methods to get and set common data types
@@ -20,14 +20,14 @@ public :
   TH1F* getHistogram(const char* name);
   TGraph* getGraph(const char* name);
   TObject* getObject(const char* name);
-  //DataTable* getTable(const char* name);
+  // DataTable* getTable(const char* name);
 
   void setDouble(const char* name, double value);
   void setString(const char* name, const char* value);
   void setHistogram(const char* name, TH1F* value);
   void setGraph(const char* name, TGraph* value);
   void setObject(const char* name, TObject* value);
-  //void setTable(const char* name, DataTable* value);
+  // void setTable(const char* name, DataTable* value);
 
   // Load data set from a text file
   int load(const char* filename);

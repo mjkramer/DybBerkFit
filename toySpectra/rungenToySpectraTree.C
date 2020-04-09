@@ -11,25 +11,25 @@ void rungenToySpectraTree(int x)
 {
   const Int_t nopts = 19;
   TString options[nopts] = {
-    "allsys",//1
-    "sigsys",//2
-    "bgsys",//3
-    "allsys_and_stat",//5
-    "det_eff",//6
-    "iav",//7
-    "reac_power",//8
-    "rel_escale",//9
-    "resolutoin",//10
-    "scinti_nl",//11
-    "distort_aln",//12
-    "distort_amc",//13
-    "distort_fn",//14
-    "distort_li9",//15
-    "vary_acc",//16
-    "vary_aln",//17
-    "vary_amc",//18
-    "vary_fn",//19
-    "vary_li9"//20
+      "allsys",          // 1
+      "sigsys",          // 2
+      "bgsys",           // 3
+      "allsys_and_stat", // 5
+      "det_eff",         // 6
+      "iav",             // 7
+      "reac_power",      // 8
+      "rel_escale",      // 9
+      "resolutoin",      // 10
+      "scinti_nl",       // 11
+      "distort_aln",     // 12
+      "distort_amc",     // 13
+      "distort_fn",      // 14
+      "distort_li9",     // 15
+      "vary_acc",        // 16
+      "vary_aln",        // 17
+      "vary_amc",        // 18
+      "vary_fn",         // 19
+      "vary_li9"         // 20
   };
 
   Int_t i = x - 1;
@@ -48,12 +48,13 @@ void rungenToySpectraTree(int x)
   */
   TString dataset_name_base = "dyb_data_v1_";
 
-  //for (Int_t i = 0; i < nopts; i++){
-  //for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
+  // for (Int_t i = 0; i < nopts; i++){
+  // for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
   //  for (Int_t i = 22; i < 23; i++){
-  TString dataset_filename = "data_file/" + dataset_name_base + options[i] + ".txt";
+  TString dataset_filename =
+      "data_file/" + dataset_name_base + options[i] + ".txt";
   TString output_filename = "../outputs/toySpectra_" + options[i] + ".root";
   cout << dataset_filename << "\t" << output_filename << endl;
-  genToySpectraTree(dataset_filename,output_filename);
+  genToySpectraTree(dataset_filename, output_filename);
   //}
 }
