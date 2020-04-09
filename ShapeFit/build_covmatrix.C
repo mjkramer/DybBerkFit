@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "DataSet.h"
 #include "Predictor.h"
+
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TFile.h"
@@ -11,6 +12,7 @@
 #include "TMath.h"
 #include "TMinuit.h"
 #include "TTree.h"
+
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -19,6 +21,7 @@
 
 using namespace Config;
 
+// XXX replace 37 with Binning::n_evis() (which we must make constexpr?)
 const int cov_matrix_dimension = 16 * Nstage * 37; // 37 evis bins
 
 Double_t M[cov_matrix_dimension][cov_matrix_dimension];
@@ -29,47 +32,51 @@ void build_covmatrix(const Char_t* toymc_filename,
   cout << "Dimension of cov matrix is " << cov_matrix_dimension << "x"
        << cov_matrix_dimension << endl;
 
-  // Create Predictor
-  Predictor* myPred = new Predictor();
-
-  FluxCalculator* fluxcalc = new FluxCalculator(
-      baselines_filename,
-      histogram_filename); //<--flux calculator in super-hist mode
-
-
-  myPred->EnterFluxCalculator(fluxcalc);
-
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-                                          input_filename2};
-
-  for (int istage = 0; istage < Nstage; istage++) {
-    myPred->LoadMainData(Theta13InputsLocation[istage]);
-  }
-
-  myPred->LoadPredictedIBD(predicted_ibd_filename);
-
-  Int_t ntoys = myPred->LoadToyIBDSpec(toymc_filename);
-  cout << "number of toy samples: " << ntoys << endl;
-
-
-  myPred->LoadToyMCEntry(0, false);
-
-  TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
-
-  myPred->LoadBgSpec(AccidentalSpectrumLocation, li9_filename, amc_filename,
-                     fn_filename, aln_filename);
-
   const Int_t n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
 
   const Int_t n_enu_bins = Binning::n_enu();
   double* enu_bins = Binning::enu();
 
-  myPred->SetEvisBins(n_evis_bins, evis_bins);
-  myPred->SetEnuBins(n_enu_bins, enu_bins);
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
+    input_filename2};
 
-  myPred->LoadEvisToEnuMatrix(response_filename);
+  Int_t ntoys = -1;
+
+  static Predictor* myPred;
+  static FluxCalculator* fluxcalc;
+#pragma omp threadprivate(myPred, fluxcalc)
+#pragma omp parallel
+  {
+    myPred = new Predictor();
+    for (int istage = 0; istage < Nstage; istage++) {
+      myPred->LoadMainData(Theta13InputsLocation[istage]);
+    }
+
+    // flux calculator in super-hist mode
+    fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);
+    myPred->EnterFluxCalculator(fluxcalc);
+
+    myPred->LoadPredictedIBD(predicted_ibd_filename);
+
+    ntoys = myPred->LoadToyIBDSpec(toymc_filename);
+#pragma omp master
+    cout << "number of toy samples: " << ntoys << endl;
+
+    myPred->LoadToyMCEntry(0, false);
+
+    TString AccidentalSpectrumLocation[3] = {
+      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
+
+    myPred->LoadBgSpec(AccidentalSpectrumLocation, li9_filename, amc_filename,
+                       fn_filename, aln_filename);
+
+    myPred->SetEvisBins(n_evis_bins, evis_bins);
+    myPred->SetEnuBins(n_enu_bins, enu_bins);
+
+    myPred->LoadEvisToEnuMatrix(response_filename);
+  }
+
 
   DataSet* mydata_nominal = new DataSet();
   mydata_nominal->load(nominal_dataset_filename);
@@ -84,7 +91,7 @@ void build_covmatrix(const Char_t* toymc_filename,
   // deltam2_31_default=deltam2_32_default+hierarchy*deltam2_21_default;
   // Double_t deltam2_ee_default=deltam2_32_default + (hierarchy*5.17e-5);
 
-  PredSet* predset = 0;
+  PredSet* predset_nominal = 0;
 
   //  predset =
   //  pred->MakeOneSuperPrediction(sin22t13[step_dm2][step],dm213[step_dm2][step],false);
@@ -95,22 +102,16 @@ void build_covmatrix(const Char_t* toymc_filename,
   Double_t Nobs_nominal[Nstage][16 * n_evis_bins];
   Double_t Npred_nominal[Nstage][16 * n_evis_bins];
 
-  Double_t Nobs[Nstage][16 * n_evis_bins];
-  Double_t Npred[Nstage][16 * n_evis_bins];
-
   for (Int_t i = 0; i < 16 * Nstage * n_evis_bins; i++) {
     for (Int_t j = 0; j < 16 * Nstage * n_evis_bins; j++) {
       M[i][j] = 0;
     }
   }
 
-
   // First, read nominal values
   myPred->LoadToyMCNominalSpec();
-  predset = myPred->MakeOneSuperPrediction(sinSq2Theta13, deltam2_ee_default, 0,
-                                           -1, false);
-
-  cout << "Here" << endl;
+  predset_nominal = myPred->MakeOneSuperPrediction(
+      sinSq2Theta13, deltam2_ee_default, 0, -1, false);
 
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 4; idet < 8; ++idet) {
@@ -127,7 +128,8 @@ void build_covmatrix(const Char_t* toymc_filename,
                 myPred->GetCorrEvtsSpec(istage, idet)->GetBinContent(i + 1);
 
           Npred_nominal[istage][iii] =
-              predset->GetPred(istage, idet, idet2)->GetBinContent(i + 1);
+              predset_nominal->GetPred(istage, idet, idet2)
+                             ->GetBinContent(i + 1);
           //}
           // if(istage==0 && (idet2==3 || idet==7)){
           //  cout << "Near: " << idet2 << " Far: " << idet << endl;
@@ -142,10 +144,14 @@ void build_covmatrix(const Char_t* toymc_filename,
   if (ntoys > 1000)
     ntoys = 1000;
 
+#pragma omp parallel for
   for (Int_t itoy = 0; itoy < ntoys; itoy++) {
     myPred->LoadToyMCEntry(itoy, true);
-    predset = myPred->MakeOneSuperPrediction(sinSq2Theta13, deltam2_ee_default,
-                                             0, -1, false);
+    PredSet* predset = myPred->MakeOneSuperPrediction(
+        sinSq2Theta13, deltam2_ee_default, 0, -1, false);
+
+    Double_t Nobs[Nstage][16 * n_evis_bins];
+    Double_t Npred[Nstage][16 * n_evis_bins];
 
     for (int istage = 0; istage < Nstage; ++istage) {
       for (int idet = 4; idet < 8; ++idet) {
@@ -197,6 +203,7 @@ void build_covmatrix(const Char_t* toymc_filename,
               if (Npred[jstage][j] == 0)
                 continue;
 
+#pragma omp atomic
               M[i + 16 * n_evis_bins * istage][j + 16 * n_evis_bins * jstage] +=
                   (Nobs[istage][i] - Npred[istage][i] -
                    Nobs_nominal[istage][i] + Npred_nominal[istage][i]) *
@@ -208,6 +215,7 @@ void build_covmatrix(const Char_t* toymc_filename,
                      // predicted number of events becomes almost 0 or sometimes
                      // negative for some background-dominated bins. It screws
                      // up the covariance matrix calculation.
+#pragma omp atomic
               M[i + 16 * n_evis_bins * istage][j + 16 * n_evis_bins * jstage] +=
                   (Nobs[istage][i] - Npred[istage][i] -
                    Nobs_nominal[istage][i] + Npred_nominal[istage][i]) *
