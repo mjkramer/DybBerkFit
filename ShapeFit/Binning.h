@@ -10,4 +10,4 @@ extern int n_evis();
 extern int n_evis_fine();
 extern int n_enu();
 
-}
+} // namespace Binning

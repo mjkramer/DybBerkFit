@@ -12,8 +12,8 @@ void EnableOpenMP()
   TString cd = arrstr(parts, 0);
   TString compile = arrstr(parts, 1);
   TString link = arrstr(parts, 2);
-  const char* newCmd = Form("%s ; %s -fopenmp ; %s -fopenmp",
-                            cd.Data(), compile.Data(), link.Data());
+  const char* newCmd = Form("%s ; %s -fopenmp ; %s -fopenmp", cd.Data(),
+                            compile.Data(), link.Data());
   gSystem->SetMakeSharedLib(newCmd);
   delete parts;
 }

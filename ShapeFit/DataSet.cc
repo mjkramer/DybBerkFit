@@ -1,20 +1,19 @@
 #include "DataSet.h"
 
-#include "TH1F.h"
 #include "TGraph.h"
+#include "TH1F.h"
+#include "TObjString.h"
 #include "TObject.h"
 #include "TParameter.h"
-#include "TObjString.h"
 
-#include <iostream>
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
-DataSet::DataSet()
-  : m_data()
+DataSet::DataSet() : m_data()
 {
   ;
 }
@@ -27,8 +26,8 @@ DataSet::~DataSet()
 double DataSet::getDouble(const char* name)
 {
   TParameter<double>* par =
-    dynamic_cast<TParameter<double>* >( this->getObject(name) );
-  if(!par){
+      dynamic_cast<TParameter<double>*>(this->getObject(name));
+  if (!par) {
     cerr << "Failed to find \"" << name << "\" (double)" << endl;
     return 0;
   }
@@ -38,9 +37,8 @@ double DataSet::getDouble(const char* name)
 
 const char* DataSet::getString(const char* name)
 {
-  TObjString* par =
-    dynamic_cast<TObjString* >( this->getObject(name) );
-  if(!par){
+  TObjString* par = dynamic_cast<TObjString*>(this->getObject(name));
+  if (!par) {
     cerr << "Failed to find \"" << name << "\" (string)" << endl;
     return 0;
   }
@@ -49,12 +47,12 @@ const char* DataSet::getString(const char* name)
 
 TH1F* DataSet::getHistogram(const char* name)
 {
-  return dynamic_cast<TH1F*>( this->getObject(name) );
+  return dynamic_cast<TH1F*>(this->getObject(name));
 }
 
 TGraph* DataSet::getGraph(const char* name)
 {
-  return dynamic_cast<TGraph*>( this->getObject(name) );
+  return dynamic_cast<TGraph*>(this->getObject(name));
 }
 
 TObject* DataSet::getObject(const char* name)
@@ -96,14 +94,14 @@ void DataSet::setGraph(const char* name, TGraph* value)
 void DataSet::setObject(const char* name, TObject* value)
 {
   TObject* pair = m_data.FindObject(name);
-  if(pair){
+  if (pair) {
     // This data object exists, so replace
     cout << "Warning: Replacing object: " << name << endl;
     m_data.Remove(((TPair*)pair)->Key());
     // FIXME: Consider deleting object if there are no other owners...
   }
   // Add new data
-  m_data.Add(new TObjString(name),value);
+  m_data.Add(new TObjString(name), value);
 }
 
 /*
@@ -116,43 +114,46 @@ int DataSet::load(const char* filename)
 {
   // Load a data set from a text file
   ifstream fileData(filename);
-  if(!fileData.is_open() || !fileData.good()){
+  if (!fileData.is_open() || !fileData.good()) {
     std::cout << "DataSet::load: "
               << "Error: Failed to open data file " << filename << std::endl;
     return -1;
   }
   string line;
-  while(true){
-    getline(fileData,line);
-    if(!fileData.good()) break;
-    if(line.empty()) continue;
+  while (true) {
+    getline(fileData, line);
+    if (!fileData.good())
+      break;
+    if (line.empty())
+      continue;
     istringstream lineStr(line);
-    if(lineStr.peek()=='#'){
+    if (lineStr.peek() == '#') {
       // Skip lines starting with '#'
       continue;
     }
     string name;
-    if(!(lineStr >> name)){
+    if (!(lineStr >> name)) {
       std::cout << "DataSet::load: "
                 << "Error: Failed to read name from line " << line << std::endl;
       return -1;
     }
     string svalue;
-    if(!(lineStr >> svalue)){
+    if (!(lineStr >> svalue)) {
       std::cout << "DataSet::load: "
                 << "Error: Failed to read value from line " << line
                 << std::endl;
       return -1;
     }
-    bool isNumber=false;
-    double dvalue=0;
+    bool isNumber = false;
+    double dvalue = 0;
     istringstream testStream(svalue);
-    if(testStream >> dvalue) isNumber=true;
+    if (testStream >> dvalue)
+      isNumber = true;
 
-    if(isNumber){
-      this->setDouble(name.c_str(),dvalue);
-    }else{
-      this->setString(name.c_str(),svalue.c_str());
+    if (isNumber) {
+      this->setDouble(name.c_str(), dvalue);
+    } else {
+      this->setString(name.c_str(), svalue.c_str());
     }
   }
   return 0;

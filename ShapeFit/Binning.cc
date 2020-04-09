@@ -19,8 +19,8 @@ static void init_evis_lbnl()
   // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV.
   // Single bin between 8.0 and 12 MeV. total 37 bins
   _evis_lbnl[0] = 0.7;
-  for (Int_t i = 0; i < _n_evis_lbnl-1; i++){
-    _evis_lbnl[i+1] = 0.2 *i + 1.0;
+  for (Int_t i = 0; i < _n_evis_lbnl - 1; i++) {
+    _evis_lbnl[i + 1] = 0.2 * i + 1.0;
   }
   _evis_lbnl[_n_evis_lbnl] = 12.0;
 }
@@ -29,8 +29,8 @@ static void init_evis_bcw() __attribute__((constructor));
 static void init_evis_bcw()
 {
   _evis_bcw[0] = 0.7;
-  for (Int_t i = 0; i < _n_evis_bcw-1; i++){
-    _evis_bcw[i+1] = 0.25 *i + 1.3;
+  for (Int_t i = 0; i < _n_evis_bcw - 1; i++) {
+    _evis_bcw[i + 1] = 0.25 * i + 1.3;
   }
   _evis_bcw[_n_evis_bcw] = 12.0;
 }
@@ -40,8 +40,8 @@ static void init_evis_fine() __attribute__((constructor));
 static void init_evis_fine()
 {
   _evis_fine[0] = 0.0;
-  for (Int_t i = 0; i < _n_evis_fine-1; i++){
-    _evis_fine[i+1] = 0.05 *i + 0.05;
+  for (Int_t i = 0; i < _n_evis_fine - 1; i++) {
+    _evis_fine[i + 1] = 0.05 * i + 0.05;
   }
   _evis_fine[_n_evis_fine] = 12.0;
 }
@@ -49,7 +49,7 @@ static void init_evis_fine()
 static void init_enu() __attribute__((constructor));
 static void init_enu()
 {
-  for (Int_t i = 0; i < _n_enu+1; i++){
+  for (Int_t i = 0; i < _n_enu + 1; i++) {
     _enu[i] = 0.05 * i + 1.8;
   }
 }

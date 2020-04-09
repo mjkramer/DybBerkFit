@@ -1,53 +1,54 @@
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
+#include "TCanvas.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TCanvas.h"
 #include "TTree.h"
 
 
+#include "Config.h"
 #include "DataSet.h"
 #include "Spectrum.h"
-#include "Config.h"
 
 using namespace Config;
 
 
 void genSuperHistograms()
 {
-  TH1F * h[Nstage][Ndetectors][Ncores];
+  TH1F* h[Nstage][Ndetectors][Ncores];
 
 
   // Create Expectations
-  DataSet *mydata = new DataSet();
+  DataSet* mydata = new DataSet();
   mydata->load(nominal_dataset_filename);
 
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
-  Predictor *myPred = new Predictor();
+  Predictor* myPred = new Predictor();
 
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1, input_filename2};
+  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
+                                          input_filename2};
 
-  for(int istage=0;istage<Nstage;istage++){
+  for (int istage = 0; istage < Nstage; istage++) {
     myPred->LoadMainData(Theta13InputsLocation[istage]);
   }
 
 
   // Create nominal Spectrum
-  Spectrum *spectrumNorm = new Spectrum();
+  Spectrum* spectrumNorm = new Spectrum();
   spectrumNorm->passPredictor(myPred);
-  //fixme: should use distances from Predictor (from FluxCalculator) in order to avoid duplication
+  // fixme: should use distances from Predictor (from FluxCalculator) in order
+  // to avoid duplication
   spectrumNorm->loadDistances(baselines_filename);
   spectrumNorm->initialize(mydata);
-  //TString AccidentalSpectrumLocation[2] = {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-  TString AccidentalSpectrumLocation[3] = {acc_spectra_filename0,acc_spectra_filename1,acc_spectra_filename2};
+  // TString AccidentalSpectrumLocation[2] =
+  // {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
+  TString AccidentalSpectrumLocation[3] = {
+      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
 
-  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                 li9_filename,
-                                 amc_filename,
-                                 fn_filename,
-                                 aln_filename);
+  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation, li9_filename,
+                                 amc_filename, fn_filename, aln_filename);
 
   // load distances hare as well to construct traditional supermatrix
 
@@ -55,68 +56,68 @@ void genSuperHistograms()
 
   string dummyLine;
   string thead;
-  float d2,d1,l2,l1,l4,l3;
+  float d2, d1, l2, l1, l4, l3;
   //-->Distances
   cout << " Distances ++++++++++++++++++++++++++++++++++++++" << endl;
   ifstream disfile(baselines_filename);
   getline(disfile, dummyLine);
-  while(disfile >> thead >> d1 >> d2 >> l1 >> l2 >> l3 >> l4){
-
-    cout << thead << "\t" << d1 << "\t" << d2 << "\t" << l1 << "\t" << l2 << "\t" << l3 << "\t" << l4 << endl;//tmp
-    int adnum=atoi(thead.substr(2,1).c_str());
-    //note: must convert into kms
-    m_detectorDistance[adnum-1][0]=d1*0.001;
-    m_detectorDistance[adnum-1][1]=d2*0.001;
-    m_detectorDistance[adnum-1][2]=l1*0.001;
-    m_detectorDistance[adnum-1][3]=l2*0.001;
-    m_detectorDistance[adnum-1][4]=l3*0.001;
-    m_detectorDistance[adnum-1][5]=l4*0.001;
+  while (disfile >> thead >> d1 >> d2 >> l1 >> l2 >> l3 >> l4) {
+    cout << thead << "\t" << d1 << "\t" << d2 << "\t" << l1 << "\t" << l2
+         << "\t" << l3 << "\t" << l4 << endl; // tmp
+    int adnum = atoi(thead.substr(2, 1).c_str());
+    // note: must convert into kms
+    m_detectorDistance[adnum - 1][0] = d1 * 0.001;
+    m_detectorDistance[adnum - 1][1] = d2 * 0.001;
+    m_detectorDistance[adnum - 1][2] = l1 * 0.001;
+    m_detectorDistance[adnum - 1][3] = l2 * 0.001;
+    m_detectorDistance[adnum - 1][4] = l3 * 0.001;
+    m_detectorDistance[adnum - 1][5] = l4 * 0.001;
   }
 
 
-  //Double_t M[Nstage][Ndetectors][Ncores];
+  // Double_t M[Nstage][Ndetectors][Ncores];
 
 
-
-  //Prepare destination file
-  TFile *outfile = new TFile(histogram_filename, "RECREATE");
+  // Prepare destination file
+  TFile* outfile = new TFile(histogram_filename, "RECREATE");
 
   Char_t name[1024];
-  for(int istage=0;istage<Nstage;++istage){
-    for(int idet=0;idet<Ndetectors;++idet){
-      for(int icore=0;icore<Ncores;++icore){
-        cout << "Creating histogram for Stage# " << istage+1 << " AD# " << idet+1 << " from Core " << icore << endl;
-        sprintf(name,"h_super_istage%d_idet%d_icore%d",istage,idet,icore);
-        //h[istage][idet][icore] = new TH1F (name,name,41,1.8,10);
-        h[istage][idet][icore] = new TH1F (name,name,164,1.8,10);
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      for (int icore = 0; icore < Ncores; ++icore) {
+        cout << "Creating histogram for Stage# " << istage + 1 << " AD# "
+             << idet + 1 << " from Core " << icore << endl;
+        sprintf(name, "h_super_istage%d_idet%d_icore%d", istage, idet, icore);
+        // h[istage][idet][icore] = new TH1F (name,name,41,1.8,10);
+        h[istage][idet][icore] = new TH1F(name, name, 164, 1.8, 10);
       }
     }
   }
 
-  //Generate nominal spectrum
+  // Generate nominal spectrum
 
-  for(int istage=0;istage<Nstage;++istage){
-    for(int icore=0;icore<Ncores;++icore){
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int icore = 0; icore < Ncores; ++icore) {
       spectrumNorm->updateAntinu(icore);
-      for(int idet=0;idet<Ndetectors;++idet){
-        for(int ibin=0;ibin<spectrumNorm->nSamples();++ibin){
-
-          h[istage][idet][icore]->Fill(spectrumNorm->energyArray(idet)[ibin],
-                                       spectrumNorm->antiNuNoOscArray(istage,idet)[ibin]);
-        }//ibin loop
+      for (int idet = 0; idet < Ndetectors; ++idet) {
+        for (int ibin = 0; ibin < spectrumNorm->nSamples(); ++ibin) {
+          h[istage][idet][icore]->Fill(
+              spectrumNorm->energyArray(idet)[ibin],
+              spectrumNorm->antiNuNoOscArray(istage, idet)[ibin]);
+        } // ibin loop
 
 
         // construct supermatrix element
-        //M[istage][idet][icore] = h[istage][idet][icore]->Integral()/pow(m_detectorDistance[idet][icore],2);
-
+        // M[istage][idet][icore] =
+        // h[istage][idet][icore]->Integral()/pow(m_detectorDistance[idet][icore],2);
       }
-      //    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
+      //    cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() <<
+      //    endl;//tmp
     }
   }
 
   outfile->Write();
   outfile->Close();
-
 
 
   /*
@@ -138,4 +139,4 @@ void genSuperHistograms()
   */
 
 
-}//end of genToySpectraTree
+} // end of genToySpectraTree
