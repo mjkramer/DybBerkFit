@@ -994,11 +994,11 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
   TDirectory * dir = gDirectory;
-  TFile *accspec[Nstage];
 
   //(accidentals)
   for(int istage=0;istage<Nstage;++istage){
-    accspec[istage] = new TFile(accspecname[istage].Data(),"READ");
+#pragma omp single copyprivate(m_accspec)
+    m_accspec[istage] = new TFile(accspecname[istage].Data(),"READ");
     dir->cd();
     for(int idet=0;idet<Ndetectors;++idet){
 
@@ -1007,7 +1007,8 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       Char_t name2[1024];
       sprintf(name2,"CorrAccEvtsSpec_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
 
-      CorrAccEvtsSpec[istage][idet] = (TH1F*)accspec[istage]->Get(name)->Clone(name2);
+#pragma omp critical
+      CorrAccEvtsSpec[istage][idet] = (TH1F*)m_accspec[istage]->Get(name)->Clone(name2);
 
       //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
 
@@ -1025,19 +1026,21 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       if (CorrAccEvtsSpec[istage][idet]->Integral() > 0)
         CorrAccEvtsSpec[istage][idet]->Scale(pred->tdper[istage].AccEvts[idet]/CorrAccEvtsSpec[istage][idet]->Integral());
     }
-    accspec[istage]->Close();
+    // m_accspec[istage]->Close();
   }
 
   cout << "--> loaded accidental spectra" << endl;
 
   //(li9/he8)
-  TFile *li9spec = new TFile(li9specname,"READ");
+#pragma omp single copyprivate(m_li9spec)
+  m_li9spec = new TFile(li9specname,"READ");
   dir->cd();
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
 
       sprintf(name,"CorrLi9EvtsSpec_ad%d",idet);
-      CorrLi9EvtsSpec[istage][idet] = (TH1F*)li9spec->Get("h_nominal")->Clone(name);
+#pragma omp critical
+      CorrLi9EvtsSpec[istage][idet] = (TH1F*)m_li9spec->Get("h_nominal")->Clone(name);
 
       for (Int_t ibin = 0; ibin < CorrLi9EvtsSpec[istage][idet]->GetNbinsX();ibin++){
         CorrLi9EvtsSpec[istage][idet]->SetBinError(ibin+1,0);
@@ -1046,25 +1049,26 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       CorrLi9EvtsSpec[istage][idet]->Scale(pred->tdper[istage].Li9Evts[idet]/CorrLi9EvtsSpec[istage][idet]->Integral());
     }
   }
-  li9spec->Close();
+  // m_li9spec->Close();
   cout << "--> loaded Li9 spectra" << endl;
 
   //(amc)
-  //TFile *amcspec = new TFile(amcspecname,"READ");
-  TFile *amcspec = new TFile(amcspecname,"READ");
+#pragma omp single copyprivate(m_amcspec)
+  m_amcspec = new TFile(amcspecname,"READ");
 
   dir->cd();
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       sprintf(name,"CorrAmcEvtsSpec_ad%d",idet);
-      amcfunc = (TF1*)amcspec->Get("expo");
+#pragma omp critical
+      amcfunc = (TF1*)m_amcspec->Get("expo")->Clone();
       amcfunc->SetRange(0.7,9.0);
       CorrAmcEvtsSpec[istage][idet] = (TH1F*)CorrLi9EvtsSpec[istage][idet]->Clone(name);
       CorrAmcEvtsSpec[istage][idet]->Reset();
       CorrAmcEvtsSpec[istage][idet]->Add(amcfunc);
 
       //old
-      //CorrAmcEvtsSpec[idet] = (TH1F*)amcspec->Get("h_toy")->Clone(name);
+      //CorrAmcEvtsSpec[idet] = (TH1F*)m_amcspec->Get("h_toy")->Clone(name);
 
       for (Int_t ibin = 0; ibin < CorrAmcEvtsSpec[istage][idet]->GetNbinsX();ibin++){
         CorrAmcEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
@@ -1074,11 +1078,12 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
 
     }
   }
-  amcspec->Close();
+  // m_amcspec->Close();
   cout << "--> loaded AmC spectra" << endl;
 
   //(fn)
-  TFile *fnspec = new TFile(fnspecname,"READ");
+#pragma omp single copyprivate(m_fnspec)
+  m_fnspec = new TFile(fnspecname,"READ");
   dir->cd();
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
@@ -1087,7 +1092,8 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       Char_t nameFn[1024];
       sprintf(nameFn,"h_%dAD_fn_fine",idet+1);
 
-      CorrFnEvtsSpec[istage][idet] = (TH1F*)fnspec->Get(nameFn)->Clone(name);
+#pragma omp critical
+      CorrFnEvtsSpec[istage][idet] = (TH1F*)m_fnspec->Get(nameFn)->Clone(name);
 
       for (Int_t ibin = 0; ibin < CorrFnEvtsSpec[istage][idet]->GetNbinsX();ibin++){
         CorrFnEvtsSpec[istage][idet]->SetBinError(ibin+1,0);
@@ -1095,12 +1101,13 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       CorrFnEvtsSpec[istage][idet]->Scale(pred->tdper[istage].FnEvts[idet]/CorrFnEvtsSpec[istage][idet]->Integral());
     }
   }
-  fnspec->Close();
+  // m_fnspec->Close();
   cout << "--> loaded fn spectra" << endl;
 
   //(aln)
   int AlphaAD[8] = {1,2,3,8,4,5,6,7}; //Hack to get 8AD# aligned
-  TFile *alnspec = new TFile(alnspecname,"READ");
+#pragma omp single copyprivate(m_alnspec)
+  m_alnspec = new TFile(alnspecname,"READ");
   dir->cd();
 
   for(int istage=0;istage<Nstage;++istage){
@@ -1113,7 +1120,9 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       Char_t alnhistname[1024];
       sprintf(alnhistname,"AD%i;1",AlphaAD[idet]);//<-- the file has also a TCanvas with the same name (Ugly fix to use proper alpha-n)
 
-      TH1F *htemp = (TH1F*)alnspec->Get(alnhistname)->Clone(name);
+      TH1F *htemp;
+#pragma omp critical
+      htemp = (TH1F*)m_alnspec->Get(alnhistname)->Clone(name);
 
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
         //Only want spectrum if between 0.7 to 12 MeV
@@ -1131,7 +1140,7 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
       CorrAlnEvtsSpec[istage][idet]->Scale(pred->tdper[istage].AlnEvts[idet]/CorrAlnEvtsSpec[istage][idet]->Integral());
     }
   }
-  alnspec->Close();
+  // m_alnspec->Close();
   cout << "--> loaded alpha-n spectra" << endl;
 
   cout << "done loading bg spectra!" << endl;
@@ -1169,7 +1178,9 @@ void Spectrum::loadBgSpecForToy(TString *accspecname,
     }
   }
 
+  cout << "updateBgDetected" << endl; // XXX
   this->updateBgDetected();
+  cout << "END updateBgDetected" << endl; // XXX
 
 }//end of LoadBgSpec
 
@@ -1355,9 +1366,12 @@ void Spectrum::updateBgDetected(){
 
   if(m_distortLi9Bg!="null"){
     int ientry=int(ran->Uniform(0,m_entries_distortLi9Bg));
-    m_tree_distortLi9Bg->GetEntry(ientry);
-
-    TH1F * func_li = (TH1F*)m_func_distortLi9Bg->Clone();
+    TH1F* func_li;
+#pragma omp critical
+    {
+      m_tree_distortLi9Bg->GetEntry(ientry);
+      func_li = (TH1F*)m_func_distortLi9Bg->Clone();
+    }
 
     for(int istage=0;istage<Nstage;++istage){
       for(int idet=0;idet<Ndetectors;++idet){
@@ -1457,10 +1471,13 @@ void Spectrum::updateBgDetected(){
 
 
 
-void Spectrum::loadIavCorrection(const char *iavcorrectionname){
-
-  TFile * f = new TFile(iavcorrectionname);
-  TH2F * Correction = (TH2F*)f->Get("Correction_LS");
+void Spectrum::loadIavCorrection(const char *iavcorrectionname)
+{
+#pragma omp single copyprivate(m_iavCorrFile)
+  m_iavCorrFile = new TFile(iavcorrectionname);
+  TH2F * Correction;
+#pragma omp critical
+  Correction = (TH2F*)m_iavCorrFile->Get("Correction_LS")->Clone();
 
   cout << "reading Iav correction file from " << iavcorrectionname << endl;
   for(int i=0;i<240;i++){ // i: true positron energy bin; j: distorted energy bin
@@ -1485,7 +1502,8 @@ void Spectrum::loadIavCorrection(const char *iavcorrectionname){
       m_iav_frac_orig[i] = 0;
     }
   }
-  f->Close();
+
+  delete Correction;
 
   /*Remove IAV here
     for(int i=0;i<240;i++){ // i: true positron energy bin; j: distorted energy bin
@@ -1716,6 +1734,8 @@ void Spectrum::initialize(DataSet* data)
   m_distortAccBg = data->getDouble("distortAccBg");
   m_distortAmcBg = data->getDouble("distortAmcBg");
   m_distortLi9Bg = data->getString("distortLi9Bg");
+#pragma omp single copyprivate(m_file_distortLi9Bg, m_tree_distortLi9Bg, \
+                               m_entries_distortLi9Bg, m_func_distortLi9Bg)
   if(m_distortLi9Bg!="null"){
     m_file_distortLi9Bg = new TFile(m_distortLi9Bg.c_str(),"READ");
     m_tree_distortLi9Bg = (TTree*)m_file_distortLi9Bg->Get("tr_distort");
@@ -1865,10 +1885,13 @@ void Spectrum::initialize(DataSet* data)
     }
     bcw_elec_data.close();
 
-    TFile *bcw_ele_err_file = new TFile(bcw_ele_err_filename);
-    g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
-    g_bcw_elec_nl_error[1] = (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
-    bcw_ele_err_file->Close();
+#pragma omp critical
+    {
+      TFile *bcw_ele_err_file = new TFile(bcw_ele_err_filename);
+      g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
+      g_bcw_elec_nl_error[1] = (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
+      bcw_ele_err_file->Close();
+    }
     for (Int_t i = 3; i < 5; i++){ // those describe additional uncertainty for bcw model that are described in Doc-XXXX
       m_bcw_elec_nl_par[i] = 0;
       m_bcw_elec_nl_par[i] = m_bcw_elec_nl_par_nominal[i];
@@ -1973,23 +1996,27 @@ void Spectrum::initialize(DataSet* data)
       m_unified_nl_par_error[i] = 1.0;
     }
 
-    TFile *unified_nl_file = new TFile(unified_nl_filename.Data());
-
-    if (!unified_nl_file->IsOpen()) {
-      cout << "Error: cannot find the unified non-linearity curve!!!" << endl;
-      exit(0);
-    }
-
-    cout << "Reading unified non-linearity model from " << unified_nl_filename << endl;
-
     TGraph* g_unified_positron_nl;
     TGraph* g_unified_positron_nl_pulls[10];
 
-    g_unified_positron_nl = (TGraph*)unified_nl_file->Get(nominal_graph_name.Data())->Clone();
-    for (Int_t i = 0 ; i < m_num_unified_nl_pars; i++){
-      g_unified_positron_nl_pulls[i] =  (TGraph*)unified_nl_file->Get(pull_graph_name[i].Data())->Clone();
-    }
+#pragma omp critical
+    {
+      TFile *unified_nl_file = new TFile(unified_nl_filename.Data());
 
+      if (!unified_nl_file->IsOpen()) {
+        cout << "Error: cannot find the unified non-linearity curve!!!" << endl;
+        exit(0);
+      }
+
+      cout << "Reading unified non-linearity model from " << unified_nl_filename << endl;
+
+      g_unified_positron_nl = (TGraph*)unified_nl_file->Get(nominal_graph_name.Data())->Clone();
+      for (Int_t i = 0 ; i < m_num_unified_nl_pars; i++){
+        g_unified_positron_nl_pulls[i] =  (TGraph*)unified_nl_file->Get(pull_graph_name[i].Data())->Clone();
+      }
+
+      unified_nl_file->Close();
+    }
 
     // Copy into arrays to speed up
     for (Int_t ie = 0; ie < n_unified_nl_points; ie++){
@@ -2021,9 +2048,14 @@ void Spectrum::initialize(DataSet* data)
 
     //Read covariance matrix
     if (m_correlateUnifiedNonlinearPars){
-      TFile * f_covmatrix = new TFile(data->getString("NonlinearCovmatrixFilename"));
-      f_covmatrix->ls();
-      double * mat_tmp = ((TMatrixD*)f_covmatrix->Get("coeffmatrix"))->GetMatrixArray();
+      double* mat_tmp;
+#pragma omp critical
+      {
+        TFile * f_covmatrix = new TFile(data->getString("NonlinearCovmatrixFilename"));
+        f_covmatrix->ls();
+        mat_tmp = ((TMatrixD*)f_covmatrix->Get("coeffmatrix"))->GetMatrixArray();
+        f_covmatrix->Close();
+      }
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++){
         for (Int_t j = 0; j < m_num_unified_nl_pars; j++){
           m_unified_nl_par_covmatrix[i][j] =  mat_tmp[i*m_num_unified_nl_pars+j];
