@@ -12,7 +12,7 @@ AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: Never
+AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortLambdasOnASingleLine: All
@@ -74,9 +74,9 @@ IncludeCategories:
   - Regex:           '.*'
     Priority:        1
 IncludeIsMainRegex: '(Test)?$'
-IndentCaseBlocks: true
+# IndentCaseBlocks: true
 IndentCaseLabels: false
-IndentGotoLabels: false
+# IndentGotoLabels: false
 IndentPPDirectives: None
 IndentWidth:     2
 IndentWrappedFunctionNames: false
@@ -112,8 +112,8 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
-SpaceBeforeSquareBrackets: false
-SpaceInEmptyBlock: false
+# SpaceBeforeSquareBrackets: false
+# SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 1
 SpacesInAngles:  false
@@ -121,7 +121,7 @@ SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard:        Cpp17
+Standard:        Cpp11
 StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
