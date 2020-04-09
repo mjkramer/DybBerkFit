@@ -87,6 +87,7 @@ private:
 
   Double_t Distance[Ndetectors][Ncores];//<---indices are ADs,Cores (D1, D2, L1, L2, L3, L4)
   TFile *WeeklyFluxData;
+  TFile *SuperHistData;
   Char_t filename[1024];
   TH1F *FluxSpec;
   //std::map<int, TH1F*> fluxmap;

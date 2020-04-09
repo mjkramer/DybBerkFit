@@ -85,8 +85,9 @@ void FluxCalculator::LoadDistances(const Char_t *distancematrixname){
   }
 }
 
-void FluxCalculator::LoadWeeklyFlux(const Char_t *weeklyfluxdataname, int nweeks_in){
-
+void FluxCalculator::LoadWeeklyFlux(const Char_t *weeklyfluxdataname, int nweeks_in)
+{
+#pragma omp single copyprivate(WeeklyFluxData)
   WeeklyFluxData = new TFile(weeklyfluxdataname,"READ");
 
   Char_t filenametemp[1024];
@@ -282,14 +283,15 @@ void FluxCalculator::LoadSuperHistograms(const Char_t *superhistsname){
 
   Char_t name1[1024];
   Char_t name2[1024];
-  TFile *infile = new TFile(superhistsname,"READ");
+#pragma omp single copyprivate(infile)
+  SuperHistData = new TFile(superhistsname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       for(int icore=0;icore<Ncores;++icore){
 
         sprintf(name1,"h_super_istage%i_idet%i_icore%i",istage,idet,icore);
         sprintf(name2,"super_istage%i_idet%i_icore%i",istage,idet,icore);
-        h_super[istage][idet][icore] = (TH1F*)infile->Get(name1)->Clone(name2);
+        h_super[istage][idet][icore] = (TH1F*)SuperHistData->Get(name1)->Clone(name2);
 
       }
     }
