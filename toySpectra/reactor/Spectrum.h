@@ -402,5 +402,12 @@ private:
   double  m_useBcwFluxUncertainty;
   double  m_useAbInitioSpectra;
 
+  // See comment in Predictor.h.
+  TFile *m_accspec[Nstage];
+  TFile *m_li9spec;
+  TFile *m_fnspec;
+  TFile *m_amcspec;
+  TFile *m_alnspec;
 
+  TFile *m_iavCorrFile;
 };
