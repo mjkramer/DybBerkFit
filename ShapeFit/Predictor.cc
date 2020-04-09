@@ -335,7 +335,8 @@ void Predictor::LoadMainData(const Char_t *mainmatrixname){
 void Predictor::LoadPredictedIBD(const Char_t *nibdname){
   cout << "Loading # ibd ..." << endl;
 
-  TFile *infile = new TFile(nibdname,"READ");
+#pragma omp single copyprivate(m_predIBDfile)
+  m_predIBDfile = new TFile(nibdname,"READ");
 
   Char_t name[1024];
 
@@ -344,10 +345,13 @@ void Predictor::LoadPredictedIBD(const Char_t *nibdname){
     for(int idet=0;idet<Ndetectors;++idet){
 
       sprintf(name,"h_nominal_stage%i_ad%i",istage+1,idet+1);
-      TH1F *htemp = (TH1F*)infile->Get(name);
+      TH1F *htemp;
+#pragma omp critical
+      htemp = (TH1F*)m_predIBDfile->Get(name)->Clone();
       nIBD[istage][idet] = htemp->Integral();
       cout << "idet: " << idet << ", nIBD: " << nIBD[istage][idet] << endl;
-      htemp->Delete();
+      // htemp->Delete();
+      delete htemp;
     }
   }
   cout << "done loading # ibd!" << endl;
@@ -359,18 +363,21 @@ void Predictor::LoadIBDSpec(TString *ibdspecname){
   Char_t name[1024];
   Char_t name2[1024];
   //++ IBDs
-  TFile *infilespec[Nstage];
+#pragma omp single copyprivate(m_infilespec)
   for(int istage=0;istage<Nstage;++istage){
-    infilespec[istage] = new TFile(ibdspecname[istage].Data(),"READ");
+    m_infilespec[istage] = new TFile(ibdspecname[istage].Data(),"READ");
     cout<<"File is "<<ibdspecname[istage].Data()<<endl;
+  }
 
+  for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
 
       sprintf(name,"h_ibd_eprompt_inclusive_eh%i_ad%d",detConfigEH[idet],detConfigAD[idet]);
       sprintf(name2,"h_ibd_eprompt_inclusive_stage%i_eh%i_ad%d",istage+1,detConfigEH[idet],detConfigAD[idet]);
 
       //cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " << tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
-      tdper[istage].ObsEvtsSpec[idet] = (TH1F*)infilespec[istage]->Get(name)->Clone(name2);
+#pragma omp critical
+      tdper[istage].ObsEvtsSpec[idet] = (TH1F*)m_infilespec[istage]->Get(name)->Clone(name2);
 
     }
   }
@@ -381,15 +388,20 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename){
 
   cout << "Loading toy ibd spectra..." << endl;
 
-  m_toyinfilespec = new TFile(filename);
-  m_tr_toy  = (TTree*)m_toyinfilespec->Get("tr");
-  m_tr_toy->Print();
+#pragma omp single copyprivate(m_toyinfilespec, m_tr_toy, ToySpecInFile)
+  {
+    m_toyinfilespec = new TFile(filename);
+    m_tr_toy  = (TTree*)m_toyinfilespec->Get("tr");
+    m_tr_toy->Print();
 
-  //++ IBDs
-  for(int istage=0;istage<Nstage;++istage){
-    for(int idet=0;idet<Ndetectors;++idet){
-      tdper[istage].ObsEvtsSpec[idet] = 0;
-      m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
+    //++ IBDs
+    for(int istage=0;istage<Nstage;++istage){
+      for(int idet=0;idet<Ndetectors;++idet){
+        // tdper[istage].ObsEvtsSpec[idet] = 0;
+        // m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
+        ToySpecInFile[istage][idet] = 0;
+        m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(ToySpecInFile[istage][idet]));
+      }
     }
   }
   cout << "done loading ibd spectra file!" << endl;
@@ -401,11 +413,15 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename){
 
 void Predictor::LoadToyMCNominalSpec(){
 
+#pragma omp single
   m_toyinfilespec->cd();
+
   for(int ii=0;ii<Nstage;++ii){
     cout << "Period #" << ii+1 << endl;
     for(int idet=0;idet<Ndetectors;++idet){
-      tdper[ii].ObsEvtsSpec[idet] = (TH1F*)m_toyinfilespec->Get(Form("h_nominal_stage%i_ad%d",ii+1,idet+1));
+#pragma omp critical
+      tdper[ii].ObsEvtsSpec[idet] =
+        (TH1F*)m_toyinfilespec->Get(Form("h_nominal_stage%i_ad%d",ii+1,idet+1))->Clone();
     }
     tdper[ii].CorrectSpec(true);
     //tdper[ii].PrintToScreen();//tmp
@@ -413,10 +429,22 @@ void Predictor::LoadToyMCNominalSpec(){
 
 }
 
-void Predictor::LoadToyMCEntry(Int_t i, bool correct){
+void Predictor::LoadToyMCEntry(Int_t i, bool correct)
+{
+#pragma omp critical
+  {
+    m_tr_toy->GetEntry(i);
+    cout << "Loading toy MC entry : " << i << endl;
 
-  m_tr_toy->GetEntry(i);
-  cout << "Loading toy MC entry : " << i << endl;
+    for (int istage = 0; istage < Nstage; ++istage) {
+      for (int idet = 0; idet < Ndetectors; ++idet) {
+        auto& p = tdper[istage].ObsEvtsSpec[idet];
+        if (p) delete p;
+        p = (TH1F*) ToySpecInFile[istage][idet]->Clone();
+      }
+    }
+  }
+
   for(int ii=0;ii<Nstage;++ii){
     if(correct==true) tdper[ii].CorrectSpec(true);
     //tdper[ii].PrintToScreen();//tmp
@@ -434,12 +462,12 @@ void Predictor::LoadBgSpec(TString *accspecname,
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
 
-  //(accidentals)
-  TFile *accspec[Nstage];
+#pragma omp single copyprivate(m_accspec)
+  for(int istage=0;istage<Nstage;++istage){
+    m_accspec[istage]= new TFile(accspecname[istage].Data(),"READ");
+  }
 
   for(int istage=0;istage<Nstage;++istage){
-    accspec[istage]= new TFile(accspecname[istage].Data(),"READ");
-
     for(int idet=0;idet<Ndetectors;++idet){
 
       sprintf(name,"h_accidental_eprompt_inclusive_eh%i_ad%i",detConfigEH[idet],detConfigAD[idet]);
@@ -449,7 +477,8 @@ void Predictor::LoadBgSpec(TString *accspecname,
 
 
 
-      tdper[istage].CorrAccEvtsSpec[idet] = (TH1F*)accspec[istage]->Get(name)->Clone(name2);
+#pragma omp critical
+      tdper[istage].CorrAccEvtsSpec[idet] = (TH1F*)m_accspec[istage]->Get(name)->Clone(name2);
 
       for (Int_t ibin = 0; ibin < tdper[istage].CorrAccEvtsSpec[idet]->GetNbinsX();ibin++){
         tdper[istage].CorrAccEvtsSpec[idet]->SetBinError(ibin+1,0);
@@ -467,15 +496,18 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrAccEvtsSpec[idet]->Scale(tdper[istage].AccEvts[idet]*1./tdper[istage].CorrAccEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file
     }
   }
-  //accspec->Close();
+  //m_accspec->Close();
   cout << "--> loaded accidental spectra" << endl;
 
   //(li9/he8)
-  TFile *li9spec = new TFile(li9specname,"READ");
+#pragma omp single copyprivate(m_li9spec)
+  m_li9spec = new TFile(li9specname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
       sprintf(name,"h_nominal");
-      TH1F *htemp = (TH1F*)li9spec->Get(name);
+      TH1F *htemp;
+#pragma omp critical
+      htemp = (TH1F*)m_li9spec->Get(name)->Clone();
       sprintf(name,"CorrLi9EvtsSpec_stage%d_ad%d",istage,idet);
       tdper[istage].CorrLi9EvtsSpec[idet] = (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrLi9EvtsSpec[idet]->Reset();
@@ -498,11 +530,12 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrLi9EvtsSpec[idet]->Scale(tdper[istage].Li9Evts[idet]*1./tdper[istage].CorrLi9EvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file
     }
   }
-  //li9spec->Close();
+  //m_li9spec->Close();
   cout << "--> loaded li9/he8 spectra" << endl;
 
   //(fast-n)
-  TFile *fnspec = new TFile(fnspecname,"READ");
+#pragma omp single copyprivate(m_fnspec)
+  m_fnspec = new TFile(fnspecname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
 
@@ -512,7 +545,9 @@ void Predictor::LoadBgSpec(TString *accspecname,
       tdper[istage].CorrFnEvtsSpec[idet] = (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrFnEvtsSpec[idet]->Reset();
 
-      TH1F *htemp = (TH1F*)fnspec->Get(nameFn)->Clone(name);
+      TH1F *htemp;
+#pragma omp critical
+      htemp = (TH1F*)m_fnspec->Get(nameFn)->Clone(name);
       //fill into destination histogram
       for(Int_t ibin = 0; ibin < htemp->GetNbinsX();ibin++){
         tdper[istage].CorrFnEvtsSpec[idet]->Fill(htemp->GetBinCenter(ibin+1),htemp->GetBinContent(ibin+1));
@@ -528,15 +563,18 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrFnEvtsSpec[idet]->Scale(tdper[istage].FnEvts[idet]*1./tdper[istage].CorrFnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file
     }
   }
-  //fnspec->Close();
+  //m_fnspec->Close();
   cout << "--> loaded fast-n spectra" << endl;
 
   //(amc)
-  TFile *amcspec = new TFile(amcspecname,"READ");
+#pragma omp single copyprivate(m_amcspec)
+  m_amcspec = new TFile(amcspecname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
 
-      TF1 *amcfunc = (TF1*)amcspec->Get("expo");
+      TF1 *amcfunc;
+#pragma omp critical
+      amcfunc = (TF1*)m_amcspec->Get("expo");
       sprintf(name,"CorrAmcEvtsSpec_stage%d_ad%d",istage,idet);
       tdper[istage].CorrAmcEvtsSpec[idet] = (TH1F*)tdper[istage].CorrFnEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrAmcEvtsSpec[idet]->Reset();
@@ -553,7 +591,7 @@ void Predictor::LoadBgSpec(TString *accspecname,
       }
 
       //old
-      //tdper[istage].CorrAmcEvtsSpec[idet] = (TH1F*)amcspec->Get("h_rebin")->Clone(name);
+      //tdper[istage].CorrAmcEvtsSpec[idet] = (TH1F*)m_amcspec->Get("h_rebin")->Clone(name);
 
       for (Int_t ibin = 0; ibin < tdper[istage].CorrAmcEvtsSpec[idet]->GetNbinsX();ibin++){
         tdper[istage].CorrAmcEvtsSpec[idet]->SetBinError(ibin+1,0);
@@ -565,17 +603,20 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrAmcEvtsSpec[idet]->Scale(tdper[istage].AmcEvts[idet]*1./tdper[istage].CorrAmcEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events per liveday based on input file
     }
   }
-  //amcspec->Close();
+  //m_amcspec->Close();
   cout << "--> loaded AmC spectra" << endl;
 
   //(alpha-n)
   int AlphaAD[8] = {1,2,3,8,4,5,6,7}; //IHEP AD convention
-  TFile *alnspec = new TFile(alnspecname,"READ");
+#pragma omp single copyprivate(m_alnspec)
+  m_alnspec = new TFile(alnspecname,"READ");
   for(int istage=0;istage<Nstage;++istage){
     for(int idet=0;idet<Ndetectors;++idet){
 
       sprintf(name,"AD%i;1",AlphaAD[idet]);
-      TH1F *htemp = (TH1F*)alnspec->Get(name);
+      TH1F *htemp;
+#pragma omp critical
+      htemp = (TH1F*)m_alnspec->Get(name);
       sprintf(name,"CorrAlnEvtsSpec_stage%d_ad%d",istage,idet);
       tdper[istage].CorrAlnEvtsSpec[idet] = (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrAlnEvtsSpec[idet]->Reset();
@@ -599,7 +640,7 @@ void Predictor::LoadBgSpec(TString *accspecname,
         tdper[istage].CorrAlnEvtsSpec[idet]->Scale(tdper[istage].AlnEvts[idet]*1./tdper[istage].CorrAlnEvtsSpec[idet]->Integral());//<---Scale this histogram to expected number of events based on input file
     }
   }
-  //alnspec->Close();
+  //m_alnspec->Close();
   cout << "--> loaded alpha-n spectra" << endl;
 
   cout << "done loading bg spectra!" << endl;
@@ -625,12 +666,13 @@ void Predictor::LoadBgSpec(TString *accspecname,
     }
   }
 
-  accspec[0]->Close();
-  accspec[1]->Close();
-  li9spec->Close();
-  fnspec->Close();
-  amcspec->Close();
-  alnspec->Close();
+  // m_accspec[0]->Close();
+  // m_accspec[1]->Close();
+  // m_accspec[2]->Close();
+  // m_li9spec->Close();
+  // m_fnspec->Close();
+  // m_amcspec->Close();
+  // m_alnspec->Close();
   //cout << "FIXME: need correction code here for data" << endl;
   // apply corrections
   for(int istage=0;istage<Nstage;++istage){

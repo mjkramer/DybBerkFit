@@ -141,6 +141,12 @@ private:
 
   TH1F *Spec[Nstage][Ndetectors];
 
+  // These are the branches for the spectra in the ToyMC tree. We no longer read
+  // them directly into tdper, since each thread has its own tdper and may want
+  // to modify the tree. GetEntry is called, and a clone is assigned to tdper,
+  // all in a critical section.
+  TH1F* ToySpecInFile[Nstage][Ndetectors];
+
   TH1F *CorrEvtsTrueSpec[Nstage][Ndetectors][max_n_evis_bins];
   TH1F *PredEvtsSpec[Nstage][Ndetectors][Ndetectors];
 
@@ -220,6 +226,18 @@ private:
 
   TFile *m_toyinfilespec;
   TTree * m_tr_toy;
+
+  // These files we keep open, shared among the threads (via copyprivate).
+  // Alternatively we could have each thread open/close, wrapped in a critical
+  // section, as we do for some of the input files in Spectrum.C. I don't know
+  // whether the copyprivate approach is worth the extra code.
+  TFile *m_predIBDfile;
+  TFile *m_infilespec[Nstage];
+  TFile *m_accspec[Nstage];
+  TFile *m_li9spec;
+  TFile *m_fnspec;
+  TFile *m_amcspec;
+  TFile *m_alnspec;
 
   PredSet * superpred;
 
