@@ -5,6 +5,8 @@ TString arrstr(TObjArray* array, size_t i)
 
 void EnableOpenMP()
 {
+  ROOT::EnableThreadSafety();
+
   TString cmd = gSystem->GetMakeSharedLib();
   TObjArray* parts = cmd.Tokenize(";");
   TString cd = arrstr(parts, 0);
