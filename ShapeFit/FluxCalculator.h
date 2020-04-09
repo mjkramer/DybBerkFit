@@ -76,7 +76,7 @@ public:
                                               double s22t14 = 0,
                                               double dm2_41 = -1);
 
-  TH1F* h_flux[Nstage][Ncores];
+  TH1F* h_flux[Nstage][Ncores]; // no longer used
   TH1F* h_super[Nstage][Ndetectors][Ncores];
   OscCalc* osccalc;
 

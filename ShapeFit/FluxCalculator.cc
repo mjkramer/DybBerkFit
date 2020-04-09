@@ -1,6 +1,8 @@
 #include "FluxCalculator.h"
+
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -89,6 +91,8 @@ void FluxCalculator::LoadDistances(const Char_t* distancematrixname)
 void FluxCalculator::LoadWeeklyFlux(const Char_t* weeklyfluxdataname,
                                     int nweeks_in)
 {
+  throw std::runtime_error("LoadWeeklyFlux should not be used");
+
 #pragma omp single copyprivate(WeeklyFluxData)
   WeeklyFluxData = new TFile(weeklyfluxdataname, "READ");
 
@@ -96,7 +100,10 @@ void FluxCalculator::LoadWeeklyFlux(const Char_t* weeklyfluxdataname,
   for (int iweek = 0; iweek < nweeks_in; ++iweek) {
     for (int icore = 0; icore < Ncores; ++icore) {
       sprintf(filenametemp, "Week%i/%i", iweek, icore);
-      h_flux[icore][iweek] = (TH1F*)WeeklyFluxData->Get(filenametemp);
+      // this is broken; compare to declaration of h_flux
+      // (triggers warning from gcc)
+// #pragma omp critical
+      // h_flux[icore][iweek] = (TH1F*)WeeklyFluxData->Get(filenametemp)->Clone();
     }
   }
 
@@ -312,13 +319,14 @@ void FluxCalculator::LoadSuperHistograms(const Char_t* superhistsname)
 {
   Char_t name1[1024];
   Char_t name2[1024];
-#pragma omp single copyprivate(infile)
+#pragma omp single copyprivate(SuperHistData)
   SuperHistData = new TFile(superhistsname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       for (int icore = 0; icore < Ncores; ++icore) {
         sprintf(name1, "h_super_istage%i_idet%i_icore%i", istage, idet, icore);
         sprintf(name2, "super_istage%i_idet%i_icore%i", istage, idet, icore);
+#pragma omp critical
         h_super[istage][idet][icore] =
             (TH1F*)SuperHistData->Get(name1)->Clone(name2);
       }
