@@ -1,6 +1,7 @@
 #include "Binning.h"
 #include "Config.h"
 #include "Predictor.h"
+
 #include "TCanvas.h"
 #include "TF1.h"
 #include "TFile.h"
@@ -12,6 +13,7 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TTree.h"
+
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -20,12 +22,12 @@
 
 using namespace Config;
 
-Double_t final_covmatrix[4][16 * 3 * 37]
-                        [16 * 3 *
-                         37]; // 4 nModes, 16 MaxPredictions, 3 Nstages, 37 bins
+// 4 nModes, 16 MaxPredictions, 3 Nstages, 37 bins
+Double_t final_covmatrix[4][16 * 3 * 7][16 * 3 * 37];
 Double_t final_covmatrix_sum[4][16 * 37][16 * 37];
 
 Predictor* pred;
+#pragma omp threadprivate(pred)
 
 void minuit_fcn(Int_t& npar, Double_t* gin, Double_t& f, Double_t* x,
                 Int_t iflag)
@@ -44,6 +46,10 @@ void fit_shape_2d_P17B(
     Int_t PeriodFlag = -1, //(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
     bool isMC = false)
 {
+  const int n_evis_bins = Binning::n_evis();
+  double* evis_bins = Binning::evis();
+  double* enu_bins = Binning::enu();
+
   TString sig_spectra_filename[3] = {
       sig_spectra_filename0, sig_spectra_filename1, sig_spectra_filename2};
   TString AccidentalSpectrumLocation[3] = {
@@ -58,7 +64,6 @@ void fit_shape_2d_P17B(
 
   bool isNominalMC = true;
 
-
   int Nevts = 1;
   if (isMC) {
     if (!isNominalMC)
@@ -71,44 +76,46 @@ void fit_shape_2d_P17B(
   //  Char_t toymc_filename[256] =
   //  "./toyfiles/nominal/toySpectra_allsys_and_stat.root";
 
+  static FluxCalculator* fluxcalc;
+#pragma omp threadprivate(fluxcalc)
 
-  // Create Predictor
-  pred = new Predictor();
+#pragma omp parallel
+  {
+    pred = new Predictor();
 
-  pred->SetStage(PeriodFlag);
+    pred->SetStage(PeriodFlag);
 
-  FluxCalculator* fluxcalc = new FluxCalculator(
-      baselines_filename,
-      histogram_filename); //<--flux calculator in super-hist mode
+    // flux calculator in super-hist mode
+    fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);
 
-  pred->EnterFluxCalculator(fluxcalc);
+    pred->EnterFluxCalculator(fluxcalc);
 
-  for (int istage = 0; istage < Nstage; istage++) {
-    pred->LoadMainData(Theta13InputsLocation[istage]);
+    for (int istage = 0; istage < Nstage; istage++) {
+      pred->LoadMainData(Theta13InputsLocation[istage]);
+    }
+
+    pred->LoadPredictedIBD(predicted_ibd_filename);
+
+    pred->LoadIBDSpec(sig_spectra_filename);
+
+    // load bg afterwards since here is when correct events
+    pred->LoadBgSpec(AccidentalSpectrumLocation, li9_filename, amc_filename,
+                     fn_filename, aln_filename);
+
+    // pred->SetStatFactor(stat_factor);
+    // pred->Set8ADStatFactor(extra_days);
+
+    pred->SetEvisBins(n_evis_bins, evis_bins);
+    pred->SetEnuBins(Binning::n_enu(), enu_bins);
+
+    pred->LoadEvisToEnuMatrix(response_filename);
+    // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
+
+    pred->LoadCovMatrix(sig_matrix_filename, bg_matrix_filename);
+
+    //-->Prediction at t13=0
+    PredSet* _predset_0 = pred->MakeOneSuperPrediction(0, -1, 0, -1, true);
   }
-
-  pred->LoadPredictedIBD(predicted_ibd_filename);
-
-  pred->LoadIBDSpec(sig_spectra_filename);
-
-  pred->LoadBgSpec(
-      AccidentalSpectrumLocation, li9_filename, amc_filename, fn_filename,
-      aln_filename); //<---load bg afterwards since here is when correct events
-
-  // pred->SetStatFactor(stat_factor);
-  // pred->Set8ADStatFactor(extra_days);
-
-  const int n_evis_bins = Binning::n_evis();
-  double* evis_bins = Binning::evis();
-  double* enu_bins = Binning::enu();
-
-  pred->SetEvisBins(n_evis_bins, evis_bins);
-  pred->SetEnuBins(Binning::n_enu(), enu_bins);
-
-  pred->LoadEvisToEnuMatrix(response_filename);
-  // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
-
-  pred->LoadCovMatrix(sig_matrix_filename, bg_matrix_filename);
 
   //*************************************
 
@@ -120,9 +127,6 @@ void fit_shape_2d_P17B(
   h_s22t13_dm2->SetMarkerStyle(20);
   h_s22t13_dm2->SetMarkerSize(0.8);
 
-  //-->Prediction at t13=0
-  cout << "Prediction at t13=0" << endl;
-  PredSet* predset_0 = pred->MakeOneSuperPrediction(0, -1, 0, -1, true);
   // TH1F* h_noosc = predset_0->GetCombinedPred();
   /*
   //data (combined all "FOUR" far ADs)
@@ -207,7 +211,6 @@ void fit_shape_2d_P17B(
   minu->SetFCN(minuit_fcn);
 
 
-  PredSet* predset = 0;
   for (int ievt = 0; ievt < Nevts; ++ievt) {
     minchi2 = 1e10;
     bests22t13 = 0;
@@ -263,16 +266,12 @@ void fit_shape_2d_P17B(
 
     cout << "======== fit results (for checking) :" << bests22t13 << " "
          << bestdm2ee << " " << minchi2 << endl;
-    Int_t check = 0;
 
+#pragma omp parallel for
     for (int step_dm2 = 0; step_dm2 < nsteps_dm2; ++step_dm2) {
+#pragma omp critical
       cout << "Running dm2_step=" << step_dm2 << " out of " << nsteps_dm2
            << endl;
-
-      // if ( check % (Int_t)((nsteps_dm2-1)/10) == 0 ){
-      // cout << 100 * check / (nsteps_dm2-1) << "%" << endl;
-      //}
-      check++;
 
       for (int step = 0; step < nsteps; ++step) {
         sin22t13[step_dm2][step] =
@@ -283,10 +282,9 @@ void fit_shape_2d_P17B(
 
         chi2result[step_dm2][step] = pred->CalculateChi2Cov(
             sin22t13[step_dm2][step], dm2ee[step_dm2][step], 0, -1);
+#pragma omp critical
         h_chi2_temp->SetBinContent(step + 1, step_dm2 + 1,
                                    chi2result[step_dm2][step]);
-
-        delete predset;
       }
     } // loop over t13
 
@@ -294,6 +292,7 @@ void fit_shape_2d_P17B(
          << bestdm2ee << "; minchi2=" << minchi2 << endl; // tmp
     h_s22t13_dm2->Fill(bests22t13, bestdm2ee);
     h_minchi2->Fill(minchi2);
+
     // subtract minchi2 from h_chi2_temp
     for (int step_dm2 = 0; step_dm2 < nsteps_dm2; ++step_dm2) {
       for (int step = 0; step < nsteps; ++step) {
@@ -302,8 +301,8 @@ void fit_shape_2d_P17B(
             h_chi2_temp->GetBinContent(step + 1, step_dm2 + 1) - minchi2);
       }
     }
-    h_chi2_all->Add(h_chi2_temp, 1);
 
+    h_chi2_all->Add(h_chi2_temp, 1);
 
     for (int step = 0; step < nsteps; ++step) {
       for (int step_dm2 = 0; step_dm2 < nsteps_dm2; ++step_dm2) {
@@ -318,8 +317,6 @@ void fit_shape_2d_P17B(
     dm2_min = bestdm2ee;
 
     tr->Fill();
-
-
   } // loop over toys
 
   PredSet* tmp_set;
