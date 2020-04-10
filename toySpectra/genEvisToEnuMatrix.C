@@ -64,39 +64,44 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
   } else
     dm241 = mydata_nominal->getDouble("deltaMSq41");
 
-
-  // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
-  Predictor* myPred = new Predictor();
-
   const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-                                          input_filename2};
-  for (int istage = 0; istage < Nstage; istage++) {
-    myPred->LoadMainData(Theta13InputsLocation[istage]);
-  }
+    input_filename2};
 
-  // Create nominal Spectrum
-  Spectrum* spectrumNormNominal = new Spectrum();
-  spectrumNormNominal->passPredictor(myPred);
-  // fixme: should use distances from Predictor (from FluxCalculator) in order
-  // to avoid duplication
-  spectrumNormNominal->loadDistances(baselines_filename);
-  spectrumNormNominal->initialize(mydata_nominal);
+  static Predictor* myPred;
+  static Spectrum* spectrumNormNominal;
+#pragma omp threadprivate(myPred, spectrumNormNominal)
 
-  TString AccidentalSpectrumLocation[3] = {
+#pragma omp parallel
+  {
+    // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
+    myPred = new Predictor();
+
+    for (int istage = 0; istage < Nstage; istage++) {
+      myPred->LoadMainData(Theta13InputsLocation[istage]);
+    }
+
+    // Create nominal Spectrum
+    spectrumNormNominal = new Spectrum();
+    spectrumNormNominal->passPredictor(myPred);
+    // fixme: should use distances from Predictor (from FluxCalculator) in order
+    // to avoid duplication
+    spectrumNormNominal->loadDistances(baselines_filename);
+    spectrumNormNominal->initialize(mydata_nominal);
+
+    TString AccidentalSpectrumLocation[3] = {
       acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
 
-  spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        li9_filename, amc_filename, fn_filename,
-                                        aln_filename);
+    spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
+                                          li9_filename, amc_filename, fn_filename,
+                                          aln_filename);
+    // Generate nominal spectrum
+    spectrumNormNominal->updateAntinu();
+    // spectrumNormNominal->updateBgDetected();
+  }
 
   // Prepare destination file
   TFile* outfile = new TFile(response_root_filename, "RECREATE");
 
-
-  // Generate nominal spectrum
-
-  spectrumNormNominal->updateAntinu();
-  // spectrumNormNominal->updateBgDetected();
   /*
   //for(int idet=0;idet<Ndetectors;++idet){
   for(int idet=0;idet<1;++idet){
@@ -114,7 +119,6 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
   );
   }
 
-
   cout << "AD" << idet+1 << ": " << h_nominal_ad[idet]->Integral() << endl;//tmp
   }
   */
@@ -127,11 +131,13 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
     //    ibin_enu=0;ibin_enu<spectrumNormNominal->nSamples();++ibin_enu){
     cout << "AD" << idet + 1 << endl;
     TAxis* xa = h_evis_vs_enu_ad[idet]->GetXaxis();
+#pragma omp parallel for
     for (int ibin_enu = 0; ibin_enu < xa->GetNbins(); ++ibin_enu) {
       cout << ibin_enu << " / " << xa->GetNbins() << endl;
       spectrumNormNominal->updatePositronTrue(xa->GetBinLowEdge(ibin_enu + 1),
                                               xa->GetBinUpEdge(ibin_enu + 1));
 
+#pragma omp critical
       for (int ibin = 0; ibin < spectrumNormNominal->nSamples(); ++ibin) {
         //        h_evis_vs_enu_ad[idet]->Fill(spectrumNormNominal->energyArray(idet)[ibin_enu],
         h_evis_vs_enu_ad[idet]->Fill(
@@ -143,9 +149,7 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
                                    // true enu_vs_evis convertion.
       }
     } // idet loop
-
   } // ibin_enu loop
-
 
   outfile->cd();
   // for(int idet=0;idet<Ndetectors;++idet){
@@ -156,5 +160,4 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
 
   outfile->Write();
   outfile->Close();
-
-} // end of genToySpectraTree
+}
