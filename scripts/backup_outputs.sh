@@ -29,7 +29,7 @@ $cmd ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_*.txt $bakdir/isotop
 
 mkdir -p $bakdir/data_file
 $cmd toySpectra/data_file/dyb_data_*.txt $bakdir/data_file
-cp $bakdir/data_file/dyb_data_v1_nominal.txt $bakdir/data_file/dyb_data_v1_nominal_noosc.txt toySpectra/data_file
+cp $bakdir/data_file/dyb_data_v1_nominal.txt $bakdir/data_file/dyb_data_v1_nominal_fine.txt toySpectra/data_file
 
 mkdir -p $bakdir/Flux
 $cmd ShapeFit/Flux/SuperHistograms_*.root $bakdir/Flux

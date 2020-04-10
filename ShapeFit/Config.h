@@ -78,8 +78,8 @@ const char* baselines_filename = "../toySpectra/unblinded_baseline.txt";
 // relative to toySpectra
 const char* nominal_dataset_filename =
     "../toySpectra/data_file/dyb_data_v1_nominal.txt";
-const char* nominal_noosc_dataset_filename =
-    "../toySpectra/data_file/dyb_data_v1_nominal_noosc.txt";
+const char* nominal_fine_dataset_filename =
+    "../toySpectra/data_file/dyb_data_v1_nominal_fine.txt";
 
 const char* reactor_spectrum_filename_template =
     "../ReactorPowerCalculator/isotope_spectra_by_Beda/"

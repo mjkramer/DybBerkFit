@@ -41,7 +41,7 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
 
   // Create Nominal (i.e. no random variation) Expectations
   DataSet* mydata_nominal = new DataSet();
-  mydata_nominal->load(nominal_noosc_dataset_filename);
+  mydata_nominal->load(nominal_fine_dataset_filename);
 
   // Change oscillation parameters for testing
   if (s2t13 >= 0) {
