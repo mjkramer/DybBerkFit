@@ -19,7 +19,7 @@ ShapeFit/final_covmatrix_*.txt
 ReactorPowerCalculator/isotope_spectra*/reactor_P17B_*.txt
 toySpectra/data_file/dyb_data_v1_*.txt
 !dyb_data_v1_nominal.txt
-!dyb_data_v1_nominal_noosc.txt
+!dyb_data_v1_nominal_fine.txt
 matrix_evis_to_enu_*.txt
 analysis/bak/
 analysis/pics/

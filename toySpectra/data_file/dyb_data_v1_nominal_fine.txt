@@ -2,7 +2,7 @@
 # Created By: dadwyer@lbl.gov May 4, 2012
 
 # Current global measurements of neutrino oscillation parameters
-# 2010 Review of Particle Physics [PDG]
+# 2014 Review of Particle Physics [PDG]
 #  K. Nakamura et al. (Particle Data Group), J. Phys. G 37, 075021 (2010)
 #  Updated deltaMSq13 taken from MINOS 2011 result: 
 #    P. Adamson et al., Phys. Rev. Lett. 106, 181801 (2011).
@@ -11,13 +11,13 @@ deltaMSqee       2.48e-3  # eV^2
 deltaMSqeeErr    0.10e-3  # eV^2
 deltaMSq21       7.53e-5  # eV^2
 deltaMSq21Err    0.18e-5  # eV^2
-sinSq2Theta12    0.846
+sinSq2Theta12    0.851
 sinSq2Theta12Err 0.021
 sinSq2Theta13    0.084
 sinSq2Theta13Err 0.005
 
 # sterile oscillation parameters
-deltaMSq41       1.0  # eV^2
+deltaMSq41       0.1  # eV^2
 deltaMSq41Err    0.0  # eV^2
 
 sinSq2Theta14    0.0
@@ -85,6 +85,13 @@ fissionIsotopeCovMatrixFilename  ./reactor/fissionIsotopeCovMatrix.txt
 
 # Antineutrino spectra from fission isotopes
 fissionSpectraFilename  ./reactor/fissionIsotopeSpectra_Huber_v0.txt
+
+# YN: new flag for deciding if we use BCW flux uncertaity
+useBcwFluxUncertainty 0
+
+# YN: Set useAbInitioSpectra to 1 to produce spectra
+# based on Dan's ab-initio calculation
+useAbInitioSpectra 0
 
 # Inverse-beta decay cross section
 #crossSectionFilename    ./reactor/inverseBetaCrossSection_v0.txt
