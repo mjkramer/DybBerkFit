@@ -20,15 +20,7 @@ root() {
 }
 
 # Compile stuff in advance to avoid race conditions when we parallelize
-precompile() {
-    cd $BASE/ShapeFit
-    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG"
-
-    cd $BASE/toySpectra
-    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG"
-}
-
-precompile
+time $BASE/scripts/compile.sh
 
 # echo "Using IHEP fast-n spectrum (see Config.h)"
 
