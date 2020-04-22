@@ -272,10 +272,6 @@ private:
   TFile* m_toyinfilespec;
   TTree* m_tr_toy;
 
-  // These files we keep open, shared among the threads (via copyprivate).
-  // Alternatively we could have each thread open/close, wrapped in a critical
-  // section, as we do for some of the input files in Spectrum.C. I don't know
-  // whether the copyprivate approach is worth the extra code.
   TFile* m_predIBDfile;
   TFile* m_infilespec[Nstage];
   TFile* m_accspec[Nstage];

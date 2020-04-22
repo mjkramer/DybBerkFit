@@ -348,7 +348,6 @@ void Predictor::LoadPredictedIBD(const Char_t* nibdname)
 {
   cout << "Loading # ibd ..." << endl;
 
-#pragma omp single copyprivate(m_predIBDfile)
   m_predIBDfile = new TFile(nibdname, "READ");
 
   Char_t name[1024];
@@ -375,7 +374,6 @@ void Predictor::LoadIBDSpec(TString* ibdspecname)
   Char_t name[1024];
   Char_t name2[1024];
   //++ IBDs
-#pragma omp single copyprivate(m_infilespec)
   for (int istage = 0; istage < Nstage; ++istage) {
     m_infilespec[istage] = new TFile(ibdspecname[istage].Data(), "READ");
     cout << "File is " << ibdspecname[istage].Data() << endl;
@@ -402,21 +400,18 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename)
 {
   cout << "Loading toy ibd spectra..." << endl;
 
-#pragma omp single copyprivate(m_toyinfilespec, m_tr_toy, ToySpecInFile)
-  {
-    m_toyinfilespec = new TFile(filename);
-    m_tr_toy = (TTree*)m_toyinfilespec->Get("tr");
-    m_tr_toy->Print();
+  m_toyinfilespec = new TFile(filename);
+  m_tr_toy = (TTree*)m_toyinfilespec->Get("tr");
+  m_tr_toy->Print();
 
-    //++ IBDs
-    for (int istage = 0; istage < Nstage; ++istage) {
-      for (int idet = 0; idet < Ndetectors; ++idet) {
-        // tdper[istage].ObsEvtsSpec[idet] = 0;
-        // m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
-        ToySpecInFile[istage][idet] = 0;
-        m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i", istage + 1, idet + 1),
-                                   &(ToySpecInFile[istage][idet]));
-      }
+  //++ IBDs
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      // tdper[istage].ObsEvtsSpec[idet] = 0;
+      // m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
+      ToySpecInFile[istage][idet] = 0;
+      m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i", istage + 1, idet + 1),
+                                  &(ToySpecInFile[istage][idet]));
     }
   }
   cout << "done loading ibd spectra file!" << endl;
@@ -477,7 +472,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
 
-#pragma omp single copyprivate(m_accspec)
   for (int istage = 0; istage < Nstage; ++istage) {
     m_accspec[istage] = new TFile(accspecname[istage].Data(), "READ");
   }
@@ -522,7 +516,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded accidental spectra" << endl;
 
   //(li9/he8)
-#pragma omp single copyprivate(m_li9spec)
   m_li9spec = new TFile(li9specname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -565,7 +558,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded li9/he8 spectra" << endl;
 
   //(fast-n)
-#pragma omp single copyprivate(m_fnspec)
   m_fnspec = new TFile(fnspecname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -605,7 +597,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded fast-n spectra" << endl;
 
   //(amc)
-#pragma omp single copyprivate(m_amcspec)
   m_amcspec = new TFile(amcspecname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -656,7 +647,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
 
   //(alpha-n)
   int AlphaAD[8] = {1, 2, 3, 8, 4, 5, 6, 7}; // IHEP AD convention
-#pragma omp single copyprivate(m_alnspec)
   m_alnspec = new TFile(alnspecname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {

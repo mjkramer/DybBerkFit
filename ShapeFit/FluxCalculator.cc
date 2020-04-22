@@ -93,7 +93,6 @@ void FluxCalculator::LoadWeeklyFlux(const Char_t* weeklyfluxdataname,
 {
   throw std::runtime_error("LoadWeeklyFlux should not be used");
 
-#pragma omp single copyprivate(WeeklyFluxData)
   WeeklyFluxData = new TFile(weeklyfluxdataname, "READ");
 
   Char_t filenametemp[1024];
@@ -319,7 +318,6 @@ void FluxCalculator::LoadSuperHistograms(const Char_t* superhistsname)
 {
   Char_t name1[1024];
   Char_t name2[1024];
-#pragma omp single copyprivate(SuperHistData)
   SuperHistData = new TFile(superhistsname, "READ");
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
