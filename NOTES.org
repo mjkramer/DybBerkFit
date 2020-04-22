@@ -1,3 +1,8 @@
+* What's a super histogram?
+From comment above FluxCalculator::LoadSuperHistograms:
+#+begin_quote
+Super-histograms are the neutrino flux (binned in true neutrino energy) seen in one AD in an entire period (.e.g. 20 weeks), using the weekly efficiencies and livetimes to weigh each element in the sum.
+#+end_quote
 * Questions for Henoch
 - [X] What's up with "x+2" in ReactorTheoreticalPrediction_P15A_8AD.py?
     Related to taking the midpoint of the 5 bins we avg over
@@ -317,11 +322,27 @@ Default is 31 x 31
 *** (31 x 31)
 + shapeFit: 18min
 * Things to parallelize
-- genToys: toys
-- genCovMat: toys
-- genEvisEnu: bins
-- shapeFit: gridpoints
+- genToys (5 min; 2.5 min when sig/bg par): toys -> 1min (2procs x 10 = 20 threads, ~2000% CPU)
+- genCovMat (30 min; 15 min when sig/bg par): toys -> 3.5 min (2procs x 8 = 16 threads, ~1200% CPU) :tofinetune:
+- genEvisEnu (7 min): bins -> 1.5 min (30 threads) (could keep going; currently at 21% mem)
+- shapeFit (17 min): gridpoints -> 8 min (12 threads) :(
 * Bottlenecks?
 - Reading reactor covariance matrix
 * New things to check
 - make_combined_spectra_P17B_new_SNF.C? See snf_coarse_percentage
+* Notes on multithreading
+- ROOT Forum says (next link) /a TFile can only be accessed from the thread that constructed it. “Accessing” a TFile includes, of course, writing to it, even if it done indirectly, via Write methods of other objects./ and /Using the same TFile from different threads, even protecting concurrent access with a mutex, as well as creating a TFile in one thread and using it from another, can result in quirky behavior./ Yet we do it anyway (with a mutex). Should each thread create its own TFile?
+- [[https://root-forum.cern.ch/t/openmp/21357/3][OpenMP - ROOT - ROOT Forum]]
+- [[https://root-forum.cern.ch/t/multicore-multithreading/32205][Multicore/multithreading - ROOT - ROOT Forum]] (N. Tagg)
+** Calling functions from <omp.h>
+If code is compiled by ACLiC, do, e.g.:
+#+begin_src c++
+#ifdef __CLING__
+extern int omp_get_thread_num();
+#else
+#include <omp.h>
+#endif
+#+end_src
+** OpenMP references
+- http://on-demand.gputechconf.com/gtc/2016/presentation/s6510-jeff-larkin-targeting-gpus-openmp.pdf
+- https://www.exascaleproject.org/wp-content/uploads/2017/05/OpenMP-4.5-and-Beyond-SOLLVE-part-21.pdf
