@@ -1005,7 +1005,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
       sprintf(name2, "CorrAccEvtsSpec_stage%i_eh%i_ad%d", istage + 1,
               detConfigEH[idet], detConfigAD[idet]);
 
-#pragma omp critical
       CorrAccEvtsSpec[istage][idet] =
           (TH1F*)m_accspec[istage]->Get(name)->Clone(name2);
 
@@ -1038,7 +1037,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "CorrLi9EvtsSpec_ad%d", idet);
-#pragma omp critical
       CorrLi9EvtsSpec[istage][idet] =
           (TH1F*)m_li9spec->Get("h_nominal")->Clone(name);
 
@@ -1062,7 +1060,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "CorrAmcEvtsSpec_ad%d", idet);
-#pragma omp critical
       amcfunc = (TF1*)m_amcspec->Get("expo")->Clone();
       amcfunc->SetRange(0.7, 9.0);
       CorrAmcEvtsSpec[istage][idet] =
@@ -1096,7 +1093,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
       Char_t nameFn[1024];
       sprintf(nameFn, "h_%dAD_fn_fine", idet + 1);
 
-#pragma omp critical
       CorrFnEvtsSpec[istage][idet] = (TH1F*)m_fnspec->Get(nameFn)->Clone(name);
 
       for (Int_t ibin = 0; ibin < CorrFnEvtsSpec[istage][idet]->GetNbinsX();
@@ -1129,7 +1125,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
                               // name (Ugly fix to use proper alpha-n)
 
       TH1F* htemp;
-#pragma omp critical
       htemp = (TH1F*)m_alnspec->Get(alnhistname)->Clone(name);
 
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
@@ -1401,11 +1396,8 @@ void Spectrum::updateBgDetected()
   if (m_distortLi9Bg != "null") {
     int ientry = int(ran->Uniform(0, m_entries_distortLi9Bg));
     TH1F* func_li;
-#pragma omp critical
-    {
-      m_tree_distortLi9Bg->GetEntry(ientry);
-      func_li = (TH1F*)m_func_distortLi9Bg->Clone();
-    }
+    m_tree_distortLi9Bg->GetEntry(ientry);
+    func_li = (TH1F*)m_func_distortLi9Bg->Clone();
 
     for (int istage = 0; istage < Nstage; ++istage) {
       for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -1525,7 +1517,6 @@ void Spectrum::loadIavCorrection(const char* iavcorrectionname)
 {
   m_iavCorrFile = new TFile(iavcorrectionname);
   TH2F* Correction;
-#pragma omp critical
   Correction = (TH2F*)m_iavCorrFile->Get("Correction_LS")->Clone();
 
   cout << "reading Iav correction file from " << iavcorrectionname << endl;

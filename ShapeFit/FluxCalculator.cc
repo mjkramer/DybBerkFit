@@ -101,7 +101,6 @@ void FluxCalculator::LoadWeeklyFlux(const Char_t* weeklyfluxdataname,
       sprintf(filenametemp, "Week%i/%i", iweek, icore);
       // this is broken; compare to declaration of h_flux
       // (triggers warning from gcc)
-// #pragma omp critical
       // h_flux[icore][iweek] = (TH1F*)WeeklyFluxData->Get(filenametemp)->Clone();
     }
   }
@@ -324,7 +323,6 @@ void FluxCalculator::LoadSuperHistograms(const Char_t* superhistsname)
       for (int icore = 0; icore < Ncores; ++icore) {
         sprintf(name1, "h_super_istage%i_idet%i_icore%i", istage, idet, icore);
         sprintf(name2, "super_istage%i_idet%i_icore%i", istage, idet, icore);
-#pragma omp critical
         h_super[istage][idet][icore] =
             (TH1F*)SuperHistData->Get(name1)->Clone(name2);
       }
