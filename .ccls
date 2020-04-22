@@ -4,6 +4,7 @@ clang++
 -std=c++1z
 -m64
 -pthread
+-fopenmp
 -I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/ShapeFit
 -I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/toySpectra
 -I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/toySpectra/reactor
