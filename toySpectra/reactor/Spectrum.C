@@ -995,7 +995,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
 
   //(accidentals)
   for (int istage = 0; istage < Nstage; ++istage) {
-#pragma omp single copyprivate(m_accspec)
     m_accspec[istage] = new TFile(accspecname[istage].Data(), "READ");
     dir->cd();
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -1034,7 +1033,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded accidental spectra" << endl;
 
   //(li9/he8)
-#pragma omp single copyprivate(m_li9spec)
   m_li9spec = new TFile(li9specname, "READ");
   dir->cd();
   for (int istage = 0; istage < Nstage; ++istage) {
@@ -1058,7 +1056,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded Li9 spectra" << endl;
 
   //(amc)
-#pragma omp single copyprivate(m_amcspec)
   m_amcspec = new TFile(amcspecname, "READ");
 
   dir->cd();
@@ -1091,7 +1088,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   cout << "--> loaded AmC spectra" << endl;
 
   //(fn)
-#pragma omp single copyprivate(m_fnspec)
   m_fnspec = new TFile(fnspecname, "READ");
   dir->cd();
   for (int istage = 0; istage < Nstage; ++istage) {
@@ -1117,7 +1113,6 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
 
   //(aln)
   int AlphaAD[8] = {1, 2, 3, 8, 4, 5, 6, 7}; // Hack to get 8AD# aligned
-#pragma omp single copyprivate(m_alnspec)
   m_alnspec = new TFile(alnspecname, "READ");
   dir->cd();
 
@@ -1528,7 +1523,6 @@ void Spectrum::updateBgDetected()
 
 void Spectrum::loadIavCorrection(const char* iavcorrectionname)
 {
-#pragma omp single copyprivate(m_iavCorrFile)
   m_iavCorrFile = new TFile(iavcorrectionname);
   TH2F* Correction;
 #pragma omp critical
@@ -1801,8 +1795,6 @@ void Spectrum::initialize(DataSet* data)
   m_distortAccBg = data->getDouble("distortAccBg");
   m_distortAmcBg = data->getDouble("distortAmcBg");
   m_distortLi9Bg = data->getString("distortLi9Bg");
-#pragma omp single copyprivate(m_file_distortLi9Bg, m_tree_distortLi9Bg, \
-                               m_entries_distortLi9Bg, m_func_distortLi9Bg)
   if (m_distortLi9Bg != "null") {
     m_file_distortLi9Bg = new TFile(m_distortLi9Bg.c_str(), "READ");
     m_tree_distortLi9Bg = (TTree*)m_file_distortLi9Bg->Get("tr_distort");
