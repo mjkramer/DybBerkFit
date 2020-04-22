@@ -2,6 +2,9 @@
 
 # NOTE: Run prep_dirs.sh and install_inputs.sh first
 
+# To log timing data:
+# (time scripts/test_chain.sh) 2>&1 | tee output.time.log
+
 step=$1; shift
 step=${step:-all}
 
@@ -28,9 +31,6 @@ precompile
 
 # echo "Using IHEP fast-n spectrum (see Config.h)"
 
-
-
-
 # -------------------------- Generate reactor spectra --------------------------
 genReactor() {
     cd $BASE/ReactorPowerCalculator
@@ -47,6 +47,7 @@ genToyConf() {
 
 # --------------------------- Generate ToyMC samples ---------------------------
 genToys() {
+    export OMP_NUM_THREADS=10
     cd $BASE/toySpectra
     ## sigsys:
     root -b -q LoadClasses.C -e '.L genToySpectraTree.C+' 'rungenToySpectraTree.C(2)' &
@@ -58,6 +59,7 @@ genToys() {
 
 # -------------------------- Generate evis/enu matrix --------------------------
 genEvisEnu() {
+    export OMP_NUM_THREADS=30
     cd $BASE/toySpectra
     root -b -q LoadClasses.C genEvisToEnuMatrix.C+
     cd ../ShapeFit
@@ -67,22 +69,21 @@ genEvisEnu() {
 # ------------------------- Generate super histograms --------------------------
 genSuperHists() {
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genSuperHistograms.C+ #&
-    # sleep 20
+    root -b -q LoadClasses.C genSuperHistograms.C+
 }
 
 # --------------------------- Generate PredictedIBD ----------------------------
 genPredIBD() {
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genPredictedIBD.C+ #&
-    # wait
+    root -b -q LoadClasses.C genPredictedIBD.C+
 }
 
 # ------------------------ Generate covariance matrices ------------------------
 genCovMat() {
+    export OMP_NUM_THREADS=8
     cd $BASE/ShapeFit
     ## sigsys
-    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(9)'  &
+    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(9)' &
     # sleep 60
     ## bgsys
     root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(21)' &
@@ -91,20 +92,23 @@ genCovMat() {
 
 # ------------------------------------ Fit! ------------------------------------
 shapeFit() {
+    export OMP_NUM_THREADS=12
     cd $BASE/ShapeFit
+    # TODO: Add 'g' suffix if $LBNL_FIT_DEBUG
     root -b -q LoadClasses.C fit_shape_2d_P17B.C+
 }
 
 all() {
-    genReactor
-    genToyConf
-    genToys
-    genEvisEnu
-    genSuperHists
-    genPredIBD
+    genToyConf &
+    genReactor &
+    wait
+    genToys &
+    genEvisEnu &
+    genSuperHists &
+    genPredIBD &
+    wait
     genCovMat
     shapeFit
-
 }
 
 eval $step
