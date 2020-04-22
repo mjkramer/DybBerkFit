@@ -357,7 +357,6 @@ void Predictor::LoadPredictedIBD(const Char_t* nibdname)
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "h_nominal_stage%i_ad%i", istage + 1, idet + 1);
       TH1F* htemp;
-#pragma omp critical
       htemp = (TH1F*)m_predIBDfile->Get(name)->Clone();
       nIBD[istage][idet] = htemp->Integral();
       cout << "idet: " << idet << ", nIBD: " << nIBD[istage][idet] << endl;
@@ -388,7 +387,6 @@ void Predictor::LoadIBDSpec(TString* ibdspecname)
 
       // cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " <<
       // tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
-#pragma omp critical
       tdper[istage].ObsEvtsSpec[idet] =
           (TH1F*)m_infilespec[istage]->Get(name)->Clone(name2);
     }
@@ -423,13 +421,11 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename)
 
 void Predictor::LoadToyMCNominalSpec()
 {
-#pragma omp single
   m_toyinfilespec->cd();
 
   for (int ii = 0; ii < Nstage; ++ii) {
     cout << "Period #" << ii + 1 << endl;
     for (int idet = 0; idet < Ndetectors; ++idet) {
-#pragma omp critical
       tdper[ii].ObsEvtsSpec[idet] =
           (TH1F*)m_toyinfilespec
               ->Get(Form("h_nominal_stage%i_ad%d", ii + 1, idet + 1))
@@ -442,18 +438,15 @@ void Predictor::LoadToyMCNominalSpec()
 
 void Predictor::LoadToyMCEntry(Int_t i, bool correct)
 {
-#pragma omp critical
-  {
-    m_tr_toy->GetEntry(i);
-    cout << "Loading toy MC entry : " << i << endl;
+  m_tr_toy->GetEntry(i);
+  cout << "Loading toy MC entry : " << i << endl;
 
-    for (int istage = 0; istage < Nstage; ++istage) {
-      for (int idet = 0; idet < Ndetectors; ++idet) {
-        auto& p = tdper[istage].ObsEvtsSpec[idet];
-        if (p)
-          delete p;
-        p = (TH1F*)ToySpecInFile[istage][idet]->Clone();
-      }
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      auto& p = tdper[istage].ObsEvtsSpec[idet];
+      if (p)
+        delete p;
+      p = (TH1F*)ToySpecInFile[istage][idet]->Clone();
     }
   }
 
@@ -486,7 +479,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
               detConfigEH[idet], detConfigAD[idet]);
 
 
-#pragma omp critical
       tdper[istage].CorrAccEvtsSpec[idet] =
           (TH1F*)m_accspec[istage]->Get(name)->Clone(name2);
 
@@ -521,7 +513,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "h_nominal");
       TH1F* htemp;
-#pragma omp critical
       htemp = (TH1F*)m_li9spec->Get(name)->Clone();
       sprintf(name, "CorrLi9EvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrLi9EvtsSpec[idet] =
@@ -569,7 +560,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       tdper[istage].CorrFnEvtsSpec[idet]->Reset();
 
       TH1F* htemp;
-#pragma omp critical
       htemp = (TH1F*)m_fnspec->Get(nameFn)->Clone(name);
       // fill into destination histogram
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
@@ -601,7 +591,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       TF1* amcfunc;
-#pragma omp critical
       amcfunc = (TF1*)m_amcspec->Get("expo");
       sprintf(name, "CorrAmcEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrAmcEvtsSpec[idet] =
@@ -652,7 +641,6 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "AD%i;1", AlphaAD[idet]);
       TH1F* htemp;
-#pragma omp critical
       htemp = (TH1F*)m_alnspec->Get(name)->Clone();
       sprintf(name, "CorrAlnEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrAlnEvtsSpec[idet] =
