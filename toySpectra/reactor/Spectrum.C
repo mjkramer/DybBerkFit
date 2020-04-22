@@ -1950,14 +1950,12 @@ void Spectrum::initialize(DataSet* data)
     }
     bcw_elec_data.close();
 
-#pragma omp critical
-    {
-      TFile* bcw_ele_err_file = new TFile(bcw_ele_err_filename);
-      g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
-      g_bcw_elec_nl_error[1] =
-          (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
-      bcw_ele_err_file->Close();
-    }
+    TFile* bcw_ele_err_file = new TFile(bcw_ele_err_filename);
+    g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
+    g_bcw_elec_nl_error[1] =
+        (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
+    bcw_ele_err_file->Close();
+
     for (Int_t i = 3; i < 5; i++) { // those describe additional uncertainty for
                                     // bcw model that are described in Doc-XXXX
       m_bcw_elec_nl_par[i] = 0;
@@ -2058,27 +2056,24 @@ void Spectrum::initialize(DataSet* data)
     TGraph* g_unified_positron_nl;
     TGraph* g_unified_positron_nl_pulls[10];
 
-#pragma omp critical
-    {
-      TFile* unified_nl_file = new TFile(unified_nl_filename.Data());
+    TFile* unified_nl_file = new TFile(unified_nl_filename.Data());
 
-      if (!unified_nl_file->IsOpen()) {
-        cout << "Error: cannot find the unified non-linearity curve!!!" << endl;
-        exit(0);
-      }
-
-      cout << "Reading unified non-linearity model from " << unified_nl_filename
-           << endl;
-
-      g_unified_positron_nl =
-          (TGraph*)unified_nl_file->Get(nominal_graph_name.Data())->Clone();
-      for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
-        g_unified_positron_nl_pulls[i] =
-            (TGraph*)unified_nl_file->Get(pull_graph_name[i].Data())->Clone();
-      }
-
-      unified_nl_file->Close();
+    if (!unified_nl_file->IsOpen()) {
+      cout << "Error: cannot find the unified non-linearity curve!!!" << endl;
+      exit(0);
     }
+
+    cout << "Reading unified non-linearity model from " << unified_nl_filename
+          << endl;
+
+    g_unified_positron_nl =
+        (TGraph*)unified_nl_file->Get(nominal_graph_name.Data())->Clone();
+    for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
+      g_unified_positron_nl_pulls[i] =
+          (TGraph*)unified_nl_file->Get(pull_graph_name[i].Data())->Clone();
+    }
+
+    unified_nl_file->Close();
 
     // Copy into arrays to speed up
     for (Int_t ie = 0; ie < n_unified_nl_points; ie++) {
@@ -2114,15 +2109,14 @@ void Spectrum::initialize(DataSet* data)
     // Read covariance matrix
     if (m_correlateUnifiedNonlinearPars) {
       double* mat_tmp;
-#pragma omp critical
-      {
-        TFile* f_covmatrix =
-            new TFile(data->getString("NonlinearCovmatrixFilename"));
-        f_covmatrix->ls();
-        mat_tmp =
-            ((TMatrixD*)f_covmatrix->Get("coeffmatrix"))->GetMatrixArray();
-        f_covmatrix->Close();
-      }
+
+      TFile* f_covmatrix =
+          new TFile(data->getString("NonlinearCovmatrixFilename"));
+      f_covmatrix->ls();
+      mat_tmp =
+          ((TMatrixD*)f_covmatrix->Get("coeffmatrix"))->GetMatrixArray();
+      f_covmatrix->Close();
+
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
         for (Int_t j = 0; j < m_num_unified_nl_pars; j++) {
           m_unified_nl_par_covmatrix[i][j] =
