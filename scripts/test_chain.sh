@@ -11,6 +11,7 @@ step=${step:-all}
 # RECOMPILE=1
 
 BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
+DBG=${LBNL_FIT_DEBUG:+g}
 
 ROOT=$(which root)
 root() {
@@ -21,10 +22,10 @@ root() {
 # Compile stuff in advance to avoid race conditions when we parallelize
 precompile() {
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C -e '.L build_covmatrix.C+'
+    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG"
 
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C -e '.L genToySpectraTree.C+'
+    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG"
 }
 
 precompile
@@ -34,7 +35,7 @@ precompile
 # -------------------------- Generate reactor spectra --------------------------
 genReactor() {
     cd $BASE/ReactorPowerCalculator
-    root -b -q 'Produce_Isotope_SpectraP17B_unblinded.C(1)'
+    root -b -q "Produce_Isotope_SpectraP17B_unblinded.C(1)"
     cd isotope_spectra_by_Beda
     root -b -q make_combined_spectra_P17B_unblinded.C
 }
@@ -50,10 +51,9 @@ genToys() {
     export OMP_NUM_THREADS=10
     cd $BASE/toySpectra
     ## sigsys:
-    root -b -q LoadClasses.C -e '.L genToySpectraTree.C+' 'rungenToySpectraTree.C(2)' &
-    # sleep 60
-    ## bgsys
-    root -b -q LoadClasses.C -e '.L genToySpectraTree.C+' 'rungenToySpectraTree.C(3)' &
+    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(2)" &
+    ## bgsys:
+    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(3)" &
     wait
 }
 
@@ -61,32 +61,31 @@ genToys() {
 genEvisEnu() {
     export OMP_NUM_THREADS=30
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genEvisToEnuMatrix.C+
+    root -b -q LoadClasses.C genEvisToEnuMatrix.C+$DBG
     cd ../ShapeFit
-    root -b -q LoadClasses.C make_evis_to_enu_matrix_fine_P17B.C+
+    root -b -q LoadClasses.C make_evis_to_enu_matrix_fine_P17B.C+$DBG
 }
 
 # ------------------------- Generate super histograms --------------------------
 genSuperHists() {
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genSuperHistograms.C+
+    root -b -q LoadClasses.C genSuperHistograms.C+$DBG
 }
 
 # --------------------------- Generate PredictedIBD ----------------------------
 genPredIBD() {
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genPredictedIBD.C+
+    root -b -q LoadClasses.C genPredictedIBD.C+$DBG
 }
 
 # ------------------------ Generate covariance matrices ------------------------
 genCovMat() {
     export OMP_NUM_THREADS=8
     cd $BASE/ShapeFit
-    ## sigsys
-    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(9)' &
-    # sleep 60
-    ## bgsys
-    root -b -q LoadClasses.C -e '.L build_covmatrix.C+' 'run_build_covmatrix.C(21)' &
+    ## sigsys:
+    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(9)" &
+    ## bgsys:
+    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(21)" &
     wait
 }
 
@@ -94,8 +93,7 @@ genCovMat() {
 shapeFit() {
     export OMP_NUM_THREADS=12
     cd $BASE/ShapeFit
-    # TODO: Add 'g' suffix if $LBNL_FIT_DEBUG
-    root -b -q LoadClasses.C fit_shape_2d_P17B.C+
+    root -b -q LoadClasses.C fit_shape_2d_P17B.C+$DBG
 }
 
 all() {
