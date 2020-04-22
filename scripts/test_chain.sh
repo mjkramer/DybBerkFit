@@ -19,6 +19,16 @@ root() {
     time $ROOT "$@"
 }
 
+set_threads() {
+    local threads=$1
+    if [ -n "$LBNL_FIT_MAXTHREADS" ]; then
+        if ((threads > LBNL_FIT_MAXTHREADS)); then
+            threads=$LBNL_FIT_MAXTHREADS
+        fi
+    fi
+    export OMP_NUM_THREADS=$threads
+}
+
 # Compile stuff in advance to avoid race conditions when we parallelize
 time $BASE/scripts/compile.sh
 
@@ -40,7 +50,7 @@ genToyConf() {
 
 # --------------------------- Generate ToyMC samples ---------------------------
 genToys() {
-    export OMP_NUM_THREADS=10
+    set_threads 10
     cd $BASE/toySpectra
     ## sigsys:
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(2)" &
@@ -51,7 +61,7 @@ genToys() {
 
 # -------------------------- Generate evis/enu matrix --------------------------
 genEvisEnu() {
-    export OMP_NUM_THREADS=30
+    set_threads 30
     cd $BASE/toySpectra
     root -b -q LoadClasses.C genEvisToEnuMatrix.C+$DBG
     cd ../ShapeFit
@@ -72,7 +82,7 @@ genPredIBD() {
 
 # ------------------------ Generate covariance matrices ------------------------
 genCovMat() {
-    export OMP_NUM_THREADS=8
+    set_threads 8
     cd $BASE/ShapeFit
     ## sigsys:
     root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(9)" &
@@ -83,7 +93,7 @@ genCovMat() {
 
 # ------------------------------------ Fit! ------------------------------------
 shapeFit() {
-    export OMP_NUM_THREADS=12
+    set_threads 12
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C fit_shape_2d_P17B.C+$DBG
 }
