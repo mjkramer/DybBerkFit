@@ -1,13 +1,15 @@
 #pragma once
 
+#include "Config.h"
+#include "FluxCalculator.h"
+
 #include "TFile.h"
 #include "TGraph.h"
 #include "TObject.h"
 #include "TTree.h"
 #include "TimePeriodData.h"
 
-// const int Nstage=Nstage;//<--as long as this number is larger than the actual
-// number of periods, you're OK.
+using namespace Config;
 
 const Int_t max_n_enu_bins = 156; // number of true enu bins
 const Int_t max_n_evis_bins = 37; // number of evis bins
@@ -138,8 +140,8 @@ public:
 
 
 private:
-  Double_t LookupOscFunc[Ndetectors][Ndetectors][NpointsS];
-  Double_t LookupS[NpointsS];
+  Double_t LookupOscFunc[Ndetectors][Ndetectors][FluxCalculator::NpointsS];
+  Double_t LookupS[FluxCalculator::NpointsS];
 
   // object to hold predictions for each time period
   PredSet* predper;

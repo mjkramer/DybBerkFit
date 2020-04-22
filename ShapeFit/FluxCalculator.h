@@ -1,58 +1,33 @@
 #pragma once
 
+#include "Config.h"
 #include "OscCalc.h"
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TObject.h"
+
 #include <iostream>
 #include <map>
 
-const int Ncores = 6;
-const int Ndetectors = 8;
-
-
-// P17B
-const int Nhalls = 3;
-const int MaxPredictions = 16; // 4 near AD predicting 4 far AD: 4 x 4 = 16
-const int detConfigEH[Ndetectors] = {1, 1, 2, 2, 3, 3, 3, 3}; // EH
-const int detConfigAD[Ndetectors] = {1, 2, 1, 2, 1, 2, 3, 4}; // AD
-
-// This part needs to be modified when the detector config changes
-const int Nstage = 3;
-const int NdetectorsConfig[3][Ndetectors] = {{1, 1, 1, 0, 1, 1, 1, 0},
-                                             {1, 1, 1, 1, 1, 1, 1, 1},
-                                             {0, 1, 1, 1, 1, 1, 1, 1}};
-
-/*
-  const int Nhalls = 3;
-  const int MaxPredictions = 16; //4 near AD predicting 4 far AD: 4 x 4 = 16
-  const int detConfigEH[Ndetectors] = {1,1,2,2,3,3,3,3}; //EH
-  const int detConfigAD[Ndetectors] = {1,2,1,2,1,2,3,4}; //AD
-
-  //This part needs to be modified when the detector config changes
-  const int Nstage = 3;
-  const int NdetectorsConfig[3][Ndetectors]= {
-  {1,1,1,1,1,1,1,1},{0,1,1,1,1,1,1,1},{1,1,1,0,1,1,1,0}};
-
-*/
-
-// Parameters for OscFuncQuick function
-//-->sin2(2theta13)
-const int NpointsS = 501;
-const double Smin = 0.0;
-const double Smax = 0.2;
-//-->delta m2_31
-const int NpointsD =
-    41; //<--if select 1 (or less) it will automatically use the default value
-        // in osccalc; if NpointsD is not zero but query OscSpecIntQuick with
-        // dm2=-1 it will find the closest point to the default value in osccalc
-const double Dmin = 1.5e-3;
-const double Dmax = 3.5e-3;
+using namespace Config;
 
 // This class calculates flux matrix elements and extrapolation factors
 // jpochoa, May 2012
 
 class FluxCalculator : public TObject {
+public:
+  // Parameters for OscFuncQuick function
+  static constexpr int NpointsS = 501;     // sinSq2t13
+  static constexpr double Smin = 0.0;
+  static constexpr double Smax = 0.2;
+  static constexpr int NpointsD = 41;      // dm2ee
+  // NB: if NpointsD <= 1 it will automatically use the default value
+  // in osccalc; if NpointsD is not zero but query OscSpecIntQuick with
+  // dm2=-1 it will find the closest point to the default value in osccalc
+  static constexpr double Dmin = 1.5e-3;
+  static constexpr double Dmax = 3.5e-3;
+
 public:
   FluxCalculator();
   ~FluxCalculator();
