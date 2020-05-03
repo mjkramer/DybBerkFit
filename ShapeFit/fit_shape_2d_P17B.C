@@ -919,6 +919,8 @@ void fit_shape_2d_P17B(
 
   savefile->Close();
 
+  cout << "The end!" << endl;
+
 
   // dump final stat error and weighted mean coefficients for later use
   /*
