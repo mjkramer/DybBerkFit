@@ -212,10 +212,6 @@ private:
 
   Int_t stage; // 0=6AD, 1=8AD, -1=6+8AD period
 
-  Int_t nsteps;
-  Double_t s2t_step;
-  Bool_t loadedosctable;
-
   Bool_t BgMatrixScaled;
   Bool_t isMC;
 
