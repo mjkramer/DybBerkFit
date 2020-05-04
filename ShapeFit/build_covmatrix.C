@@ -1,6 +1,7 @@
 #include "Binning.h"
 #include "Config.h"
 #include "DataSet.h"
+#include "Paths.h"
 #include "Predictor.h"
 
 #include "TCanvas.h"
@@ -38,8 +39,8 @@ void build_covmatrix(const Char_t* toymc_filename,
   const Int_t n_enu_bins = Binning::n_enu();
   double* enu_bins = Binning::enu();
 
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-    input_filename2};
+  const char* Theta13InputsLocation[3] = {Paths::input(0), Paths::input(1),
+    Paths::input(2)};
 
   Int_t ntoys = -1;
 
@@ -54,10 +55,10 @@ void build_covmatrix(const Char_t* toymc_filename,
     }
 
     // flux calculator in super-hist mode
-    fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);
+    fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
     myPred->EnterFluxCalculator(fluxcalc);
 
-    myPred->LoadPredictedIBD(predicted_ibd_filename);
+    myPred->LoadPredictedIBD(Paths::predicted_ibd());
 
     ntoys = myPred->LoadToyIBDSpec(toymc_filename);
 #pragma omp master
@@ -66,20 +67,20 @@ void build_covmatrix(const Char_t* toymc_filename,
     myPred->LoadToyMCEntry(0, false);
 
     TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
+      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
 
-    myPred->LoadBgSpec(AccidentalSpectrumLocation, li9_filename, amc_filename,
-                       fn_filename, aln_filename);
+    myPred->LoadBgSpec(AccidentalSpectrumLocation,
+                       Paths::li9(), Paths::amc(), Paths::fn(), Paths::aln());
 
     myPred->SetEvisBins(n_evis_bins, evis_bins);
     myPred->SetEnuBins(n_enu_bins, enu_bins);
 
-    myPred->LoadEvisToEnuMatrix(response_filename);
+    myPred->LoadEvisToEnuMatrix(Paths::response());
   }
 
 
   DataSet* mydata_nominal = new DataSet();
-  mydata_nominal->load(nominal_dataset_filename);
+  mydata_nominal->load(Paths::nominal_toyconfig());
   double sinSq2Theta13 = mydata_nominal->getDouble("sinSq2Theta13");
   double deltam2_ee_default = mydata_nominal->getDouble("deltaMSqee");
 

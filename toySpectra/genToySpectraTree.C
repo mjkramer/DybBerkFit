@@ -3,6 +3,7 @@
 #include "Binning.h"
 #include "Config.h"
 #include "DataSet.h"
+#include "Paths.h"
 #include "Spectrum.h"
 
 #include "TCanvas.h"
@@ -46,7 +47,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
   // Create Nominal (i.e. no random variation) Expectations
   DataSet* mydata_nominal = new DataSet();
-  mydata_nominal->load(nominal_dataset_filename);
+  mydata_nominal->load(Paths::nominal_toyconfig());
 
   // Change oscillation parameters for testing
   if (s2t13 >= 0) {
@@ -74,8 +75,8 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     dm241 = mydata_nominal->getDouble("deltaMSq41");
 
 
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-                                          input_filename2};
+  const char* Theta13InputsLocation[3] = {Paths::input(0), Paths::input(1),
+    Paths::input(2)};
 
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   static Predictor* myPred;
@@ -98,15 +99,15 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   spectrumNormNominal->passPredictor(myPred);
   // fixme: should use distances from Predictor (from FluxCalculator) in order
   // to avoid duplication
-  spectrumNormNominal->loadDistances(baselines_filename);
+  spectrumNormNominal->loadDistances(Paths::baselines());
   spectrumNormNominal->initialize(mydata_nominal);
 
   TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
+      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
 
   spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        li9_filename, amc_filename, fn_filename,
-                                        aln_filename);
+                                        Paths::li9(), Paths::amc(), Paths::fn(),
+                                        Paths::aln());
 
 
   // Create Spectrum for toy
@@ -118,10 +119,11 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     spectrumNorm->passPredictor(myPred);
     // fixme: should use distances from Predictor (from FluxCalculator) in order
     // to avoid duplication
-    spectrumNorm->loadDistances(baselines_filename);
+    spectrumNorm->loadDistances(Paths::baselines());
     spectrumNorm->initialize(mydata);
-    spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation, li9_filename,
-                                   amc_filename, fn_filename, aln_filename);
+    spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
+                                   Paths::li9(), Paths::amc(), Paths::fn(),
+                                   Paths::aln());
     spectrumNorm->setRandomSeed(1);
   } // parallel
 

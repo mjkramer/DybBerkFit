@@ -19,4 +19,5 @@ void LoadClasses()
   // LoadFile("OscProbTable.cc");
   LoadFile("Binning.cc");
   LoadFile("DataSet.cc");
+  LoadFile("Paths.cc");
 }

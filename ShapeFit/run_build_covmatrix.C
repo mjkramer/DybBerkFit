@@ -1,3 +1,5 @@
+#include "Paths.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -42,23 +44,19 @@ void run_build_covmatrix(int x = 1)
   };
 
   if (i < nopts_sig) {
-    TString toymc_filename =
-        "../outputs/toySpectra_" + options_sig[i] + ".root";
-    TString covmatrix_filename =
-        "covariance_matrices/matrix_" + options_sig[i] + ".txt";
+    auto toymc_filename = Paths::toytree(options_sig[i]);
+    auto covmatrix_filename = Paths::covmatrix(options_sig[i]);
 
     cout << toymc_filename << "\t" << covmatrix_filename << endl;
-    build_covmatrix(toymc_filename.Data(), covmatrix_filename.Data(), 0);
+    build_covmatrix(toymc_filename, covmatrix_filename, 0);
   } else {
     Int_t iii = i - nopts_sig;
 
-    TString toymc_filename =
-        "../outputs/toySpectra_" + options_bkg[iii] + ".root";
-    TString covmatrix_filename =
-        "covariance_matrices/matrix_" + options_bkg[iii] + ".txt";
+    auto toymc_filename = Paths::toytree(options_bkg[iii]);
+    auto covmatrix_filename = Paths::covmatrix(options_bkg[iii]);
 
     cout << toymc_filename << "\t" << covmatrix_filename << endl;
-    build_covmatrix(toymc_filename.Data(), covmatrix_filename.Data(), 1);
+    build_covmatrix(toymc_filename, covmatrix_filename, 1);
   }
 
   cout << "Bye bye!" << endl;

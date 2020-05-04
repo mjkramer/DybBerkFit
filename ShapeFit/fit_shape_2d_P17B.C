@@ -1,5 +1,6 @@
 #include "Binning.h"
 #include "Config.h"
+#include "Paths.h"
 #include "Predictor.h"
 
 #include "TCanvas.h"
@@ -42,7 +43,7 @@ Double_t CalculateChi2(TH1F* h_s22t13, TH1F* h_data);
 
 
 void fit_shape_2d_P17B(
-    const char* savefilename = fit_result_filename,
+    const char* savefilename = Paths::fit_result(),
     Int_t PeriodFlag = -1, //(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
     bool isMC = false)
 {
@@ -51,14 +52,14 @@ void fit_shape_2d_P17B(
   double* enu_bins = Binning::enu();
 
   TString sig_spectra_filename[3] = {
-      sig_spectra_filename0, sig_spectra_filename1, sig_spectra_filename2};
+      Paths::sig_spectra(0), Paths::sig_spectra(1), Paths::sig_spectra(2)};
   TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
+      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
   Char_t Theta13InputsLocation[3][1024];
 
-  strcpy(Theta13InputsLocation[0], input_filename0);
-  strcpy(Theta13InputsLocation[1], input_filename1);
-  strcpy(Theta13InputsLocation[2], input_filename2);
+  strcpy(Theta13InputsLocation[0], Paths::input(0));
+  strcpy(Theta13InputsLocation[1], Paths::input(1));
+  strcpy(Theta13InputsLocation[2], Paths::input(2));
 
   Double_t stat_factor = 1;
 
@@ -86,7 +87,7 @@ void fit_shape_2d_P17B(
     pred->SetStage(PeriodFlag);
 
     // flux calculator in super-hist mode
-    fluxcalc = new FluxCalculator(baselines_filename, histogram_filename);
+    fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
 
     pred->EnterFluxCalculator(fluxcalc);
 
@@ -94,13 +95,14 @@ void fit_shape_2d_P17B(
       pred->LoadMainData(Theta13InputsLocation[istage]);
     }
 
-    pred->LoadPredictedIBD(predicted_ibd_filename);
+    pred->LoadPredictedIBD(Paths::predicted_ibd());
 
     pred->LoadIBDSpec(sig_spectra_filename);
 
     // load bg afterwards since here is when correct events
-    pred->LoadBgSpec(AccidentalSpectrumLocation, li9_filename, amc_filename,
-                     fn_filename, aln_filename);
+    pred->LoadBgSpec(AccidentalSpectrumLocation,
+                     Paths::li9(), Paths::amc(), Paths::fn(), Paths::aln());
+
 
     // pred->SetStatFactor(stat_factor);
     // pred->Set8ADStatFactor(extra_days);
@@ -108,10 +110,10 @@ void fit_shape_2d_P17B(
     pred->SetEvisBins(n_evis_bins, evis_bins);
     pred->SetEnuBins(Binning::n_enu(), enu_bins);
 
-    pred->LoadEvisToEnuMatrix(response_filename);
+    pred->LoadEvisToEnuMatrix(Paths::response());
     // pred->LoadEvisToEnuMatrix("matrix_evis_to_enu_fine");
 
-    pred->LoadCovMatrix(sig_matrix_filename, bg_matrix_filename);
+    pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix());
 
     //-->Prediction at t13=0
     PredSet* _predset_0 = pred->MakeOneSuperPrediction(0, -1, 0, -1, true);

@@ -1,5 +1,7 @@
-#include <fstream>
-#include <iostream>
+#include "Config.h"
+#include "DataSet.h"
+#include "Paths.h"
+#include "Spectrum.h"
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -7,10 +9,9 @@
 #include "TH2.h"
 #include "TTree.h"
 
+#include <fstream>
+#include <iostream>
 
-#include "Config.h"
-#include "DataSet.h"
-#include "Spectrum.h"
 
 using namespace Config;
 
@@ -22,13 +23,13 @@ void genSuperHistograms()
 
   // Create Expectations
   DataSet* mydata = new DataSet();
-  mydata->load(nominal_dataset_filename);
+  mydata->load(Paths::nominal_toyconfig());
 
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor* myPred = new Predictor();
 
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-                                          input_filename2};
+  const char* Theta13InputsLocation[3] = {Paths::input(0), Paths::input(1),
+    Paths::input(2)};
 
   for (int istage = 0; istage < Nstage; istage++) {
     myPred->LoadMainData(Theta13InputsLocation[istage]);
@@ -40,15 +41,17 @@ void genSuperHistograms()
   spectrumNorm->passPredictor(myPred);
   // fixme: should use distances from Predictor (from FluxCalculator) in order
   // to avoid duplication
-  spectrumNorm->loadDistances(baselines_filename);
+  spectrumNorm->loadDistances(Paths::baselines());
   spectrumNorm->initialize(mydata);
   // TString AccidentalSpectrumLocation[2] =
   // {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
-  TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
 
-  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation, li9_filename,
-                                 amc_filename, fn_filename, aln_filename);
+  TString AccidentalSpectrumLocation[3] = {
+    Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
+
+  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
+                                 Paths::li9(), Paths::amc(), Paths::fn(),
+                                 Paths::aln());
 
   // load distances hare as well to construct traditional supermatrix
 
@@ -59,7 +62,7 @@ void genSuperHistograms()
   float d2, d1, l2, l1, l4, l3;
   //-->Distances
   cout << " Distances ++++++++++++++++++++++++++++++++++++++" << endl;
-  ifstream disfile(baselines_filename);
+  ifstream disfile(Paths::baselines());
   getline(disfile, dummyLine);
   while (disfile >> thead >> d1 >> d2 >> l1 >> l2 >> l3 >> l4) {
     cout << thead << "\t" << d1 << "\t" << d2 << "\t" << l1 << "\t" << l2
@@ -79,7 +82,7 @@ void genSuperHistograms()
 
 
   // Prepare destination file
-  TFile* outfile = new TFile(histogram_filename, "RECREATE");
+  TFile* outfile = new TFile(Paths::histogram(), "RECREATE");
 
   Char_t name[1024];
   for (int istage = 0; istage < Nstage; ++istage) {

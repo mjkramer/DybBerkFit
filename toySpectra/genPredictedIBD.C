@@ -1,19 +1,22 @@
 #include "Binning.h"
 #include "Config.h"
 #include "DataSet.h"
+#include "Paths.h"
 #include "Spectrum.h"
+
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+
 #include <iostream>
 
 using namespace Config;
 
 // note that mixing angles here are ZERO, not nominal
 void genPredictedIBD(Double_t s2t13 = 0, Double_t dm2ee = -1,
-                     const char* dataset_filename = nominal_dataset_filename,
+                     const char* dataset_filename = Paths::nominal_toyconfig(),
                      Double_t s2t14 = 0, Double_t dm241 = -1)
 {
   // XXX fine binning, why?
@@ -40,7 +43,7 @@ void genPredictedIBD(Double_t s2t13 = 0, Double_t dm2ee = -1,
 
   // Create Nominal (i.e. no random variation) Expectations
   DataSet* mydata_nominal = new DataSet();
-  mydata_nominal->load(nominal_dataset_filename);
+  mydata_nominal->load(Paths::nominal_toyconfig());
 
   // Change oscillation parameters for testing
   if (s2t13 >= 0) {
@@ -68,8 +71,8 @@ void genPredictedIBD(Double_t s2t13 = 0, Double_t dm2ee = -1,
   // Create Predictor (needed for livetimes, efficiencies, target masses... etc)
   Predictor* myPred = new Predictor();
 
-  const char* Theta13InputsLocation[3] = {input_filename0, input_filename1,
-                                          input_filename2};
+  const char* Theta13InputsLocation[3] = {Paths::input(0), Paths::input(1),
+    Paths::input(2)};
 
   cout << "There are " << Nstage << " stages" << endl;
 
@@ -83,19 +86,18 @@ void genPredictedIBD(Double_t s2t13 = 0, Double_t dm2ee = -1,
   spectrumNormNominal->passPredictor(myPred);
   // fixme: should use distances from Predictor (from FluxCalculator) in order
   // to avoid duplication
-  spectrumNormNominal->loadDistances(baselines_filename);
+  spectrumNormNominal->loadDistances(Paths::baselines());
   spectrumNormNominal->initialize(mydata_nominal);
 
   TString AccidentalSpectrumLocation[3] = {
-      acc_spectra_filename0, acc_spectra_filename1, acc_spectra_filename2};
+    Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
 
   spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        li9_filename, amc_filename, fn_filename,
-                                        aln_filename);
-
+                                        Paths::li9(), Paths::amc(), Paths::fn(),
+                                        Paths::aln());
 
   // Prepare destination file
-  TFile* outfile = new TFile(predicted_ibd_filename, "RECREATE");
+  TFile* outfile = new TFile(Paths::predicted_ibd(), "RECREATE");
 
   // Generate nominal spectrum
   // cout << "-------------------- Nominal Spectrum -------------------" <<

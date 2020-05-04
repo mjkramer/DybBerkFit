@@ -323,6 +323,7 @@ Default is 31 x 31
 + shapeFit: 18min
 * Things to parallelize
 - genToys (5 min; 2.5 min when sig/bg par): toys -> 1min (2procs x 10 = 20 threads, ~2000% CPU)
+  XXX reduce number of threads? Need to re-tune?
 - genCovMat (30 min; 15 min when sig/bg par): toys -> 3.5 min (2procs x 8 = 16 threads, ~1200% CPU) :tofinetune:
 - genEvisEnu (7 min): bins -> 1.5 min (30 threads) (could keep going; currently at 21% mem)
 - shapeFit (17 min): gridpoints -> 8 min (12 threads) :(
@@ -330,6 +331,7 @@ Default is 31 x 31
 - Reading reactor covariance matrix
 * New things to check
 - make_combined_spectra_P17B_new_SNF.C? See snf_coarse_percentage
+- Does MINUIT fail to converge when we use the LBNL or IHEP inputs? (It "fails" with our input although the result is consistent with LBNL's)
 * Notes on multithreading
 - ROOT Forum says (next link) /a TFile can only be accessed from the thread that constructed it. “Accessing” a TFile includes, of course, writing to it, even if it done indirectly, via Write methods of other objects./ and /Using the same TFile from different threads, even protecting concurrent access with a mutex, as well as creating a TFile in one thread and using it from another, can result in quirky behavior./ Yet we do it anyway (with a mutex). Should each thread create its own TFile?
 - [[https://root-forum.cern.ch/t/openmp/21357/3][OpenMP - ROOT - ROOT Forum]]

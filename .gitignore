@@ -25,3 +25,5 @@ analysis/bak/
 analysis/pics/
 analysis/*.pdf
 analysis/*.root
+input/
+output/

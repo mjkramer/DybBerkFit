@@ -1,5 +1,6 @@
 #include "Binning.h"
 #include "Config.h"
+#include "Paths.h"
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -13,9 +14,9 @@ using namespace std;
 
 void make_evis_to_enu_matrix_fine_P17B()
 {
-  TString input_file = response_root_filename;
-  TString output_file = response_filename;
-  TString output_file_rateonly = response_filename_rateonly;
+  TString input_file = Paths::response_root();
+  TString output_file = Paths::response();
+  TString output_file_rateonly = Paths::response_rateonly();
 
   const Int_t n_evis_bins = Binning::n_evis();
   const double* evis_bins = Binning::evis();
