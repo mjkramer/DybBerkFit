@@ -17,6 +17,7 @@
   gROOT->ProcessLine((load + prefix + "/Predictor.cc+" + suffix).Data());
   gROOT->ProcessLine((load + prefix + "/Binning.cc+" + suffix).Data());
   gROOT->ProcessLine((load + prefix + "/DataSet.cc+" + suffix).Data());
+  gROOT->ProcessLine((load + prefix + "/Paths.cc+" + suffix).Data());
 
   // prefix = "./quickFit";
   // gROOT->ProcessLine( (include + prefix).Data() );

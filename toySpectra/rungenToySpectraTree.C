@@ -1,4 +1,5 @@
 #include "genToySpectraTree.H"
+#include "Paths.h"
 
 #include <TROOT.h>
 #include <TString.h>
@@ -46,14 +47,9 @@ void rungenToySpectraTree(int x)
     //"nominal"
     };
   */
-  TString dataset_name_base = "dyb_data_v1_";
 
-  // for (Int_t i = 0; i < nopts; i++){
-  // for (Int_t i = 0; i < nopts; i++){ // remove BCW flux variation
-  //  for (Int_t i = 22; i < 23; i++){
-  TString dataset_filename =
-      "data_file/" + dataset_name_base + options[i] + ".txt";
-  TString output_filename = "../outputs/toySpectra_" + options[i] + ".root";
+  TString dataset_filename = Paths::toyconfig(options[i]);
+  TString output_filename = Paths::toytree(options[i]);
   cout << dataset_filename << "\t" << output_filename << endl;
   genToySpectraTree(dataset_filename, output_filename);
   //}

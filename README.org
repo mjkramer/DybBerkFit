@@ -1,0 +1,25 @@
+All paths, unless stated otherwise, are relative to the root of the repository.
+
+* Getting started
+
+In a fresh clone, run ~scripts/init.sh~ to generate static data (reactor flux, toy MC configs). This only needs to be done once.
+
+In a fresh clone, or after any changes to the code, be sure to compile the code with ~scripts/compile.sh~. Otherwise, ROOT will compile the code on the fly, which may result in race conditions due to the concurrency.
+
+Export the environment variable ~LBNL_FIT_INDIR~ to point to the directory containing the input files, or else create the ~input~ directory and put the inputs there. The inputs should look like:
+#+begin_example
+Theta13-inputs_P17B_inclusive_Xad.txt
+accidental_eprompt_shapes_Xad.root
+ibd_eprompt_shapes_Xad.root
+#+end_example
+where Xad should run through 6ad, 8ad, 7ad.
+
+Similarly, you can export ~LBNL_FIT_OUTDIR~ to point to the directory where you want intermediate/output files to end up, or else they will end up in the ~output~ directory.
+
+If you will be immediately running the fitter on multiple machines, it is recommended that you compile the code before submitting any jobs. Run ~scripts/compile.sh~. If you're running the fitter interactively, you can just let ROOT compile the code on the fly.
+
+Now you can run the toyMC/fitter chain. If you are not the only user of the machine, export ~LBNL_FIT_MAXTHREADS~ to something courteous, like 2 or 4. Note that this specifies the maximum number of threads /per process/; since processes will be running in parallel, the true number of threads can be twice as high. When you're ready, just run ~scripts/run_chain.sh~ (warning: will spam your terminal, might want to save the output).
+
+If you get crashes, export ~LBNL_FIT_DEBUG=1~, and run ~scripts/clean.sh~ to delete the compiled code. On the next crash, you'll get a proper backtrace.
+
+For an example of producing theta/delta contours from the output files, see ~analysis/plot_LBNL_P17B.C~.

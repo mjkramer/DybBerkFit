@@ -5,22 +5,23 @@
 #include "CrossSectionTable.h"
 #include "DataSet.h"
 #include "IsotopeTable.h"
+#include "Paths.h"
+
+#include <TCanvas.h>
+#include <TDecompChol.h>
 #include "TF1.h"
 #include "TFile.h"
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TMath.h"
+#include <TMatrixD.h>
 #include "TRandom3.h"
 
-#include <TCanvas.h>
-#include <TDecompChol.h>
-#include <TMatrixD.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
-#include "assert.h"
+#include <cassert>
 
 using namespace std;
 using namespace Config;
@@ -1618,22 +1619,9 @@ void Spectrum::initialize(DataSet* data)
     for (Int_t istage = 0; istage < Nstage; ++istage) {
       m_corespectrum[istage] = new CoreSpectrum();
 
-      if (istage == 0) { // Load 6AD Spectrum
-        decomp_result = m_corespectrum[istage]->loadSpectra(
-            Form(reactor_spectrum_filename_template, 6),
-            reactor_covmatrix_filename);
-      }
-      if (istage == 1) { // Load 8AD Spectrum
-        decomp_result = m_corespectrum[istage]->loadSpectra(
-            Form(reactor_spectrum_filename_template, 8),
-            reactor_covmatrix_filename);
-      }
-
-      if (istage == 2) { // Load 7AD Spectrum
-        decomp_result = m_corespectrum[istage]->loadSpectra(
-            Form(reactor_spectrum_filename_template, 7),
-            reactor_covmatrix_filename);
-      }
+      decomp_result = m_corespectrum[istage]->loadSpectra(
+          Paths::reactor_spectrum(istage),
+          Paths::reactor_covmatrix());
 
 
       if (!decomp_result) {
@@ -1648,10 +1636,10 @@ void Spectrum::initialize(DataSet* data)
       // YN: Reading BCW flux uncertainty
 
       if (m_useBcwFluxUncertainty > 0) {
-        cout << "Loading BCW flux covariance matrix at " << bcw_flux_filename
+        cout << "Loading BCW flux covariance matrix at " << Paths::bcw_flux()
              << endl;
         Bool_t decomp_result_bcw =
-            m_corespectrum[istage]->loadCovMatrixBCW(bcw_flux_filename);
+          m_corespectrum[istage]->loadCovMatrixBCW(Paths::bcw_flux());
         if (!decomp_result_bcw) {
           cout << "Failed to load BCW flux matrix! Exiting" << endl;
           exit(0);
@@ -1662,7 +1650,7 @@ void Spectrum::initialize(DataSet* data)
   } else if (m_useAbInitioSpectra) {
     for (Int_t istage = 0; istage < Nstage; ++istage) {
       m_corespectrum[istage] = new CoreSpectrum();
-      m_corespectrum[istage]->loadAbInitioSpectra(abinitio_spectra_filename);
+      m_corespectrum[istage]->loadAbInitioSpectra(Paths::abinitio_spectra());
       m_corespectrum[istage]->loadCrossSectionTable(
           data->getString("crossSectionFilename"));
     }
@@ -1917,14 +1905,14 @@ void Spectrum::initialize(DataSet* data)
     /// Further updated to the "final" BCW model (Apr. 1, 2013)
 
 
-    ifstream bcw_positron_data(bcw_positron_data_filename);
+    ifstream bcw_positron_data(Paths::bcw_positron_data());
 
     for (Int_t i = 0; i < n_bcw_positron_nl; i++) {
       bcw_positron_data >> m_bcw_positron_nl_e[i] >> m_bcw_positron_nl_fac[i];
     }
     bcw_positron_data.close();
 
-    ifstream bcw_elec_data(bcw_elec_data_filename);
+    ifstream bcw_elec_data(Paths::bcw_elec_data());
 
     for (Int_t i = 0; i < 3; i++) {
       bcw_elec_data >> m_bcw_elec_nl_par_nominal[i] >>
@@ -1933,7 +1921,7 @@ void Spectrum::initialize(DataSet* data)
     }
     bcw_elec_data.close();
 
-    TFile* bcw_ele_err_file = new TFile(bcw_ele_err_filename);
+    TFile* bcw_ele_err_file = new TFile(Paths::bcw_ele_err());
     g_bcw_elec_nl_error[0] = (TGraph*)bcw_ele_err_file->Get("g_up")->Clone();
     g_bcw_elec_nl_error[1] =
         (TGraph*)bcw_ele_err_file->Get("g_down")->Clone();
@@ -1963,7 +1951,7 @@ void Spectrum::initialize(DataSet* data)
 
     /// Settting for the LBNL non-linearity function. Mar. 24, 2013
 
-    ifstream lbnl_positron_data(lbnl_positron_data_filename);
+    ifstream lbnl_positron_data(Paths::lbnl_positron_data());
     if (!lbnl_positron_data.is_open()) {
       cout << "Error: cannot find LBNL non-linearity curve!!!" << endl;
       exit(0);
@@ -2016,13 +2004,13 @@ void Spectrum::initialize(DataSet* data)
 
 
     if (m_use2015NonLinearModel > 0) {
-      unified_nl_filename = unified_nl_2015_filename;
+      unified_nl_filename = Paths::unified_nl();
       nominal_graph_name = "nominal";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
         pull_graph_name[i] = Form("pull%d", i);
       }
     } else {
-      unified_nl_filename = unified_nl_final_filename;
+      unified_nl_filename = Paths::unified_nl_final();
       nominal_graph_name = "positron_0";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
         pull_graph_name[i] = Form("positron_%d", i + 1);

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# NOTE: Run prep_dirs.sh and install_inputs.sh first
+# NOTE: First run init.sh and prepare input data (see README.org)
 
 # To log timing data:
 # (time scripts/test_chain.sh) 2>&1 | tee output.time.log
@@ -33,20 +33,6 @@ set_threads() {
 time $BASE/scripts/compile.sh
 
 # echo "Using IHEP fast-n spectrum (see Config.h)"
-
-# -------------------------- Generate reactor spectra --------------------------
-genReactor() {
-    cd $BASE/ReactorPowerCalculator
-    root -b -q "Produce_Isotope_SpectraP17B_unblinded.C(1)"
-    cd isotope_spectra_by_Beda
-    root -b -q make_combined_spectra_P17B_unblinded.C
-}
-
-# ------------------------ Generate ToyMC config files -------------------------
-genToyConf() {
-    cd $BASE/toySpectra/data_file
-    ./generate_data_file.py
-}
 
 # --------------------------- Generate ToyMC samples ---------------------------
 genToys() {
@@ -99,9 +85,6 @@ shapeFit() {
 }
 
 all() {
-    genToyConf &
-    genReactor &
-    wait
     genToys &
     genEvisEnu &
     genSuperHists &
