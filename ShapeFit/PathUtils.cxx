@@ -1,6 +1,6 @@
 // To be included by Paths.cc
 
-#include "TString.h"
+#include <TString.h>
 
 #include <cstdarg>
 #include <cstdlib>
@@ -19,6 +19,16 @@ static const char* _Form(const char* fmt, va_list ap)
   char str[2048];
   vsnprintf(str, 2048, fmt, ap);
   return Form("%s", str);      // use ROOT's circular buffer
+}
+
+__attribute__((format(printf, 1, 2)))
+static const char* formpath(const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  auto s = new TString(_Form(fmt, ap)); // intentional leak
+  va_end(ap);
+  return s->Data();
 }
 
 // We assume that directories (e.g. LBNL_FIT_OUTDIR) are specified relative to
@@ -55,7 +65,7 @@ static const char* outpath(const char* fmt, ...)
   const char* relpath = _Form(fmt, ap);
   va_end(ap);
 
-  const char* path = Form("%s/%s", outdir(), relpath);
+  const char* path = formpath("%s/%s", outdir(), relpath);
   ensure_dir(path);
   return path;
 }
@@ -68,8 +78,7 @@ static const char* inpath(const char* fmt, ...)
   const char* relpath = _Form(fmt, ap);
   va_end(ap);
 
-  const char* path = Form("%s/%s", indir(), relpath);
-  return path;
+  return formpath("%s/%s", indir(), relpath);
 }
 
 static int stage_nADs(int istage)
