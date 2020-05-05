@@ -1,6 +1,7 @@
 #include "Predictor.h"
 #include "TF1.h"
 #include "TMatrixD.h"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -157,6 +158,8 @@ void Predictor::LoadMainData(const Char_t* mainmatrixname)
       0; //<---caution: only increments for lines that do not begin with #
   int istage = 0;
   ifstream mainfile(mainmatrixname);
+  if (!mainfile.is_open())
+    throw std::runtime_error(Form("Can't open %s", mainmatrixname));
   while (!mainfile.eof()) {
     getline(mainfile, line);
     string firstchar = line.substr(0, 1);
