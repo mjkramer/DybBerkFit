@@ -1,7 +1,7 @@
 #pragma once
 
-// These functions return either static strings or volatile strings living
-// inside the circular buffer of ROOT's ::Form.
+// These functions are allowed to leak memory, so don't call them too
+// repeatedly.
 
 namespace Paths {
 

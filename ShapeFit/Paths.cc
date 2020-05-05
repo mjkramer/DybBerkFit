@@ -98,8 +98,8 @@ const char* baselines()
 
 const char* toyconfig(const char* option)
 {
-  return Form("../toySpectra/data_file/dyb_data_v1_%s.txt",
-              option);
+  return formpath("../toySpectra/data_file/dyb_data_v1_%s.txt",
+                  option);
 }
 
 const char* nominal_toyconfig()
@@ -119,8 +119,8 @@ const char* toytree(const char* option)
 
 const char* reactor_spectrum(int istage)
 {
-  return Form("../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%s_SNF_nonEq.txt",
-              stage_upc(istage));
+  return formpath("../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%s_SNF_nonEq.txt",
+                  stage_upc(istage));
 }
 
 const char* reactor_covmatrix()
@@ -131,8 +131,8 @@ const char* reactor_covmatrix()
 const char* unified_nl(bool scnl)
 {
   const char* tag = scnl ? "new" : "old";
-  return Form("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
-              tag);
+  return formpath("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
+                  tag);
 }
 
 // ------------------------------ UNUSED ------------------------------
