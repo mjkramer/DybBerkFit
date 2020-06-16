@@ -24,7 +24,7 @@
 using namespace Config;
 
 // 4 nModes, 16 MaxPredictions, 3 Nstages, 37 bins
-Double_t final_covmatrix[4][16 * 3 * 7][16 * 3 * 37];
+Double_t final_covmatrix[4][16 * 3 * 37][16 * 3 * 37];
 Double_t final_covmatrix_sum[4][16 * 37][16 * 37];
 
 Predictor* pred;
