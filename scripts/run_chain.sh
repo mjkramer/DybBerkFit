@@ -55,12 +55,23 @@ genEvisEnu() {
 }
 
 # ------------------------- Generate super histograms --------------------------
+# The super histograms are the nominal xsec-weighted spectra produced by each
+# core in each stage. The units are essentially arbitrary, since ratios are
+# always taken when using these to extrapolate from near to far. Although the
+# file contains a separate histogram for each AD, there is actually no AD
+# dependence.
 genSuperHists() {
     cd $BASE/toySpectra
     root -b -q LoadClasses.C genSuperHistograms.C+$DBG
 }
 
 # --------------------------- Generate PredictedIBD ----------------------------
+# The PredictedIBD file which contains the background-free no-oscillation IBD
+# spectra of each detector. As far as I can tell, this is only used in order to
+# calculate a `summed' covariance matrix in which the matrices of the three
+# stages (6, 8, 7AD) are combined, with the weighting determined by the
+# PredictedIBD counts. In turn, the summed matrix just seems to be a diagnostic
+# that is not actually used during the fit.-- mk
 genPredIBD() {
     cd $BASE/toySpectra
     root -b -q LoadClasses.C genPredictedIBD.C+$DBG
