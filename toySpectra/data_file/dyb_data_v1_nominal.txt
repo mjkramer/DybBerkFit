@@ -115,7 +115,7 @@ useUnifiedNonLinearModel 0
 
 correlateUnifiedNonlinearPars 0
 
-#  Use the non-linear model 2015 update
+#  Use the non-linear model 2015  update (now 2017 update)
 use2015NonLinearModel 1
 
 defaultNonlinearPar0 0
