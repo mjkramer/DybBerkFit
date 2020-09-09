@@ -1845,8 +1845,8 @@ Double_t Predictor::CalculateChi2CovRate()
   cout << "Here2" << endl;
 
   Double_t chi2out = 0;
-  for (Int_t istage = 0; istage < 3; istage++) {
-    for (Int_t jstage = 0; jstage < 3; jstage++) {
+  for (Int_t istage = 0; istage < Nstage; istage++) {
+    for (Int_t jstage = 0; jstage < Nstage; jstage++) {
       for (Int_t i = 0; i < npredictions; i++) {
         for (Int_t j = 0; j < npredictions; j++) {
           chi2out +=
