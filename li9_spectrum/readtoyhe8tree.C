@@ -24,7 +24,6 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
   //TFile *nlfile = new TFile("nl_models/Model1.root","READ");
   nlfile->cd();
 
-  savestr = "";
   //scale_neutron_quenching=1.;
 
   ifstream infile_alpha("./BCW-Model/alpha.dat");
@@ -197,6 +196,7 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
     infile->Close();
   }
 
+  savefile->Write();
   return h_eVisAllSmeared;
 
 }//end of readtoyhe8tree
