@@ -1,0 +1,42 @@
+* The process
+What generates toyhe8spec_v1.root?
+
+toyli9spec.C generates toyli9spec_v1.root containing tree tr
+
+readtoy{li9,he8}tree.C reads toy{li9,he8}spec_v1.root, returns (but does not write) nominal spectrum
+--> in practice (i.e. interactively?) it writes h_evisAllSmeared to toyli9spec_blahmodel_v1.root
+
+Then Nominal_Li9He8_Based_on_BCW.C writes 8he9li_nominal_spectrum.root containing h_nominal
+
+That's wrong. Here's the real picture we use to recover 8he9li_nominal_spectrum.root:
+
+Run gen_IHEPmodel_v1.C -> toyXXspec_IHEPmodel_v1.root
+Run Nominal_Li9He8_Based_on_IHEP.C -> 8he9li_nominal_spectrum.root
+
+* Things to do
+** TODO Verify can reproduce spectra/distortions currently used in fitter [1/3]
+*** DONE Run readtoyXX.C, verify agreement with toyXspec_BCWmodel_v1.root
+CLOSED: [2020-09-30 Wed 11:47]
+Actually it agrees with toyXspec_IHEPmodel_v1.root.
+Not worth the time to modify readtoy to use BCW model; assume that doing so will give toyXspec_BCWmodel_v1.root
+*** TODO Run Nominal_Li9He8_Based_on_BCW.C, verify agreement with 8he9li_nominal_spectrum.root
+No :(
+*** TODO Run ConstructDistortSpectra.C, verify agrement with 8he9li_distort_neutron100_alpha100_frac0.055_N250.root
+** TODO Check graphs between old and new NL files
+- [ ] electronics
+- [ ] electronScint
+- [ ] gammaScint (used for He8)
+** TODO Update NL file in code
+- [ ] Filename
+- [ ] Graph names
+- [ ] Don't forget ConstructDistortSpectra
+- [ ] Write script for generating toyXspec_2018model.root (gen_2018model.C)
+** TODO Commit, regenerate, compare
+** TODO Fix application of electronics NL (f(sum(evis)), not sum(f(evis)))
+** TODO Commit, regenerate, compare
+** TODO Update resolution
+** TODO Commit, regenerate, compare
+
+* Things to show
+** TODO Old vs new NL curves (can_nl in readtoyli9tree.C)
+** TODO Old vs new spectra

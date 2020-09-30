@@ -1,6 +1,6 @@
-void Nominal_Li9He8_Based_on_BCW(){
-  TFile* file_li9=new TFile("toyli9spec_BCWmodel_v1.root","READ");
-  TFile* file_he8=new TFile("toyhe8spec_BCWmodel_v1.root","READ");
+void Nominal_Li9He8_Based_on_IHEP(){
+  TFile* file_li9=new TFile("toyli9spec_IHEPmodel_v1.root","READ");
+  TFile* file_he8=new TFile("toyhe8spec_IHEPmodel_v1.root","READ");
 
   TH1F* h_li9=(TH1F*)(file_li9->Get("h_eVisAllSmeared"))->Clone("h_li9");
   TH1F* h_he8=(TH1F*)(file_he8->Get("h_eVisAllSmeared"))->Clone("h_he8");
@@ -37,6 +37,8 @@ void Nominal_Li9He8_Based_on_BCW(){
   //h_combined->Scale(1./h_combined->Integral());
 
   TFile* outputfile=new TFile("./8he9li_nominal_spectrum.root","RECREATE");
+  // XXX for comparison against 8he9li_nominal_spectrum.root
+  h_combined->Scale(0.99549488 / h_combined->Integral());
   h_combined->Write();
   outputfile->Close();
 
