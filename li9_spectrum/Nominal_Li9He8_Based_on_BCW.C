@@ -36,7 +36,7 @@ void Nominal_Li9He8_Based_on_BCW(){
 
   //h_combined->Scale(1./h_combined->Integral());
 
-  TFile* outputfile=new TFile("./8he9li_nominal_spectrum.root","RECREATE");
+  TFile* outputfile=new TFile("./8he9li_nominal_spectrum_BCW.root","RECREATE");
   h_combined->Write();
   outputfile->Close();
 

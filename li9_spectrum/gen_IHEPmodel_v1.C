@@ -2,7 +2,7 @@
 
 #include <TFile.h>
 
-// The output should be identical to toyXXspec_BCWmodel_v1.root
+// The output should be identical to toyXXspec_IHEPmodel_v1.root
 void gen_IHEPmodel_v1()
 {
   auto nlfile = new TFile("Model1.root");

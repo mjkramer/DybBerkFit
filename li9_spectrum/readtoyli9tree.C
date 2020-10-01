@@ -228,7 +228,7 @@ TH1F* readtoyli9tree(TFile *nlfile, string savestr="", float scale_neutron_quenc
     delete leg;
   }
 
-  savefile->Write();
+  if (savestr != "") savefile->Write();
   return h_eVisAllSmeared;
 
 }//end of readtoyli9tree
