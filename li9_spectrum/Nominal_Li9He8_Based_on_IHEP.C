@@ -36,7 +36,7 @@ void Nominal_Li9He8_Based_on_IHEP(){
 
   //h_combined->Scale(1./h_combined->Integral());
 
-  TFile* outputfile=new TFile("./8he9li_nominal_spectrum.root","RECREATE");
+  TFile* outputfile=new TFile("./8he9li_nominal_spectrum_IHEP.root","RECREATE");
   // XXX for comparison against 8he9li_nominal_spectrum.root
   h_combined->Scale(0.99549488 / h_combined->Integral());
   h_combined->Write();

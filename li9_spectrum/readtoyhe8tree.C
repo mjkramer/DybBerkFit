@@ -196,7 +196,7 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
     infile->Close();
   }
 
-  savefile->Write();
+  if (savestr != "") savefile->Write();
   return h_eVisAllSmeared;
 
 }//end of readtoyhe8tree
