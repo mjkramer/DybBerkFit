@@ -2485,7 +2485,7 @@ void Spectrum::setRandomAbsoluteEnergyOffset()
 TF1* Spectrum::getDistortionCurve(double amount)
 {
   TF1* func = new TF1("func", "TMath::Abs([0]+[1]*x)", m_eMin, m_eMax);
-  ran->SetSeed(0);
+  // ran->SetSeed(0);
   double slope = amount * ran->Gaus(0, 1);
   double anchor_point = 3.5;
   // want offset to be set by requiring func @ anchor point to be 1
@@ -2499,7 +2499,7 @@ TF1* Spectrum::getDistortionCurve(double amount)
 TF1* Spectrum::getFNDistortionCurve(double amount)
 {
   TF1* func = new TF1("func", "[0]/(0.2*pow(x,0.1))+[1]", m_eMin, m_eMax);
-  ran->SetSeed(0);
+  // ran->SetSeed(0);
   double par = amount * ran->Gaus(0, 1);
   func->SetParameter(0, par);
   func->SetParameter(1, 0);
