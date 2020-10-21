@@ -14,6 +14,12 @@
 #include "TTree.h"
 #include <iostream>
 
+#ifdef __CLING__
+extern int omp_get_thread_num();
+#else
+#include <omp.h>
+#endif
+
 using namespace Config;
 
 void genToySpectraTree(TString dataset_filename, TString output_filename,
@@ -124,7 +130,8 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
                                    Paths::li9(), Paths::amc(), Paths::fn(),
                                    Paths::aln());
-    spectrumNorm->setRandomSeed(1);
+    // NB: Adding 1 is important because 0 means random (UUID) seed
+    spectrumNorm->setRandomSeed(1 + omp_get_thread_num());
   } // parallel
 
 
