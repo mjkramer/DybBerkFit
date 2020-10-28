@@ -183,8 +183,15 @@ void fit_shape_2d_P17B(
   h_minchi2->GetXaxis()->SetTitle("Minimum #chi^{2}");
   h_minchi2->GetYaxis()->SetTitle("fake experiments");
 
-  TH2F* h_chi2_all = new TH2F("h_chi2_all", "", nsteps, s22t13start, s22t13end,
-                              nsteps_dm2, dm2eestart, dm2eeend);
+  const Double_t s22t13_binwidth = (s22t13end - s22t13start) / (nsteps - 1);
+  const Double_t s22t13_histstart = s22t13start - s22t13_binwidth/2;
+  const Double_t s22t13_histend = s22t13end + s22t13_binwidth/2;
+  const Double_t dm2ee_binwidth = (dm2eeend - dm2eestart) / (nsteps_dm2 - 1);
+  const Double_t dm2ee_histstart = dm2eestart - dm2ee_binwidth/2;
+  const Double_t dm2ee_histend = dm2eeend + dm2ee_binwidth/2;
+
+  TH2F* h_chi2_all = new TH2F("h_chi2_all", "", nsteps, s22t13_histstart, s22t13_histend,
+                              nsteps_dm2, dm2ee_histstart, dm2ee_histend);
   h_chi2_all->GetXaxis()->SetTitle("sin^2(2#theta_{13})");
   h_chi2_all->GetYaxis()->SetTitle("#Delta m^2");
   TH2F* h_chi2_temp = (TH2F*)h_chi2_all->Clone("h_chi2_temp");
@@ -201,8 +208,8 @@ void fit_shape_2d_P17B(
   tr->Branch("s2t_min", &s2t_min, "s2t_min/D");
 
 
-  TH2F* h_chi2_map = new TH2F("h_chi2_map", "h_chi2_map", nsteps, s22t13start,
-                              s22t13end, nsteps_dm2, dm2eestart, dm2eeend);
+  TH2F* h_chi2_map = new TH2F("h_chi2_map", "h_chi2_map", nsteps, s22t13_histstart,
+                              s22t13_histend, nsteps_dm2, dm2ee_histstart, dm2ee_histend);
 
 
   dir->cd();
