@@ -32,6 +32,8 @@ set_threads() {
 # Compile stuff in advance to avoid race conditions when we parallelize
 time $BASE/scripts/compile.sh
 
+[ -n "$LBNL_FIT_OUTDIR" ] && mkdir -p "$LBNL_FIT_OUTDIR"
+
 # echo "Using IHEP fast-n spectrum (see Config.h)"
 
 # --------------------------- Generate ToyMC samples ---------------------------
