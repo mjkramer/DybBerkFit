@@ -9,7 +9,6 @@ const int Ndetectors = 8;
 const int Nhalls = 3;
 const int Nstage = 3;
 
-const bool useBcwBinning = false;
 const double lowBinInflation = 0; // was 0.1 originally
 
 const int MaxPredictions = 16; // 4 near AD predicting 4 far AD: 4 x 4 = 16
