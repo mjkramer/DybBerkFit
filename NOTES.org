@@ -217,8 +217,9 @@ scripts/prep_dirs.sh
 scripts/install_example.sh
 #+end_src
 ** Set environment variables
+For official (IHEP) result, need to enable BCW binning:
 #+begin_src bash
-export LBNL_FTR_BINNING=LBNL # or BCW
+export LBNL_FIT_BINNING=BCW
 #+end_src
 ** Prepare flux predictions
 XXX Update day-array sizes in Produce_Isotope_Spectra_XYZ.C

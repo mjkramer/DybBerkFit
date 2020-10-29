@@ -1,6 +1,9 @@
 #include "Binning.h"
 #include "Config.h"
 
+#include <cstdlib>              // getenv
+#include <cstring>              // strcmp
+
 namespace Binning {
 
 static const int _n_evis_lbnl = 37;
@@ -12,6 +15,12 @@ static double _evis_lbnl[_n_evis_lbnl + 1];
 static double _evis_bcw[_n_evis_bcw + 1];
 static double _evis_fine[_n_evis_fine + 1];
 static double _enu[_n_enu + 1];
+
+static bool useBcwBinning()
+{
+  const char* val = getenv("LBNL_FIT_BINNING");
+  return val && strcmp("BCW", val) == 0;
+}
 
 static void init_evis_lbnl() __attribute__((constructor));
 static void init_evis_lbnl()
@@ -56,7 +65,7 @@ static void init_enu()
 
 double* evis()
 {
-  return Config::useBcwBinning ? _evis_bcw : _evis_lbnl;
+  return useBcwBinning() ? _evis_bcw : _evis_lbnl;
 }
 
 double* evis_fine()
@@ -71,7 +80,7 @@ double* enu()
 
 int n_evis()
 {
-  return Config::useBcwBinning ? _n_evis_bcw : _n_evis_lbnl;
+  return useBcwBinning() ? _n_evis_bcw : _n_evis_lbnl;
 }
 
 int n_evis_fine()
