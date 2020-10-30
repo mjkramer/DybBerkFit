@@ -98,8 +98,9 @@ const char* baselines()
 
 const char* toyconfig(const char* option)
 {
-  return formpath("../toySpectra/data_file/dyb_data_v1_%s.txt",
-                  option);
+  const char* dir = normalized_or("LBNL_TOY_CONFIG_DIR",
+                                  "toySpectra/data_file");
+  return formpath("%s/dyb_data_v1_%s.txt", dir, option);
 }
 
 const char* nominal_toyconfig()
