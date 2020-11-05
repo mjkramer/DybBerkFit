@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>             // sleep
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -102,7 +103,17 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
   }
 
   // Prepare destination file
-  TFile* outfile = new TFile(Paths::response_root(), "RECREATE");
+  TFile* outfile = nullptr;
+  while (true) {
+    outfile = new TFile(Paths::response_root(), "RECREATE");
+    if (outfile->IsWritable())
+      break;
+    else {
+      cout << "Couldn't open response rootfile for writing. Will retry." << endl;
+      delete outfile;
+      sleep(3);
+    }
+  }
 
   /*
   //for(int idet=0;idet<Ndetectors;++idet){
