@@ -23,7 +23,7 @@
 
 using namespace Config;
 
-// 4 nModes, 16 MaxPredictions, 3 Nstages, 37 bins
+// 4 nModes, 16 MaxPredictions, 3 Nstages, 37 MaxBins
 Double_t final_covmatrix[4][16 * 3 * 37][16 * 3 * 37];
 Double_t final_covmatrix_sum[4][16 * 37][16 * 37];
 
@@ -481,6 +481,7 @@ void fit_shape_2d_P17B(
 
   // try to dump final covariance matrix
   ofstream fout_cmat("final_covmatrix_mode1.txt");
+  // -1 => both near and far site stat errors
   tmp_vector = pred->GetFinalCovMatrix(-1, 1);
   for (Int_t i = 0; i < nPredictions[1] * Nstage * n_rebinned_evis_bins; i++) {
     for (Int_t j = 0; j < nPredictions[1] * Nstage * n_rebinned_evis_bins;
@@ -490,7 +491,7 @@ void fit_shape_2d_P17B(
           << tmp_vector[i * nPredictions[1] * Nstage * n_rebinned_evis_bins +
                         j];
     }
-    fout_cmat << endl;
+    fout_cmat << "\n";
   }
   fout_cmat.close();
 
@@ -500,6 +501,7 @@ void fit_shape_2d_P17B(
   for (Int_t iMode = 0; iMode < nModes; iMode++) {
     // cout << "iMode: " << iMode << endl;
 
+    // 0 => no far site stat error
     tmp_vector = pred->GetFinalCovMatrix(0, iMode);
 
     for (Int_t i = 0; i < nPredictions[iMode] * n_rebinned_evis_bins; i++) {
@@ -929,6 +931,9 @@ void fit_shape_2d_P17B(
   savefile->Close();
 
   cout << "The end!" << endl;
+
+  // Something (destructors?) making it take forever to exit, so...
+  quick_exit(0);
 
 
   // dump final stat error and weighted mean coefficients for later use
