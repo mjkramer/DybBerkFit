@@ -42,6 +42,7 @@ public:
   Double_t CorrBgEvts[Ndetectors] = {};
   Double_t ErrBgEvts[Ndetectors] =
       {}; // statistical uncertainties for the backgrounds
+  Double_t DelayedEff[Ndetectors] = {};
   Double_t TargetMass[Ndetectors] = {};
   Double_t BgEvtsLiv[Ndetectors] = {};
 

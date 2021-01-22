@@ -226,6 +226,12 @@ void Predictor::LoadMainData(const Char_t* mainmatrixname)
           tdper[istage - 1].DMCEff[ii] = readvals[ii];
         }
       }
+      //-->delayed cut efficiencies
+      if (row == 5) {
+        for (int ii = 0; ii < Ndetectors; ii++) {
+          tdper[istage -1].DelayedEff[ii] = readvals[ii];
+        }
+      }
       //-->target masses
       if (row == 8) {
         for (int ii = 0; ii < Ndetectors; ii++) {
@@ -985,6 +991,7 @@ void Predictor::CombineData()
 {
   for (int idet = 0; idet < Ndetectors; ++idet) {
     double livsum = 0;
+    double livsum_bg = 0;
     double weightedsum = 0;
     double weightederr = 0;
     double weightedbg = 0;
@@ -1005,16 +1012,23 @@ void Predictor::CombineData()
     for (int istage = 0; istage < Nstage; ++istage) {
       float factor = tdper[istage].MuonVetoEff[idet] *
                      tdper[istage].DMCEff[idet] * tdper[istage].Livetime[idet] *
+                     tdper[istage].DelayedEff[idet] *
                      tdper[istage].TargetMass[idet] /
                      tdper[istage].TargetMass[0];
 
+      // By convention, bg rates in the Theta13 file have the AD/stage-dependent
+      // delayed efficiency already "baked in" (for Li9, fast-n, and alpha-n) so
+      // we do not want to mess with it.
+      float factor_bg = factor / tdper[istage].DelayedEff[idet];
+
       weightedsum += tdper[istage].CorrEvts[idet] * factor;
       livsum += factor;
+      livsum_bg += factor_bg;
       weightederr += pow(tdper[istage].ErrEvts[idet] * factor, 2);
-      weightedbg += tdper[istage].CorrBgEvts[idet] * factor;
+      weightedbg += tdper[istage].CorrBgEvts[idet] * factor_bg;
 
       CombCorrEvtsSpec[idet]->Add(tdper[istage].CorrEvtsSpec[idet], factor);
-      CombCorrBgEvtsSpec[idet]->Add(tdper[istage].CorrBgEvtsSpec[idet], factor);
+      CombCorrBgEvtsSpec[idet]->Add(tdper[istage].CorrBgEvtsSpec[idet], factor_bg);
     }
 
     if (livsum == 0) {
@@ -1028,9 +1042,9 @@ void Predictor::CombineData()
       CombLivetime[idet] = livsum;
       CombCorrEvts[idet] = weightedsum * 1. / livsum;
       CombErrEvts[idet] = sqrt(weightederr) * 1. / livsum;
-      CombCorrBgEvts[idet] = weightedbg * 1. / livsum;
+      CombCorrBgEvts[idet] = weightedbg * 1. / livsum_bg;
       CombCorrEvtsSpec[idet]->Scale(1. / livsum);
-      CombCorrBgEvtsSpec[idet]->Scale(1. / livsum);
+      CombCorrBgEvtsSpec[idet]->Scale(1. / livsum_bg);
     }
 
   } // for data
@@ -1059,6 +1073,7 @@ void Predictor::CombinePredictions()
 
         float factor =
             tdper[istage].MuonVetoEff[idet] * tdper[istage].DMCEff[idet] *
+            tdper[istage].DelayedEff[idet] *
             tdper[istage].Livetime[idet] * tdper[istage].TargetMass[idet] /
             tdper[istage].TargetMass[0];
         hweightedsum->Add(predper->GetPred(istage, idet, idet2), factor);
@@ -2265,9 +2280,11 @@ void Predictor::CalculateStatError()
                 float factor = tdper[istage].MuonVetoEff[idet] *
                                tdper[istage].DMCEff[idet] *
                                tdper[istage].Livetime[idet] *
+                               tdper[istage].DelayedEff[idet] *
                                tdper[istage].TargetMass[idet] /
                                tdper[istage].TargetMass[0];
 
+                float factor_bg = factor / tdper[istage].DelayedEff[idet];
 
                 // Pseudo Pearson chi2
                 Double_t err_i = 0;
@@ -2276,17 +2293,15 @@ void Predictor::CalculateStatError()
                 if (factor > 0) {
                   err_i =
                       sqrt((predper->GetPred(istage, idet, idet2)
-                                ->GetBinContent(i + 1) +
+                                ->GetBinContent(i + 1) * factor +
                             tdper[istage].CorrBgEvtsSpec[idet]->GetBinContent(
-                                i + 1)) *
-                           factor) /
+                                i + 1) * factor_bg)) /
                       factor;
                   err_j =
                       sqrt((predper->GetPred(jstage, jdet, jdet2)
-                                ->GetBinContent(j + 1) +
+                                ->GetBinContent(j + 1) * factor +
                             tdper[jstage].CorrBgEvtsSpec[jdet]->GetBinContent(
-                                j + 1)) *
-                           factor) /
+                                j + 1) * factor_bg)) /
                       factor;
 
                   M_stat[(MaxPredictions * istage + iii) * n_evis_bins + i]
