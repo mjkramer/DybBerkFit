@@ -237,10 +237,10 @@ void build_covmatrix(const Char_t* toymc_filename,
     for (Int_t j = 0; j < 16 * Nstage * n_evis_bins; j++) {
       M[i][j] /= (Double_t)ntoys;
       // cout << M[i][j] << endl;
-      outf << M[i][j] << endl;
+      outf << M[i][j] << "\n";
     }
     // cout << endl;
-    outf << endl;
+    outf << "\n";
   }
   // cout << x << endl;
   outf.close();
