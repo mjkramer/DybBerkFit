@@ -3,6 +3,7 @@
 #include <TString.h>
 
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -60,4 +61,5 @@ void run_build_covmatrix(int x = 1)
   }
 
   cout << "Bye bye!" << endl;
+  quick_exit(0);
 }
