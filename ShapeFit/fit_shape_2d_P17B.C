@@ -21,6 +21,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// The values we get from Minuit on 2020_01_26@yolo3
+// (just for diagnostic comparison)
+const Double_t s22t13_nom = 0.08437;
+const Double_t dm2ee_nom = 0.0024583;
+
 using namespace Config;
 
 // 4 nModes, 16 MaxPredictions, 3 Nstages, 37 MaxBins
@@ -365,11 +370,13 @@ void fit_shape_2d_P17B(
 
   Double_t final_pred[nModes][16 * Nstage * n_evis_bins];
   Double_t final_pred_null[nModes][16 * Nstage * n_evis_bins];
+  Double_t final_pred_nom[nModes][16 * Nstage * n_evis_bins];
   Double_t final_obs[nModes][16 * Nstage * n_evis_bins];
   Double_t final_obserror[nModes][16 * Nstage * n_evis_bins];
 
   Double_t final_pred_sum[nModes][16 * n_evis_bins];
   Double_t final_pred_null_sum[nModes][16 * n_evis_bins];
+  Double_t final_pred_nom_sum[nModes][16 * n_evis_bins];
   Double_t final_obs_sum[nModes][16 * n_evis_bins];
   Double_t final_obserror_sum[nModes][16 * n_evis_bins];
 
@@ -409,10 +416,12 @@ void fit_shape_2d_P17B(
   TH1D* h_final_obs[Nstage][nModes][16];
   TH1D* h_final_pred[Nstage][nModes][16];
   TH1D* h_final_pred_null[Nstage][nModes][16];
+  TH1D* h_final_pred_nom[Nstage][nModes][16];
 
   TH1D* h_final_obs_sum[nModes][16];
   TH1D* h_final_pred_sum[nModes][16];
   TH1D* h_final_pred_null_sum[nModes][16];
+  TH1D* h_final_pred_nom_sum[nModes][16];
 
   TH2D* h_final_covmatrix[nModes];
 
@@ -441,6 +450,9 @@ void fit_shape_2d_P17B(
       h_final_pred_null_sum[iMode][i] = new TH1D(
           Form("h_final_pred_null_sum_mode%d_%d", iMode, i),
           hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
+      h_final_pred_nom_sum[iMode][i] = new TH1D(
+          Form("h_final_pred_nom_sum_mode%d_%d", iMode, i),
+          hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
 
       for (Int_t istage = 0; istage < Nstage; istage++) {
         h_final_obs[istage][iMode][i] = new TH1D(
@@ -455,6 +467,9 @@ void fit_shape_2d_P17B(
         h_final_pred_null[istage][iMode][i] = new TH1D(
             Form("h_final_pred_null_stage%d_mode%d_%d", istage, iMode, i),
             hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
+        h_final_pred_nom[istage][iMode][i] = new TH1D(
+            Form("h_final_pred_nom_stage%d_mode%d_%d", istage, iMode, i),
+            hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
       }
     }
   }
@@ -462,10 +477,12 @@ void fit_shape_2d_P17B(
   TH1D* h_final_obs_ratio[Nstage][nModes][16];
   TH1D* h_final_pred_ratio[Nstage][nModes][16];
   TH1D* h_final_pred_null_ratio[Nstage][nModes][16];
+  TH1D* h_final_pred_nom_ratio[Nstage][nModes][16];
 
   TH1D* h_final_obs_ratio_sum[nModes][16];
   TH1D* h_final_pred_ratio_sum[nModes][16];
   TH1D* h_final_pred_null_ratio_sum[nModes][16];
+  TH1D* h_final_pred_nom_ratio_sum[nModes][16];
   dir->cd();
 
   PredSet* nullpred = new PredSet();
@@ -476,6 +493,17 @@ void fit_shape_2d_P17B(
     for (Int_t idet = 4; idet < 8; idet++)
       for (Int_t idet2 = 0; idet2 < 4; idet2++)
         nullpred->SetPred(
+            istage, idet, idet2,
+            (TH1F*)tmp_set->GetPred(istage, idet, idet2)->Clone());
+
+  PredSet* nompred = new PredSet();
+
+  cout << "Making nominal prediction" << endl;
+  tmp_set = pred->MakeOneSuperPrediction(s22t13_nom, dm2ee_nom, 0, -1, true);
+  for (Int_t istage = 0; istage < Nstage; istage++)
+    for (Int_t idet = 4; idet < 8; idet++)
+      for (Int_t idet2 = 0; idet2 < 4; idet2++)
+        nompred->SetPred(
             istage, idet, idet2,
             (TH1F*)tmp_set->GetPred(istage, idet, idet2)->Clone());
 
@@ -563,6 +591,12 @@ void fit_shape_2d_P17B(
       final_pred_null[iMode][i] = tmp_vector[i];
     }
 
+    tmp_vector = pred->GetFinalPred(nompred, iMode);
+    for (Int_t i = 0; i < nPredictions[iMode] * Nstage * n_rebinned_evis_bins;
+         i++) {
+      final_pred_nom[iMode][i] = tmp_vector[i];
+    }
+
     tmp_vector = pred->GetFinalPredSum(bestpred, iMode);
     for (Int_t i = 0; i < nPredictions[iMode] * n_rebinned_evis_bins; i++) {
       final_pred_sum[iMode][i] = tmp_vector[i];
@@ -581,6 +615,11 @@ void fit_shape_2d_P17B(
     tmp_vector = pred->GetFinalPredSum(nullpred, iMode);
     for (Int_t i = 0; i < nPredictions[iMode] * n_rebinned_evis_bins; i++) {
       final_pred_null_sum[iMode][i] = tmp_vector[i];
+    }
+
+    tmp_vector = pred->GetFinalPredSum(nompred, iMode);
+    for (Int_t i = 0; i < nPredictions[iMode] * n_rebinned_evis_bins; i++) {
+      final_pred_nom_sum[iMode][i] = tmp_vector[i];
     }
 
     for (Int_t iPred = 0; iPred < nPredictions[iMode]; iPred++) {
@@ -632,6 +671,13 @@ void fit_shape_2d_P17B(
           // cout << "h_final_pred_null: " <<
           // final_pred_null[iMode][(istage*nPredictions[iMode]+iPred)*n_rebinned_evis_bins+i]
           // << endl;
+
+          h_final_pred_nom[istage][iMode][iPred]->SetBinContent(
+              i + 1,
+              final_pred_nom[iMode][(istage * nPredictions[iMode] + iPred) *
+                                         n_rebinned_evis_bins +
+                                     i]);
+          h_final_pred_nom[istage][iMode][iPred]->SetBinError(i + 1, 0);
         }
 
 
@@ -641,6 +687,7 @@ void fit_shape_2d_P17B(
         //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
         h_final_pred[istage][iMode][iPred]->SetFillColor(2);
         h_final_pred_null[istage][iMode][iPred]->SetLineColor(4);
+        h_final_pred_nom[istage][iMode][iPred]->SetLineColor(5);
 
         savefile->cd();
 
@@ -656,6 +703,10 @@ void fit_shape_2d_P17B(
             (TH1D*)h_final_pred_null[istage][iMode][iPred]->Clone(
                 Form("h_final_pred_null_ratio_stage%d_mode%d_%d", istage, iMode,
                      iPred));
+        h_final_pred_nom_ratio[istage][iMode][iPred] =
+            (TH1D*)h_final_pred_nom[istage][iMode][iPred]->Clone(
+                Form("h_final_pred_nom_ratio_stage%d_mode%d_%d", istage, iMode,
+                     iPred));
 
         if (h_final_pred_null[istage][iMode][iPred]->Integral() >
             0) { // Check to not do division by zero
@@ -665,10 +716,13 @@ void fit_shape_2d_P17B(
               h_final_pred_null[istage][iMode][iPred]);
           h_final_pred_null_ratio[istage][iMode][iPred]->Divide(
               h_final_pred_null[istage][iMode][iPred]);
+          h_final_pred_nom_ratio[istage][iMode][iPred]->Divide(
+              h_final_pred_null[istage][iMode][iPred]);
         } else {
           h_final_obs_ratio[istage][iMode][iPred]->Scale(0);
           h_final_pred_ratio[istage][iMode][iPred]->Scale(0);
           h_final_pred_null_ratio[istage][iMode][iPred]->Scale(0);
+          h_final_pred_nom_ratio[istage][iMode][iPred]->Scale(0);
         }
 
         dir->cd();
@@ -693,6 +747,11 @@ void fit_shape_2d_P17B(
             i + 1,
             final_pred_null_sum[iMode][iPred * n_rebinned_evis_bins + i]);
         h_final_pred_null_sum[iMode][iPred]->SetBinError(i + 1, 0);
+
+        h_final_pred_nom_sum[iMode][iPred]->SetBinContent(
+            i + 1,
+            final_pred_nom_sum[iMode][iPred * n_rebinned_evis_bins + i]);
+        h_final_pred_nom_sum[iMode][iPred]->SetBinError(i + 1, 0);
       }
 
 
@@ -702,6 +761,7 @@ void fit_shape_2d_P17B(
       //  h_final_pred[iMode][iPred]->SetFillColor(kGray);
       h_final_pred_sum[iMode][iPred]->SetFillColor(2);
       h_final_pred_null_sum[iMode][iPred]->SetLineColor(4);
+      h_final_pred_nom_sum[iMode][iPred]->SetLineColor(5);
 
       savefile->cd();
 
@@ -716,6 +776,9 @@ void fit_shape_2d_P17B(
       h_final_pred_null_ratio_sum[iMode][iPred] =
           (TH1D*)h_final_pred_null_sum[iMode][iPred]->Clone(
               Form("h_final_pred_null_ratio_sum_mode%d_%d", iMode, iPred));
+      h_final_pred_nom_ratio_sum[iMode][iPred] =
+          (TH1D*)h_final_pred_nom_sum[iMode][iPred]->Clone(
+              Form("h_final_pred_nom_ratio_sum_mode%d_%d", iMode, iPred));
 
       if (h_final_pred_null_sum[iMode][iPred]->Integral() >
           0) { // Check to not do division by zero
@@ -725,10 +788,13 @@ void fit_shape_2d_P17B(
             h_final_pred_null_sum[iMode][iPred]);
         h_final_pred_null_ratio_sum[iMode][iPred]->Divide(
             h_final_pred_null_sum[iMode][iPred]);
+        h_final_pred_nom_ratio_sum[iMode][iPred]->Divide(
+            h_final_pred_null_sum[iMode][iPred]);
       } else {
         h_final_obs_ratio_sum[iMode][iPred]->Scale(0);
         h_final_pred_ratio_sum[iMode][iPred]->Scale(0);
         h_final_pred_null_ratio_sum[iMode][iPred]->Scale(0);
+        h_final_pred_nom_ratio_sum[iMode][iPred]->Scale(0);
       }
 
       dir->cd();
