@@ -21,6 +21,7 @@ TimePeriodData::TimePeriodData()
     MuonVetoEff[idet1] = 0;
     Livetime[idet1] = 0;
     DMCEff[idet1] = 0;
+    DelayedEff[idet1] = 0;
     TargetMass[idet1] = 0;
     BgEvtsLiv[idet1] = 0;
   }
@@ -64,27 +65,32 @@ void TimePeriodData::CorrectEvts(bool print)
     // scale to 1 day and mass of AD1
 
     float factor = 0;
-    if (MuonVetoEff[idet] * DMCEff[idet] * Livetime[idet] * TargetMass[idet] >
-        0)
+    float factor_bg = 0;
+    if (MuonVetoEff[idet] * DMCEff[idet] * Livetime[idet] *
+        DelayedEff[idet] * TargetMass[idet] > 0) {
       factor = 1. / MuonVetoEff[idet] * 1. / DMCEff[idet] * 1. /
-               Livetime[idet] * TargetMass[0] * 1. / TargetMass[idet];
+        Livetime[idet] * 1 / DelayedEff[idet] *
+        TargetMass[0] * 1. / TargetMass[idet];
+      factor_bg = factor * DelayedEff[idet];
+    }
+
 
     CorrEvts[idet] = (ObsEvts[idet]) * factor;
-    AccEvts[idet] *= factor;
-    AmcEvts[idet] *= factor;
-    Li9Evts[idet] *= factor;
-    FnEvts[idet] *= factor;
-    AlnEvts[idet] *= factor;
+    AccEvts[idet] *= factor_bg;
+    AmcEvts[idet] *= factor_bg;
+    Li9Evts[idet] *= factor_bg;
+    FnEvts[idet] *= factor_bg;
+    AlnEvts[idet] *= factor_bg;
 
-    AccErr[idet] *= factor;
-    AmcErr[idet] *= factor;
-    Li9Err[idet] *= factor;
-    FnErr[idet] *= factor;
-    AlnErr[idet] *= factor;
+    AccErr[idet] *= factor_bg;
+    AmcErr[idet] *= factor_bg;
+    Li9Err[idet] *= factor_bg;
+    FnErr[idet] *= factor_bg;
+    AlnErr[idet] *= factor_bg;
 
     ErrEvts[idet] = ErrEvts[idet] * factor;
-    CorrBgEvts[idet] = BgEvtsLiv[idet] * factor;
-    ErrBgEvts[idet] = sqrt(BgEvtsLiv[idet]) * factor;
+    CorrBgEvts[idet] = BgEvtsLiv[idet] * factor_bg;
+    ErrBgEvts[idet] = sqrt(BgEvtsLiv[idet]) * factor_bg;
     if (print == true) {
       cout << "AD" << idet + 1 << ": " << CorrEvts[idet] << " +/- "
            << ErrEvts[idet] << "(stat)" << endl; // tmp
@@ -108,11 +114,15 @@ void TimePeriodData::CorrectSpec(bool print)
   Char_t name[1024];
   for (int idet = 0; idet < Ndetectors; ++idet) {
     float factor = 0;
+    float factor_bg = 0;
 
-    if (MuonVetoEff[idet] * DMCEff[idet] * Livetime[idet] * TargetMass[idet] >
-        0)
-      factor = 1. / MuonVetoEff[idet] * 1. / DMCEff[idet] * 1. /
-               Livetime[idet] * TargetMass[0] * 1. / TargetMass[idet];
+    if (MuonVetoEff[idet] * DMCEff[idet] * Livetime[idet] * DelayedEff[idet]
+        * TargetMass[idet] > 0) {
+      factor = 1. / MuonVetoEff[idet] * 1. / DMCEff[idet]
+        * 1. / Livetime[idet] * 1. / DelayedEff[idet]
+        * TargetMass[0] * 1. / TargetMass[idet];
+      factor_bg = factor * DelayedEff[idet];
+    }
 
     // copy ObsEvtsSpec into CorrEvtsSpec without leaking memory (although this
     // is a small memory leak, since it's only once per fake experiment)
@@ -130,14 +140,14 @@ void TimePeriodData::CorrectSpec(bool print)
       }
     }
 
-    if (factor > 0)
-      CorrBgEvtsSpec[idet]->Scale(1 / factor);
+    if (factor_bg > 0)
+      CorrBgEvtsSpec[idet]->Scale(1 / factor_bg);
     else
       CorrBgEvtsSpec[idet]->Scale(0);
 
     CorrEvtsSpec[idet]->Add(CorrBgEvtsSpec[idet], -1);
     CorrEvtsSpec[idet]->Scale(factor);
-    CorrBgEvtsSpec[idet]->Scale(factor);
+    CorrBgEvtsSpec[idet]->Scale(factor_bg);
 
   } // idet
 
@@ -228,6 +238,25 @@ void TimePeriodData::PrintToScreen()
       cout << ",";
   }
 
+  cout << "Target Masses: ";
+  for (int idet = 0; idet < Ndetectors; ++idet) {
+    cout << TargetMass[idet];
+
+    if (idet == Ndetectors - 1)
+      cout << endl;
+    else
+      cout << ",";
+  }
+
+  cout << "Delayed cut efficiencies";
+  for (int idet = 0; idet < Ndetectors; ++idet) {
+    cout << DelayedEff[idet];
+
+    if (idet == Ndetectors - 1)
+      cout << endl;
+    else
+      cout << ",";
+  }
   cout << "Target Masses: ";
   for (int idet = 0; idet < Ndetectors; ++idet) {
     cout << TargetMass[idet];

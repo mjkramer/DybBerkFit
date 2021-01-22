@@ -1160,6 +1160,7 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
       float factor = pred->tdper[istage].MuonVetoEff[idet] *
                      pred->tdper[istage].DMCEff[idet] *
                      pred->tdper[istage].Livetime[idet] *
+                     // pred->tdper[istage].DelayedEff[idet] *
                      pred->tdper[istage].TargetMass[idet] /
                      pred->tdper[istage].TargetMass[0];
 
@@ -2209,7 +2210,8 @@ void Spectrum::extractPredictorData()
 
       m_detectorEfficiency[istage][idet] =
           pred->tdper[istage].DMCEff[idet] *
-          pred->tdper[istage].MuonVetoEff[idet];
+          pred->tdper[istage].MuonVetoEff[idet] *
+          pred->tdper[istage].DelayedEff[idet];
       m_detectorEfficiency[istage][idet] *=
           m_detectorEfficiency_Dt * m_detectorEfficiency_Ep *
           m_detectorEfficiency_Ed[idet] * m_detectorEfficiency_flash *
