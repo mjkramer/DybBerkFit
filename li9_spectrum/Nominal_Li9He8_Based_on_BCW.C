@@ -22,7 +22,7 @@ void Nominal_Li9He8_Based_on_BCW(){
   h_combined->Reset();
   for(int ibin=0; ibin<h_combined->GetNbinsX(); ++ibin){
     h_combined->SetBinContent(ibin+1,h_li9->GetBinContent(ibin+1)+h_he8->GetBinContent(ibin+1));
-    if(h_combined->GetBinCenter(ibin+1)<0.7) h_combined->SetBinContent(ibin+1,0.);
+    // if(h_combined->GetBinCenter(ibin+1)<0.7) h_combined->SetBinContent(ibin+1,0.);
   }
 
   TCanvas* canv=new TCanvas("canv","canv",500,500);

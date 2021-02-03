@@ -36,7 +36,7 @@ void make_P15A_spectrum(){
     for(int ibin=0;ibin<n_evis_toy;++ibin){
       double x=h_toy[i]->GetBinCenter(ibin+1);
 
-      if(x>0.7) h_toy[i]->SetBinContent(ibin+1,pow(x/E0[i],-(x/E0[i])));
+      /*if(x>0.7)*/ h_toy[i]->SetBinContent(ibin+1,pow(x/E0[i],-(x/E0[i])));
       //if(x>0.7) h_toy[i]->SetBinContent(ibin+1,1);
     }
     //h_toy[i]->SetBinContent(240,1);
