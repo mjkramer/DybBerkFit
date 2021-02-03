@@ -22,12 +22,18 @@ static bool useBcwBinning()
   return val && strcmp("BCW", val) == 0;
 }
 
+static double min_energy()
+{
+  const char* val = getenv("LBNL_FIT_EMIN");
+  return val ? atof(val) : 0.7;
+}
+
 static void init_evis_lbnl() __attribute__((constructor));
 static void init_evis_lbnl()
 {
   // Single bins between 0.7 and 1.0 MeV. 0.2 MeV bins from 1.0 to 8.0 MeV.
   // Single bin between 8.0 and 12 MeV. total 37 bins
-  _evis_lbnl[0] = 0.7;
+  _evis_lbnl[0] = min_energy();
   for (Int_t i = 0; i < _n_evis_lbnl - 1; i++) {
     _evis_lbnl[i + 1] = 0.2 * i + 1.0;
   }
@@ -37,7 +43,7 @@ static void init_evis_lbnl()
 static void init_evis_bcw() __attribute__((constructor));
 static void init_evis_bcw()
 {
-  _evis_bcw[0] = 0.7;
+  _evis_bcw[0] = min_energy();
   for (Int_t i = 0; i < _n_evis_bcw - 1; i++) {
     _evis_bcw[i + 1] = 0.25 * i + 1.3;
   }
