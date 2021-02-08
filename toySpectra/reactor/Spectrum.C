@@ -41,14 +41,17 @@ Spectrum::Spectrum() :
   // latest value from doc-9401-v7
   m_detectorEfficiency_Dt = 0.9870;
   m_detectorEfficiency_Ep = 0.9981;
-  m_detectorEfficiency_Ed_nominal = 0.927;
+  // m_detectorEfficiency_Ed_nominal = 0.927;
   m_detectorEfficiency_flash = 0.9998;
   m_detectorEfficiency_nGd = 0.842;
   m_detectorEfficiency_spill = 1.049;
 
-  for (Int_t idet = 0; idet < Ndetectors; idet++) {
-    m_detectorEfficiency_Ed[idet] = m_detectorEfficiency_Ed_nominal;
-  }
+  // The (AD-dependent) nominal delayed cut efficiency is now taken from the
+  // Theta13-inputs file. See extractPredictorData.
+
+  // for (Int_t idet = 0; idet < Ndetectors; idet++) {
+  //   m_detectorEfficiency_Ed[idet] = m_detectorEfficiency_Ed_nominal;
+  // }
 
   ran = new TRandom3();
 
@@ -2208,13 +2211,17 @@ void Spectrum::extractPredictorData()
       m_detectorSize[idet] = pred->tdper[istage].TargetMass[idet] *
                              1e-6; // convert from kg to ktons
 
+      m_detectorEfficiency_Ed_nominal[istage][idet] =
+        pred->tdper[istage].DelayedEff[idet];
+      m_detectorEfficiency_Ed[istage][idet] =
+        m_detectorEfficiency_Ed_nominal[istage][idet];
+
       m_detectorEfficiency[istage][idet] =
           pred->tdper[istage].DMCEff[idet] *
-          pred->tdper[istage].MuonVetoEff[idet] *
-          pred->tdper[istage].DelayedEff[idet];
+          pred->tdper[istage].MuonVetoEff[idet];
       m_detectorEfficiency[istage][idet] *=
           m_detectorEfficiency_Dt * m_detectorEfficiency_Ep *
-          m_detectorEfficiency_Ed[idet] * m_detectorEfficiency_flash *
+          m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_flash *
           m_detectorEfficiency_nGd * m_detectorEfficiency_spill;
     }
   }
@@ -2430,7 +2437,7 @@ void Spectrum::setRandomDetectorEfficiency()
       m_detectorEfficiency[istage][idet] =
           ran_det_eff * pred->tdper[istage].DMCEff[idet] *
           pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
-          m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[idet] *
+          m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
           m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
           m_detectorEfficiency_spill;
     }
@@ -2439,25 +2446,25 @@ void Spectrum::setRandomDetectorEfficiency()
 
 void Spectrum::setRandomRelativeEnergyScale()
 {
-  for (int idet = 0; idet < Ndetectors; idet++) {
-    double rel_escale_shift = m_rel_escale_error[idet] * ran->Gaus(0, 1);
-    m_rel_escale[idet] = m_rel_escale_nominal[idet] + rel_escale_shift;
+    for (int idet = 0; idet < Ndetectors; idet++) {
+      double rel_escale_shift = m_rel_escale_error[idet] * ran->Gaus(0, 1);
+      m_rel_escale[idet] = m_rel_escale_nominal[idet] + rel_escale_shift;
 
-    // recalculate detection efficiency
-    m_detectorEfficiency_Ed[idet] =
-        m_detectorEfficiency_Ed_nominal *
-        (1.0 +
-         rel_escale_shift *
-             0.36); // 0.36 is a magic factor that convert energy scale shift to
-                    // delayed energy cut efficiency (0.072/0.2) in DocDB-10956
+      for (int istage = 0; istage < Nstage; istage++) {
+        // recalculate detection efficiency
+        m_detectorEfficiency_Ed[istage][idet] =
+            m_detectorEfficiency_Ed_nominal[istage][idet] *
+            (1.0 +
+            rel_escale_shift *
+                0.36); // 0.36 is a magic factor that convert energy scale shift to
+                        // delayed energy cut efficiency (0.072/0.2) in DocDB-10956
 
-    for (int istage = 0; istage < Nstage; istage++) {
-      m_detectorEfficiency[istage][idet] =
-          pred->tdper[istage].DMCEff[idet] *
-          pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
-          m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[idet] *
-          m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
-          m_detectorEfficiency_spill;
+          m_detectorEfficiency[istage][idet] =
+              pred->tdper[istage].DMCEff[idet] *
+              pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
+              m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
+              m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
+              m_detectorEfficiency_spill;
     }
   }
 }

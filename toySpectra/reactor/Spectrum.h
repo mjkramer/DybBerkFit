@@ -196,13 +196,13 @@ private:
   // other detector efficiency, common for all detectors
   double m_detectorEfficiency_Dt;
   double m_detectorEfficiency_Ep;
-  double m_detectorEfficiency_Ed_nominal;
+  // double m_detectorEfficiency_Ed_nominal;
   double m_detectorEfficiency_flash;
   double m_detectorEfficiency_nGd;
   double m_detectorEfficiency_spill;
 
-  double m_detectorEfficiency_Ed[Ndetectors]; // can be different depending on
-                                              // relative energy scale shift
+  double m_detectorEfficiency_Ed_nominal[Nstage][Ndetectors]; // from Theta13-inputs
+  double m_detectorEfficiency_Ed[Nstage][Ndetectors]; // randomizing the above
 
   double m_runningTime[Nstage][Ndetectors];
   double m_detectorSize[Ndetectors];
