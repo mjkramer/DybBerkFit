@@ -46,6 +46,9 @@ Spectrum::Spectrum() :
   m_detectorEfficiency_nGd = 0.842;
   m_detectorEfficiency_spill = 1.049;
 
+  // HACK to account for our selecting only z<0
+  m_detectorEfficiency_nGd *= 0.5;
+
   // The (AD-dependent) nominal delayed cut efficiency is now taken from the
   // Theta13-inputs file. See extractPredictorData.
 
