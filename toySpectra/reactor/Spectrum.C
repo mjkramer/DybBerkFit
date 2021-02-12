@@ -441,6 +441,7 @@ void Spectrum::updateAntinu(int icore_select)
                                                          m_energy[idet][idx]);
             }
 
+            flux *= 0.945;      // Fudge correction for RAA
 
             m_antiNuSpectrum[istage][idet][idx] +=
                 (m_reactorPower[istage][icore] /
