@@ -16,7 +16,7 @@ STAGE_END_WEEK = [33, 261, 297]
 DEFAULT_LIVETIME_FILE = "dbd_livetime_P17B.txt"
 DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_P17B_by_Beda.txt"
 DEFAULT_ISOTOPE_FILE = "fissionIsotopeTable_v1.txt"
-DEFAULT_CORE_OPTION = 4
+DEFAULT_MODEL_OPTION = 4
 
 ISOTOPES = ["U235", "U238", "Pu239", "Pu241"]
 
@@ -53,7 +53,7 @@ def e_per_fis(path=DEFAULT_ISOTOPE_FILE):
             "Pu239": table[3], "Pu241": table[4]}
 
 
-def core_spec_path(option=DEFAULT_CORE_OPTION):
+def model_spec_path(option=DEFAULT_MODEL_OPTION):
     if option == 0:
         return "BCW/fissionIsotopeSpectra_Huber_Linear.txt"
     if option == 1:
@@ -67,9 +67,9 @@ def core_spec_path(option=DEFAULT_CORE_OPTION):
     raise ValueError("Invalid option")
 
 
-def read_core_spec(option=DEFAULT_CORE_OPTION):
+def read_model_spec(option=DEFAULT_MODEL_OPTION):
     "nuebar/MeV/fission"
-    path = core_spec_path(option)
+    path = model_spec_path(option)
     return pd.read_csv(path, sep=r"\s+", comment="#",
                        names=["Enu", "spec_U235", "spec_U238",
                               "spec_Pu239", "spec_Pu241"]) \
@@ -84,11 +84,11 @@ def cross(df1, df2):
 def full_data(livetime_file=DEFAULT_LIVETIME_FILE,
               power_file=DEFAULT_POWER_FILE,
               isotope_file=DEFAULT_ISOTOPE_FILE,
-              core_option=DEFAULT_CORE_OPTION):
+              model_option=DEFAULT_MODEL_OPTION):
 
     weekly = weekly_data(livetime_file, power_file)
-    corespec = read_core_spec(core_option)
-    df = cross(weekly, corespec).set_index(["week", "core", "Enu"])
+    modelspec = read_model_spec(model_option)
+    df = cross(weekly, modelspec).set_index(["week", "core", "Enu"])
 
     fisE = e_per_fis(isotope_file)
 
@@ -123,23 +123,23 @@ def dump_spectra(full_df, istage, outdir):
         table["Enu"] = table["Enu"].map(lambda x: "%.2f" % x)
 
         path = f"{outdir}/reactor_{ndet}AD_{iso}.txt"
-        table.to_csv(path, sep=" ", header=None, index=False,
+        table.to_csv(path, sep="\t", header=None, index=False,
                      float_format="%.6f")
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--outdir", default="isotope_spetra")
+    ap.add_argument("--outdir", default="isotope_spectra")
     ap.add_argument("--livetime-file", default=DEFAULT_LIVETIME_FILE)
     ap.add_argument("--power-file", default=DEFAULT_POWER_FILE)
     ap.add_argument("--isotope-file", default=DEFAULT_ISOTOPE_FILE)
-    ap.add_argument("--core-option", type=int, default=DEFAULT_CORE_OPTION)
+    ap.add_argument("--model-option", type=int, default=DEFAULT_MODEL_OPTION)
     args = ap.parse_args()
 
     os.system(f"mkdir -p {args.outdir}")
 
     df = full_data(args.livetime_file, args.power_file,
-                   args.isotope_file, args.core_option)
+                   args.isotope_file, args.model_option)
 
     for istage in range(3):
         dump_spectra(df, istage, args.outdir)
