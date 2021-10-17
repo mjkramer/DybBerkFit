@@ -110,17 +110,21 @@ def dump_spectra(full_df, istage, outdir):
     start = STAGE_START_WEEK[istage]
     end = STAGE_END_WEEK[istage]
 
-    df = full_df.loc[start:end]
+    df = full_df.loc[start:end].copy()
     gb = df.groupby(["core", "Enu"])
     # now we are summing over weeks, indexing over (core, Enu)
     livetime_s = gb["livetime_s"].sum()
 
     for iso in ISOTOPES:
         spec = gb[f"nNu_{iso}"].sum() / livetime_s * SCALE
-        table = spec.reset_index().pivot(columns="core", index="Enu")
+        table = spec.reset_index().pivot(columns="core", index="Enu") \
+                                  .reset_index()
+        # HACK since we want only two decimals here, six for other cols
+        table["Enu"] = table["Enu"].map(lambda x: "%.2f" % x)
 
         path = f"{outdir}/reactor_{ndet}AD_{iso}.txt"
-        table.to_csv(path, sep=" ", header=None)
+        table.to_csv(path, sep=" ", header=None, index=False,
+                     float_format="%.6f")
 
 
 def main():
