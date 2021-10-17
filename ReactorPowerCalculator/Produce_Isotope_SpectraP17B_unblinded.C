@@ -176,7 +176,7 @@ float spectra[220][4];
 
 int Npoints_in_spectra=0;
 
-void ReadCoreSpectra(int option=1){
+void ReadCoreSpectra(int option){
   char filepath[64];
   if(option==0) sprintf(filepath,"./BCW/fissionIsotopeSpectra_Huber_Linear.txt");
   if(option==1) sprintf(filepath,"./BCW/fissionIsotopeSpectra_Huber_Fit.txt");
@@ -342,7 +342,7 @@ void ReadWeeklyAvg(){
 float array_beda_spectra[Nstages][Ncores][4][220];
 
 
-void ProduceSpectraDwyer(int option=1){
+void ProduceSpectraDwyer(int option){
   ReadCoreSpectra(option);
   ReadWeeklyAvg();
 
@@ -438,7 +438,8 @@ void PrintSpectra(int option){
   }
 }
 
-void Produce_Isotope_SpectraP17B_unblinded(int option=4) // XXX Should 4 (LBNL) be the default?
+// Note: Looks like "option=1" may have been used in preparing the WeeklyAvg file? See WeeklyAvg/NOTES.txt.
+void Produce_Isotope_SpectraP17B_unblinded(int option)
 {
   PrintSpectra(option);
 }
