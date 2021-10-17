@@ -6,7 +6,7 @@ import os
 import pandas as pd
 
 EMIN = 1.85
-EMAX = 12.8
+EMAX = 12.75
 STRIDE = 5                      # Spacing of the samples we take from the model
 
 SCALE = 1e-18
@@ -25,11 +25,13 @@ DEFAULT_MODEL_OPTION = 1
 ISOTOPES = ["U235", "U238", "Pu239", "Pu241"]
 
 
+# takes the mean across the three halls
 def weekly_livetime(path=DEFAULT_LIVETIME_FILE):
     dbd = pd.read_csv(path, sep=r"\s+",
                       names=["day", "hall", "livetime_s"])
     dbd["week"] = dbd["day"] // 7
-    return 7 * dbd.groupby("week")["livetime_s"].mean()
+    return dbd.groupby("day").mean() \
+                             .groupby("week").sum()["livetime_s"]
 
 
 def weekly_power(path=DEFAULT_POWER_FILE):
