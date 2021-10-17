@@ -5,6 +5,10 @@ import os
 
 import pandas as pd
 
+EMIN = 1.85
+EMAX = 12.8
+STRIDE = 5                      # Spacing of the samples we take from the model
+
 SCALE = 1e-18
 NOM_POWER_GW = 2.9
 MEV_PER_GW_S = 6.2415e21
@@ -16,7 +20,7 @@ STAGE_END_WEEK = [33, 261, 297]
 DEFAULT_LIVETIME_FILE = "dbd_livetime_P17B.txt"
 DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_P17B_by_Beda.txt"
 DEFAULT_ISOTOPE_FILE = "fissionIsotopeTable_v1.txt"
-DEFAULT_MODEL_OPTION = 4
+DEFAULT_MODEL_OPTION = 1
 
 ISOTOPES = ["U235", "U238", "Pu239", "Pu241"]
 
@@ -54,26 +58,24 @@ def e_per_fis(path=DEFAULT_ISOTOPE_FILE):
 
 
 def model_spec_path(option=DEFAULT_MODEL_OPTION):
-    if option == 0:
-        return "BCW/fissionIsotopeSpectra_Huber_Linear.txt"
-    if option == 1:
-        return "BCW/fissionIsotopeSpectra_Huber_Fit.txt"
-    if option == 2:
-        return "BCW/fissionIsotopeSpectra_ILL_Muller_Linear.txt"
-    if option == 3:
-        return "BCW/fissionIsotopeSpectra_ILL_Muller_Fit.txt"
-    if option == 4:
-        return "LBNL_Spectra/fissionIsotopeSpectra_Huber_v0.txt"
-    raise ValueError("Invalid option")
+    return {
+        0: "BCW/fissionIsotopeSpectra_Huber_Linear.txt",
+        1: "BCW/fissionIsotopeSpectra_Huber_Fit.txt",
+        2: "BCW/fissionIsotopeSpectra_ILL_Muller_Linear.txt",
+        3: "BCW/fissionIsotopeSpectra_ILL_Muller_Fit.txt",
+        4: "LBNL_Spectra/fissionIsotopeSpectra_Huber_v0.txt"
+    }[option]
 
 
 def read_model_spec(option=DEFAULT_MODEL_OPTION):
     "nuebar/MeV/fission"
     path = model_spec_path(option)
-    return pd.read_csv(path, sep=r"\s+", comment="#",
+    data = pd.read_csv(path, sep=r"\s+", comment="#",
                        names=["Enu", "spec_U235", "spec_U238",
                               "spec_Pu239", "spec_Pu241"]) \
              .set_index("Enu")
+    data = data.query(f"{EMIN} <= Enu <= {EMAX}")
+    return data.sort_index().iloc[::STRIDE]
 
 def cross(df1, df2):
     return df1.reset_index().assign(dummy=0) \
