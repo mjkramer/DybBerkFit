@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# This is less precise than gen_dbd_livetime_files.py
+# This is less precise than gen_dbd_livetime_files.py from IbdSel/fit_prep.
+# Recommend using that one instead.
 
 import argparse
 import datetime as D
@@ -17,14 +18,14 @@ def gzopen(path):
     return gzip.open(path) if path.endswith(".gz") else open(path)
 
 def parse_path(path):
-    "Returns (runno, fileno, site)"
+    "Returns (runno, fileno, hall)"
     base = path.strip().split("/")[-1]
     parts = base.split(".")
     return int(parts[2]), int(parts[6][1:]), int(parts[4][2])
 
 def read_grl(grlpath):
     return pd.DataFrame((parse_path(line) for line in gzopen(grlpath)),
-                        columns=["runno", "fileno", "site"]) \
+                        columns=["runno", "fileno", "hall"]) \
              .set_index(["runno", "fileno"])
 
 def read_db(firstrun, lastrun):
@@ -58,7 +59,7 @@ def main():
         return
 
     df = get_data(args.listfile)
-    out_df = df.groupby(['day', 'site'])["len_s"].sum()
+    out_df = df.groupby(['day', 'hall'])["len_s"].sum()
     out_df.to_csv(sys.stdout, sep="\t", header=False, float_format="%.3f")
 
 if __name__ == '__main__':
