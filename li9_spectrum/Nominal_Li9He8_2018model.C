@@ -1,6 +1,6 @@
 void Nominal_Li9He8_2018model(){
-  TFile* file_li9=new TFile("toyli9spec_2018model.root","READ");
-  TFile* file_he8=new TFile("toyhe8spec_2018model.root","READ");
+  TFile* file_li9=new TFile("toyli9spec_2018model_v1.root","READ");
+  TFile* file_he8=new TFile("toyhe8spec_2018model_v1.root","READ");
 
   TH1F* h_li9=(TH1F*)(file_li9->Get("h_eVisAllSmeared"))->Clone("h_li9");
   TH1F* h_he8=(TH1F*)(file_he8->Get("h_eVisAllSmeared"))->Clone("h_he8");

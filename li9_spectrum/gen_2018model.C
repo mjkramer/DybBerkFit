@@ -5,6 +5,6 @@
 void gen_2018model()
 {
   auto nlfile = new TFile("energymodel_Apr2018_oldE.root");
-  readtoyli9tree(nlfile, "toyli9spec_2018model.root");
-  readtoyhe8tree(nlfile, "toyhe8spec_2018model.root");
+  readtoyli9tree(nlfile, "toyli9spec_2018model_v1.root");
+  readtoyhe8tree(nlfile, "toyhe8spec_2018model_v1.root");
 }

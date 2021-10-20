@@ -13,7 +13,7 @@
 
 const int Nexp=250;
 
-void ConstructDistortSpectra(){
+void ConstructDistortSpectra(bool IHEP=false){
 
   TRandom3 *gRandom3 = new TRandom3();
   gRandom3->SetSeed(0.1);
@@ -28,8 +28,14 @@ void ConstructDistortSpectra(){
   double alpha_quenching_var=1;
 
   TFile *nlfile = new TFile("Model1.root","READ");//<--to feed to readtoyli9/he8spectra.C macros
-  string nominalname="8he9li_nominal_spectrum_frac_0.055.root";
-  string distortname="8he9li_distort_neutron100_alpha100_frac0.055_N250.root";
+  string nominalname, distortname;
+  if (IHEP) {
+    nominalname="8he9li_nominal_spectrum_IHEP.root";
+    distortname="8he9li_distort_neutron100_alpha100_frac0.055_N259_IHEP.root";
+  } else {
+    nominalname="8he9li_nominal_spectrum_frac_0.055.root";
+    distortname="8he9li_distort_neutron100_alpha100_frac0.055_N250.root";
+  }
 
   // ***********************
 
