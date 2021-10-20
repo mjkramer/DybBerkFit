@@ -161,12 +161,13 @@ TH1F* readtoyli9tree(TFile *nlfile, string savestr="", float scale_neutron_quenc
     double eVisAll = eVisElectron+eVisNeutron+eVisAlpha1+eVisAlpha2;
 
     //apply electronics nl
+    //is it really valid to apply elec nl to anything other than eVisAll?
     eVisElectron *= elec_nl->Eval(eVisElectron);
     eVisNeutron *= elec_nl->Eval(eVisNeutron);
     eVisAlpha1 *= elec_nl->Eval(eVisAlpha1);
     eVisAlpha2 *= elec_nl->Eval(eVisAlpha2);
-    //eVisAll *= elec_nl->Eval(eVisAll);
-    eVisAll = eVisElectron+eVisNeutron+eVisAlpha1+eVisAlpha2;
+    eVisAll *= elec_nl->Eval(eVisAll);
+    // eVisAll = eVisElectron+eVisNeutron+eVisAlpha1+eVisAlpha2;
 
     //apply resolution
     double sigma = reso_func->Eval(eVisElectron);
