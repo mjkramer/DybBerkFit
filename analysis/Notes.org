@@ -1,1 +1,1 @@
-Got plot_LBNL_P17B.C from Beda's Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/PlotChi2
+Got plot_LBNL_P17B.C (now plot_contours.C) from Beda's Theta13Analysis2017_Based_on_2016/ShapeFit/fit_result_files/PlotChi2

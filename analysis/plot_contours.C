@@ -1,5 +1,5 @@
 #include "../ShapeFit/Config.h"
-#include "../ShapeFit/Paths.h""
+#include "../ShapeFit/Paths.h"
 
 #include <TStyle.h>
 #include <TFile.h>
@@ -17,9 +17,18 @@
 
 using namespace std;
 
+// Should instead just base this on outpath from PathUtils
+const char* picpath(const char* name)
+{
+  const char* outdir = getenv("LBNL_FIT_OUTDIR");
+  if (outdir == NULL)
+    outdir = ".";
+  return Form("%s/pics/%s", outdir, name);
+}
+
 void plot_LBNL_P17B_IHEP_official()
 {
-  system("mkdir -p pics");
+  system(Form("mkdir -p %s", picpath("")));
 
   gStyle->SetPalette(1);
   gStyle->SetLabelFont(62, "XY");
@@ -74,7 +83,7 @@ void plot_LBNL_P17B_IHEP_official()
   TFile* bestfit_file = new TFile(Paths::fit_result(), "OPEN");
 
 
-  TFile *fout = new TFile("./IHEP_contour_P17B.root", "recreate");
+  TFile *fout = new TFile(picpath("IHEP_contour_P17B.root"), "recreate");
 
   TH2D *hchi2_map =
     new TH2D("hchi2_map", "hchi2_map", nS2T, s2t_min - 0.5 * s2t_step,
@@ -380,7 +389,7 @@ void plot_LBNL_P17B_IHEP_official()
   // gnew_90->Write();
   // gnew_99->Write();
 
-  c2->SaveAs("LBNL_contour_P17B.pdf");
+  c2->SaveAs(picpath("LBNL_contour_P17B.pdf"));
 
   const Int_t maxthre = 3;
 
@@ -665,5 +674,5 @@ void plot_LBNL_P17B_IHEP_official()
   ll2_3->Draw("SAME");
   ll3_3->Draw("SAME");
 
-  c_limits->Print("./pics/limits.pdf");
+  c_limits->Print(picpath("limits.pdf"));
 }
