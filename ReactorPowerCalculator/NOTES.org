@@ -1,0 +1,27 @@
+* Isotope spectra
+
+fissionIsotopeSpectra_Huber_v0.txt comes from Christine's IBDprediction:
+- Spectra_Huber_u235.txt
+- Spectra_Huber(French)_u238.txt
+- Spectra_Huber_pu239.txt
+- Spectra_Huber_pu241.txt
+
+Those files were produced by running NominalFluxFiles from Christine's IBDprediction/get_isotope_spectrum.py.
+
+These already include noneq corrections??? No, see comment in getFlux of IBDprediction/get_isotope_spectrum.py. But wait, in the code, it seems that acorrection is applied. Specifically the 450-day correction.
+
+OK, indeed it looks like the 450-day correction is applied in Christine's code. Then we apply it again in make_combined_spectra_P17B_unblinded.C. Need to fix this!
+
+Ah, but if we look in scripts/init.sh, we see that we've been using the BCW's spectra (option=1), overriding the default option=4 in produce_isotope_spectra. So if we switch to LBNL, need to disable the NE correction.
+
+TODO: Perform fit after switching from BCW to LBNL spectra, compare?
+
+* fissionIsotopeTable_v1.txt
+
+According to PhysRevC.88.014605, 209.99 should be 210.99. Should consider switching to the numbers from PhysRevC.88.014605. That's what the long paper says we use.
+
+* WeeklyAvg
+
+Put WeeklyAvg_P17B_by_Beda.txt in WeeklyAvg
+
+Evidently this was produced from an equivalent file that listed the antineutrino rate instead of the power fraction. See /project/projectdirs/dayabay/scratch/beda/Theta13Analysis2017_Based_on_2016/ReactorPowerCalculator/p17b_unblinded/powertoneutrino.C (mirrored here in p17b_unblinded).
