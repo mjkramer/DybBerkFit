@@ -10,7 +10,7 @@
 #include "TStyle.h"
 #include "TF1.h"
 #include "TSystem.h"
-#include "readtoyli9tree_2018model.C" //need Nneutron from there, as well as reso_func_bcw
+#include "readtoyli9tree_2018model.C" //need Nneutron from there, as well as reso_func_p15a
 
 //When savestr=="" it's intended to work as not showing plots; if savestr!="" then will show plots and save things to a file
 TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quenching=1.){
@@ -29,8 +29,8 @@ TH1F* readtoyhe8tree(TFile *nlfile,string savestr="", float scale_neutron_quench
   ifstream infile_alpha("./BCW-Model/alpha.dat");
   ifstream infile_neutron("./BCW-Model/neutron.dat");
 
-  TF1 * reso_func = new TF1("reso_func",reso_func_bcw,0,20,3);
-  reso_func->SetParameters(0.075,0.009); // based on Bryce's TN
+  TF1 * reso_func = new TF1("reso_func",reso_func_p15a,0,20,3);
+  reso_func->SetParameters(0.016, 0.081, 0.026); // based on 1230 days paper
 
   // *************************************
 

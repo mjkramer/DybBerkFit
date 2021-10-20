@@ -18,12 +18,17 @@ using namespace std;
 const int Nalpha=100;
 const int Nneutron=20;
 
-//Yasu's implementation of BCW resolution function
-Double_t reso_func_bcw(Double_t * x, Double_t * par){
+Double_t reso_func_p15a(Double_t* x, Double_t* par)
+{
+  Double_t e_orig = x[0];
+  Double_t e_sigma = 1.0;
 
-  Double_t res = (par[0]/sqrt(x[0])+par[1])*x[0];
-  return res;
+  if (e_orig > 0) {
+    e_sigma = TMath::Sqrt(par[0] * par[0] + par[1] * par[1] / e_orig +
+                          par[2] * par[2] / e_orig / e_orig);
+  }
 
+  return e_sigma * e_orig;
 }
 
 //When savestr=="" it's intended to work as not showing plots; if savestr!="" then will show plots and save things to a file
@@ -44,8 +49,8 @@ TH1F* readtoyli9tree(TFile *nlfile, string savestr="", float scale_neutron_quenc
   ifstream infile_alpha("./BCW-Model/alpha.dat");
   ifstream infile_neutron("./BCW-Model/neutron.dat");
 
-  TF1 * reso_func = new TF1("reso_func",reso_func_bcw,0,20,3);
-  reso_func->SetParameters(0.075,0.009); // based on Bryce's TN
+  TF1 * reso_func = new TF1("reso_func",reso_func_p15a,0,20,3);
+  reso_func->SetParameters(0.016, 0.081, 0.026); // based on 1230 days paper
 
   // *************************************
 
