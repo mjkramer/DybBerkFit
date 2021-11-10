@@ -132,8 +132,11 @@ const char* reactor_covmatrix()
 const char* unified_nl(bool scnl)
 {
   const char* tag = scnl ? "new" : "old";
-  // doc-11611 (XXX switch to the model in doc-11646?)
-  return formpath("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
+  // doc-11611
+  // return formpath("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
+  //                 tag);
+  // doc-11646
+  return formpath("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
                   tag);
 }
 
