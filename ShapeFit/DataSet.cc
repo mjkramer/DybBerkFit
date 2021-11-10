@@ -1,5 +1,7 @@
 #include "DataSet.h"
 
+#include "Binning.h"
+
 #include "TGraph.h"
 #include "TH1F.h"
 #include "TObjString.h"
@@ -96,7 +98,8 @@ void DataSet::setObject(const char* name, TObject* value)
   TObject* pair = m_data.FindObject(name);
   if (pair) {
     // This data object exists, so replace
-    cout << "Warning: Replacing object: " << name << endl;
+    if (m_warnOnReplace)
+      cout << "Warning: Replacing object: " << name << endl;
     m_data.Remove(((TPair*)pair)->Key());
     // FIXME: Consider deleting object if there are no other owners...
   }
@@ -109,6 +112,13 @@ void DataSet::setObject(const char* name, TObject* value)
   {
   }
 */
+
+bool DataSet::isDouble(const char* name)
+{
+  TParameter<double>* par =
+    dynamic_cast<TParameter<double>*>(this->getObject(name));
+  return par != NULL;
+}
 
 int DataSet::load(const char* filename)
 {
@@ -156,6 +166,27 @@ int DataSet::load(const char* filename)
       this->setString(name.c_str(), svalue.c_str());
     }
   }
+
+  // Replace the string "nominal" with the appropriate nominal value.
+  m_warnOnReplace = false;
+  vector<const char*> special_vars = {"deltaMSqee", "sinSq2Theta13"};
+  for (auto&& v : special_vars) {
+    if (!this->isDouble(v)) {
+      string s = this->getString(v);
+      if (s != "nominal") {
+        std::cout << "DataSet::load: "
+                  << v << "should be either  nominal  or a number"
+                  << "(got " << s << ")" << std::endl;
+        return -1;
+      }
+      auto binning = Binning::useBcwBinning() ? "BCW" : "LBNL";
+      auto vnom = Form("%sNominal%s", v, binning);
+      double val = this->getDouble(vnom);
+      this->setDouble(v, val);
+    }
+  }
+  m_warnOnReplace = true;       // just in case...
+
   return 0;
 }
 

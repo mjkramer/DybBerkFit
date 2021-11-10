@@ -2,6 +2,8 @@
 
 namespace Binning {
 
+extern bool useBcwBinning();
+
 extern double* evis();
 extern double* evis_fine();
 extern double* enu();

@@ -1,20 +1,29 @@
 # Complete data set description
 # Created By: dadwyer@lbl.gov May 4, 2012
 
+# Here the suffix "LBNL" or "BCW" refers to the binning.
+deltaMSqeeNominalLBNL 2.469
+deltaMSqeeNominalBCW 2.522      # Phys. Rev. Lett. 121, 241805 (2018)
+sinSq2Theta13NominalLBNL 0.0853
+sinSq2Theta13NominalBCW 0.0856  # Phys. Rev. Lett. 121, 241805 (2018)
+
 # Current global measurements of neutrino oscillation parameters
 # 2014 Review of Particle Physics [PDG]
 #  K. Nakamura et al. (Particle Data Group), J. Phys. G 37, 075021 (2010)
 #  Updated deltaMSq13 taken from MINOS 2011 result: 
 #    P. Adamson et al., Phys. Rev. Lett. 106, 181801 (2011).
 #  Further updated deltaMSq13 taken from MINOS 2013 result.
-deltaMSqee       2.48e-3  # eV^2
-deltaMSqeeErr    0.10e-3  # eV^2
+
+# Note: For deltaMSqee and sinSq2Theta13, "nominal" (without quotes) will
+# trigger the use of the nominal values above, based on $LBNL_FIT_BINNING
+deltaMSqee       nominal  # eV^2
+deltaMSqeeErr    0.07e-3  # eV^2
 deltaMSq21       7.53e-5  # eV^2
 deltaMSq21Err    0.18e-5  # eV^2
 sinSq2Theta12    0.851
 sinSq2Theta12Err 0.021
-sinSq2Theta13    0.084
-sinSq2Theta13Err 0.005
+sinSq2Theta13    nominal
+sinSq2Theta13Err 0.0029
 
 # sterile oscillation parameters
 deltaMSq41       0.1  # eV^2

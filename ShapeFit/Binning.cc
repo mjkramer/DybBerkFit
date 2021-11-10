@@ -16,7 +16,7 @@ static double _evis_bcw[_n_evis_bcw + 1];
 static double _evis_fine[_n_evis_fine + 1];
 static double _enu[_n_enu + 1];
 
-static bool useBcwBinning()
+bool useBcwBinning()
 {
   const char* val = getenv("LBNL_FIT_BINNING");
   return val && strcmp("BCW", val) == 0;

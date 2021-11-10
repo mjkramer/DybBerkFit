@@ -21,6 +21,7 @@ public:
   TGraph* getGraph(const char* name);
   TObject* getObject(const char* name);
   // DataTable* getTable(const char* name);
+  bool isDouble(const char* name);
 
   void setDouble(const char* name, double value);
   void setString(const char* name, const char* value);
@@ -36,4 +37,5 @@ public:
 
 private:
   TMap m_data; // Container for data
+  bool m_warnOnReplace = true;
 };
