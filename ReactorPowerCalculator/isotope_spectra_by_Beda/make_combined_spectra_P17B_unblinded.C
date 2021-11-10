@@ -28,7 +28,7 @@ Double_t e_noneq[5] = {2,2.5,3.0,3.5, 4.0};
 // Double_t noneq_p241[5] = {1.9, 1.5, 0.5, 0.0, 0.0};
 
 // Per the comments below, two of the zeros are actually 0.1 in Christine's
-// files (IBDprediction).
+// files (IBDprediction/French_FluxData/XYZ_450d_eq.dat).
 Double_t noneq_corr[4][5] = {{5.7, 4.4, 1.5, 0.7, 0.1},
                              {0.0, 0.0, 0.0, 0.0, 0.0},
                              {2.1, 1.7, 0.5, 0.0 /*0.1*/, 0.0},

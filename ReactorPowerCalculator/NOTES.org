@@ -14,7 +14,9 @@ OK, indeed it looks like the 450-day correction is applied in Christine's code. 
 
 Ah, but if we look in scripts/init.sh, we see that we've been using the BCW's spectra (option=1), overriding the default option=4 in produce_isotope_spectra. So if we switch to LBNL, need to disable the NE correction.
 
-TODO: Perform fit after switching from BCW to LBNL spectra, compare?
+Wait again, in getFlux, we see that "correction" is never applied. So, in the end, it appears that Christine's code does NOT apply non-eq or SNF, so we are free to switch to the LBNL spectra without changing make_combined_spectra_P17B_unblinded.C.
+
+Note also: running test_fluxes() from get_isotope_spectrum also produces the same values as fissionIsotopeSpectra_Huber_v0.txt.
 
 * fissionIsotopeTable_v1.txt
 

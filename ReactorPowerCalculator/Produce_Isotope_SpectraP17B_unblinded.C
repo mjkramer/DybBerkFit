@@ -438,7 +438,7 @@ void PrintSpectra(int option){
   }
 }
 
-// Note: Looks like "option=1" may have been used in preparing the WeeklyAvg file? See WeeklyAvg/NOTES.txt.
+// Note: Looks like "option=1" may have been used in preparing the WeeklyAvg file? See NOTES.org.
 void Produce_Isotope_SpectraP17B_unblinded(int option)
 {
   PrintSpectra(option);
