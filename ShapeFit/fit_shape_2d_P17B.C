@@ -48,10 +48,11 @@ Double_t CalculateChi2(TH1F* h_s22t13, TH1F* h_data);
 
 
 void fit_shape_2d_P17B(
-    const char* savefilename = Paths::fit_result(),
     Int_t PeriodFlag = -1, //(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD, 7=6+8AD)
     bool isMC = false)
 {
+  const char* savefilename = Paths::fit_result();
+
   const int n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
   double* enu_bins = Binning::enu();

@@ -12,7 +12,7 @@ ibd_eprompt_shapes_Xad.root
 #+end_example
 where Xad should run through 6ad, 8ad, 7ad. Example inputs from some analysis groups can be found in ~example~.
 
-Similarly, you can export ~LBNL_FIT_OUTDIR~ to point to the directory where you want intermediate/output files to end up, or else they will end up in the ~output~ directory.
+Similarly, you can export ~LBNL_FIT_OUTDIR~ to point to the directory where you want intermediate/output files to end up, or else they will end up in ~LBNL_FIT_INDIR~, if set; otherwise, in the ~output~ directory.
 
 If you will be immediately running the fitter on multiple machines, it is recommended that you compile the code before submitting any jobs. Run ~scripts/compile.sh~. If you're running the fitter interactively, the code will automatically be compiled by ~scripts/run_chain.sh~.
 

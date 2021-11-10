@@ -5,6 +5,9 @@
 
 namespace Paths {
 
+const char* outpath(const char* fmt, ...);
+const char* inpath(const char* fmt, ...);
+
 const char* fit_result();
 
 const char* input(int istage);

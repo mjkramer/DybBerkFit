@@ -95,8 +95,7 @@ shapeFit() {
     local period=${1:--1}       # default = -1 (6+8+7 AD)
     set_threads 12
     cd $BASE/ShapeFit
-    # FIXME: Duplication of Paths::fit_result()
-    root -b -q LoadClasses.C "fit_shape_2d_P17B.C+$DBG(\"${LBNL_FIT_OUTDIR}/fit_shape_2d.root\", ${period})"
+    root -b -q LoadClasses.C "fit_shape_2d_P17B.C+$DBG(${period})"
 }
 
 all() {

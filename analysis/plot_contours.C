@@ -17,13 +17,9 @@
 
 using namespace std;
 
-// Should instead just base this on outpath from PathUtils
 const char* picpath(const char* name)
 {
-  const char* outdir = getenv("LBNL_FIT_OUTDIR");
-  if (outdir == NULL)
-    outdir = ".";
-  return LeakStr("%s/pics/%s", outdir, name);
+  return Paths::outpath("pics/%s", name);
 }
 
 void plot_LBNL_P17B_IHEP_official()

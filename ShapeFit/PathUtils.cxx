@@ -32,18 +32,31 @@ static const char* normalized_or(const char* envvar, const char* dflt)
   return normalize(d);
 }
 
-static const char* outdir()
-{
-  return normalized_or("LBNL_FIT_OUTDIR", "output");
-}
-
 static const char* indir()
 {
   return normalized_or("LBNL_FIT_INDIR", "input");
 }
 
+static const char* outdir()
+{
+  return normalized_or("LBNL_FIT_OUTDIR", indir());
+}
+
+namespace Paths {
+
 __attribute__((format(printf, 1, 2)))
-static const char* outpath(const char* fmt, ...)
+const char* inpath(const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  const char* relpath = _Form(fmt, ap);
+  va_end(ap);
+
+  return LeakStr("%s/%s", indir(), relpath);
+}
+
+__attribute__((format(printf, 1, 2)))
+const char* outpath(const char* fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -55,16 +68,7 @@ static const char* outpath(const char* fmt, ...)
   return path;
 }
 
-__attribute__((format(printf, 1, 2)))
-static const char* inpath(const char* fmt, ...)
-{
-  va_list ap;
-  va_start(ap, fmt);
-  const char* relpath = _Form(fmt, ap);
-  va_end(ap);
-
-  return LeakStr("%s/%s", indir(), relpath);
-}
+} // namespace Paths
 
 static int stage_nADs(int istage)
 {
