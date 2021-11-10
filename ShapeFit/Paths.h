@@ -24,7 +24,13 @@ const char* bg_covmatrix();
 
 const char* li9();
 const char* amc();
-const char* fn(bool ihep=false);
+// Counterintuitively, ihep=true corresponds to Bei-Zhen's numbers in doc-10948
+// (make_P15A_spectrum_IHEP.C), which are for an LBNL-like multiplicity cut.
+// Meanwhile, ihep=false corresponds to Xiangpan's numbers
+// (make_P15A_spectrum.C), which are for an IHEP-like multiplicity cut. So we
+// actually want ihep=true. If we are using an IHEP-like selection, we want
+// ihep=false. Go figure.
+const char* fn(bool ihep=true);
 const char* aln();
 
 const char* baselines();

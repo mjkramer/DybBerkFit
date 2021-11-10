@@ -7,6 +7,9 @@
 //Note: makes a dumb flat spectrum for fast-neutrons using the binning needed for the toy mc. When a better spectrum is ready please replace.
 void make_P15A_spectrum_IHEP(){
 
+  // These are Bei-Zhen's numbers from doc-10948, which are what we whould be
+  // using, not Xiangpan's numbers in make_P15A_spectrum.C. Therefore we use
+  // these by default. See comment above fn() in ShapeFit/Paths.h.
   Double_t E0[8] =
     {68.68,
      68.68,
