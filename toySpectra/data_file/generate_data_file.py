@@ -97,3 +97,15 @@ for line in basefile_lines:
     if not match:
         output_file5.write(line)
 
+output_file6 = open(base_filename+'_nominal_fine.txt', 'w')
+for line in basefile_lines:
+    items = line.split()
+    match = False
+    if len(items) > 1:
+        if items[0] == 'nSpectrumSamples':
+            items[1] = '2880'
+            output_file6.write(" ".join(items) + '\n')
+            match = True
+    if not match:
+        output_file6.write(line)
+

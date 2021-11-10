@@ -126,7 +126,6 @@ defaultNonlinearPar3 0
 # Additional analysis configuration (designed to match fitting binning, with 0.2MeV bin sizes)
 minimumEnergy    0.0     # MeV
 maximumEnergy    12.0    # MeV
-#nSpectrumSamples 240  # Number of samples in spectra
 # number of bins has to be 240, to match IAV correction table
 nSpectrumSamples 240  # Number of samples in spectra
 nSpectrumSamplesBkg 240  # Number of samples in spectra
