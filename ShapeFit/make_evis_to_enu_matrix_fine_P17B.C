@@ -1,6 +1,7 @@
 #include "Binning.h"
 #include "Config.h"
 #include "Paths.h"
+#include "Utils.h"
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -32,11 +33,11 @@ void make_evis_to_enu_matrix_fine_P17B()
 
   for (Int_t iEvisBin = 0; iEvisBin < n_evis_bins; iEvisBin++) {
     //    h_enu_tmp->Reset();
-    TH1D* htmp = h_orig->ProjectionX(Form("h_enu_%d", iEvisBin), iEvisBin + 1,
+    TH1D* htmp = h_orig->ProjectionX(LeakStr("h_enu_%d", iEvisBin), iEvisBin + 1,
                                      iEvisBin + 1);
 
     TH1D* htmp_rebin = (TH1D*)htmp->Rebin(
-        n_enu_bins, Form("h_enu_rebin_%d", iEvisBin), enu_bins);
+        n_enu_bins, LeakStr("h_enu_rebin_%d", iEvisBin), enu_bins);
     Double_t norm = htmp_rebin->Integral();
     htmp_rebin->Scale(1. / norm);
 
@@ -61,10 +62,10 @@ void make_evis_to_enu_matrix_fine_P17B()
   for (Int_t iEvisBin = 0; iEvisBin < n_evis_bins; iEvisBin++) {
     //    h_enu_tmp->Reset();
     TH1D* htmp = h_orig->ProjectionX(
-        Form("h_enu_%d", iEvisBin)); // add everything together
+        LeakStr("h_enu_%d", iEvisBin)); // add everything together
 
     TH1D* htmp_rebin = (TH1D*)htmp->Rebin(
-        n_enu_bins, Form("h_enu_rebin_%d", iEvisBin), enu_bins);
+        n_enu_bins, LeakStr("h_enu_rebin_%d", iEvisBin), enu_bins);
     Double_t norm = htmp_rebin->Integral();
     htmp_rebin->Scale(1. / norm);
 

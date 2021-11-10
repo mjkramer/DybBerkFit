@@ -14,6 +14,7 @@ void EnableOpenMP()
   TString link = arrstr(parts, 2);
   const char* newCmd = Form("%s ; %s -fopenmp ; %s -fopenmp", cd.Data(),
                             compile.Data(), link.Data());
-  gSystem->SetMakeSharedLib(newCmd);
+  auto s = new TString(newCmd); // intentional leak
+  gSystem->SetMakeSharedLib(s->Data());
   delete parts;
 }

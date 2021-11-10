@@ -139,10 +139,10 @@ FluxCalculator::CalculateFluxHistRow(int idet, double s22t13, int istage,
     for (int icore = 0; icore < Ncores; ++icore) {
       if (!useSuperHists) {
         hout[icore] =
-            (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d", icore));
+            (TH1F*)h_flux[istage][icore]->Clone(LeakStr("hout_%d", icore));
       } else {
         hout[icore] =
-            (TH1F*)h_super[istage][idet][icore]->Clone(Form("hout_%d", icore));
+            (TH1F*)h_super[istage][idet][icore]->Clone(LeakStr("hout_%d", icore));
       }
     }
     htotal = (TH1F*)hout[0]->Clone("htotal");
@@ -227,10 +227,10 @@ FluxCalculator::ExtrapolationFactorRow(int idet_far, int idet_near,
     for (int icore = 0; icore < Ncores; ++icore) {
       if (!useSuperHists) {
         hout[icore] =
-            (TH1F*)h_flux[istage][icore]->Clone(Form("hout_%d", icore));
+            (TH1F*)h_flux[istage][icore]->Clone(LeakStr("hout_%d", icore));
       } else {
         hout[icore] =
-            (TH1F*)h_super[istage][0][icore]->Clone(Form("hout_%d", icore));
+            (TH1F*)h_super[istage][0][icore]->Clone(LeakStr("hout_%d", icore));
       }
     }
 

@@ -141,7 +141,7 @@ void fit_shape_2d_P17B(
 
   for(Int_t istage=0;istage<Nstage;istage++){
   h_data[istage] =
-  (TH1F*)pred->GetCorrEvtsSpec(istage,4)->Clone(Form("h_data_stage%i",istage));
+  (TH1F*)pred->GetCorrEvtsSpec(istage,4)->Clone(LeakStr("h_data_stage%i",istage));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,5));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,6));
   h_data[istage]->Add(pred->GetCorrEvtsSpec(istage,7));
@@ -207,7 +207,7 @@ void fit_shape_2d_P17B(
   TFile* savefile = new TFile(savefilename, "RECREATE");
   TTree* tr = new TTree("tr_fit", "fit results");
   tr->Branch("chi2_map", &dchi2result[0][0],
-             Form("chi2_map[%d][%d]/D", nsteps_dm2, nsteps));
+             LeakStr("chi2_map[%d][%d]/D", nsteps_dm2, nsteps));
   tr->Branch("chi2_min", &chi2_min, "chi2_min/D");
   tr->Branch("dm2_min", &dm2_min, "dm2_min/D");
   tr->Branch("s2t_min", &s2t_min, "s2t_min/D");
@@ -431,7 +431,7 @@ void fit_shape_2d_P17B(
 
   for (Int_t iMode = 0; iMode < nModes; iMode++) {
     h_final_covmatrix[iMode] = new TH2D(
-        Form("h_final_covmatrix_mode%d", iMode), "Final covariance matrix",
+        LeakStr("h_final_covmatrix_mode%d", iMode), "Final covariance matrix",
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins,
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
@@ -439,36 +439,36 @@ void fit_shape_2d_P17B(
 
     for (Int_t i = 0; i < nPredictions[iMode]; i++) {
       h_final_obs_sum[iMode][i] = new TH1D(
-          Form("h_final_obs_sum_mode%d_%d", iMode, i), hnames[iMode][i].Data(),
+          LeakStr("h_final_obs_sum_mode%d_%d", iMode, i), hnames[iMode][i].Data(),
           n_rebinned_evis_bins, rebinned_evis_bins);
       h_final_obs_sum[iMode][i]->GetXaxis()->SetTitle("Visible energy");
       h_final_obs_sum[iMode][i]->GetYaxis()->SetTitle("Events per day");
 
       h_final_pred_sum[iMode][i] = new TH1D(
-          Form("h_final_pred_sum_mode%d_%d", iMode, i), hnames[iMode][i].Data(),
+          LeakStr("h_final_pred_sum_mode%d_%d", iMode, i), hnames[iMode][i].Data(),
           n_rebinned_evis_bins, rebinned_evis_bins);
       h_final_pred_null_sum[iMode][i] = new TH1D(
-          Form("h_final_pred_null_sum_mode%d_%d", iMode, i),
+          LeakStr("h_final_pred_null_sum_mode%d_%d", iMode, i),
           hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
       h_final_pred_nom_sum[iMode][i] = new TH1D(
-          Form("h_final_pred_nom_sum_mode%d_%d", iMode, i),
+          LeakStr("h_final_pred_nom_sum_mode%d_%d", iMode, i),
           hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
 
       for (Int_t istage = 0; istage < Nstage; istage++) {
         h_final_obs[istage][iMode][i] = new TH1D(
-            Form("h_final_obs_stage%d_mode%d_%d", istage, iMode, i),
+            LeakStr("h_final_obs_stage%d_mode%d_%d", istage, iMode, i),
             hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
         h_final_obs[istage][iMode][i]->GetXaxis()->SetTitle("Visible energy");
         h_final_obs[istage][iMode][i]->GetYaxis()->SetTitle("Events per day");
 
         h_final_pred[istage][iMode][i] = new TH1D(
-            Form("h_final_pred_stage%d_mode%d_%d", istage, iMode, i),
+            LeakStr("h_final_pred_stage%d_mode%d_%d", istage, iMode, i),
             hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
         h_final_pred_null[istage][iMode][i] = new TH1D(
-            Form("h_final_pred_null_stage%d_mode%d_%d", istage, iMode, i),
+            LeakStr("h_final_pred_null_stage%d_mode%d_%d", istage, iMode, i),
             hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
         h_final_pred_nom[istage][iMode][i] = new TH1D(
-            Form("h_final_pred_nom_stage%d_mode%d_%d", istage, iMode, i),
+            LeakStr("h_final_pred_nom_stage%d_mode%d_%d", istage, iMode, i),
             hnames[iMode][i].Data(), n_rebinned_evis_bins, rebinned_evis_bins);
       }
     }
@@ -692,20 +692,20 @@ void fit_shape_2d_P17B(
         savefile->cd();
 
         h_final_obs_ratio[istage][iMode][iPred] =
-            (TH1D*)h_final_obs[istage][iMode][iPred]->Clone(Form(
+            (TH1D*)h_final_obs[istage][iMode][iPred]->Clone(LeakStr(
                 "h_final_obs_ratio_stage%d_mode%d_%d", istage, iMode, iPred));
         h_final_obs_ratio[istage][iMode][iPred]->GetYaxis()->SetTitle(
             "Ratio to null osc. prediction");
         h_final_pred_ratio[istage][iMode][iPred] =
-            (TH1D*)h_final_pred[istage][iMode][iPred]->Clone(Form(
+            (TH1D*)h_final_pred[istage][iMode][iPred]->Clone(LeakStr(
                 "h_final_pred_ratio_stage%d_mode%d_%d", istage, iMode, iPred));
         h_final_pred_null_ratio[istage][iMode][iPred] =
             (TH1D*)h_final_pred_null[istage][iMode][iPred]->Clone(
-                Form("h_final_pred_null_ratio_stage%d_mode%d_%d", istage, iMode,
+                LeakStr("h_final_pred_null_ratio_stage%d_mode%d_%d", istage, iMode,
                      iPred));
         h_final_pred_nom_ratio[istage][iMode][iPred] =
             (TH1D*)h_final_pred_nom[istage][iMode][iPred]->Clone(
-                Form("h_final_pred_nom_ratio_stage%d_mode%d_%d", istage, iMode,
+                LeakStr("h_final_pred_nom_ratio_stage%d_mode%d_%d", istage, iMode,
                      iPred));
 
         if (h_final_pred_null[istage][iMode][iPred]->Integral() >
@@ -767,18 +767,18 @@ void fit_shape_2d_P17B(
 
       h_final_obs_ratio_sum[iMode][iPred] =
           (TH1D*)h_final_obs_sum[iMode][iPred]->Clone(
-              Form("h_final_obs_ratio_sum_mode%d_%d", iMode, iPred));
+              LeakStr("h_final_obs_ratio_sum_mode%d_%d", iMode, iPred));
       h_final_obs_ratio_sum[iMode][iPred]->GetYaxis()->SetTitle(
           "Ratio to null osc. prediction");
       h_final_pred_ratio_sum[iMode][iPred] =
           (TH1D*)h_final_pred_sum[iMode][iPred]->Clone(
-              Form("h_final_pred_ratio_sum_mode%d_%d", iMode, iPred));
+              LeakStr("h_final_pred_ratio_sum_mode%d_%d", iMode, iPred));
       h_final_pred_null_ratio_sum[iMode][iPred] =
           (TH1D*)h_final_pred_null_sum[iMode][iPred]->Clone(
-              Form("h_final_pred_null_ratio_sum_mode%d_%d", iMode, iPred));
+              LeakStr("h_final_pred_null_ratio_sum_mode%d_%d", iMode, iPred));
       h_final_pred_nom_ratio_sum[iMode][iPred] =
           (TH1D*)h_final_pred_nom_sum[iMode][iPred]->Clone(
-              Form("h_final_pred_nom_ratio_sum_mode%d_%d", iMode, iPred));
+              LeakStr("h_final_pred_nom_ratio_sum_mode%d_%d", iMode, iPred));
 
       if (h_final_pred_null_sum[iMode][iPred]->Integral() >
           0) { // Check to not do division by zero

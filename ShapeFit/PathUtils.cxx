@@ -1,5 +1,7 @@
 // To be included by Paths.cc
 
+#include "Utils.h"
+
 #include <TString.h>
 
 #include <cstdarg>
@@ -14,30 +16,13 @@ static void ensure_dir(const char* path)
   system(Form("mkdir -p %s", dirname(s.data())));
 }
 
-static const char* _Form(const char* fmt, va_list ap)
-{
-  char str[2048];
-  vsnprintf(str, 2048, fmt, ap);
-  return Form("%s", str);      // use ROOT's circular buffer
-}
-
-__attribute__((format(printf, 1, 2)))
-static const char* formpath(const char* fmt, ...)
-{
-  va_list ap;
-  va_start(ap, fmt);
-  auto s = new TString(_Form(fmt, ap)); // intentional leak
-  va_end(ap);
-  return s->Data();
-}
-
 // We assume that directories (e.g. LBNL_FIT_OUTDIR) are specified relative to
 // the fitter root, but we are running from ShapeFit or toySpectra, so prepend
 // ../ if the path is a relative one
 static const char* normalize(const char* path)
 {
   return (path[0] == '/') ? path
-    : Form("../%s", path);
+    : LeakStr("../%s", path);
 }
 
 static const char* normalized_or(const char* envvar, const char* dflt)
@@ -65,7 +50,7 @@ static const char* outpath(const char* fmt, ...)
   const char* relpath = _Form(fmt, ap);
   va_end(ap);
 
-  const char* path = formpath("%s/%s", outdir(), relpath);
+  const char* path = LeakStr("%s/%s", outdir(), relpath);
   ensure_dir(path);
   return path;
 }
@@ -78,7 +63,7 @@ static const char* inpath(const char* fmt, ...)
   const char* relpath = _Form(fmt, ap);
   va_end(ap);
 
-  return formpath("%s/%s", indir(), relpath);
+  return LeakStr("%s/%s", indir(), relpath);
 }
 
 static int stage_nADs(int istage)
@@ -94,10 +79,10 @@ static int stage_nADs(int istage)
 
 const char* stage_lwc(int istage)
 {
-  return Form("%dad", stage_nADs(istage));
+  return LeakStr("%dad", stage_nADs(istage));
 }
 
 const char* stage_upc(int istage)
 {
-  return Form("%dAD", stage_nADs(istage));
+  return LeakStr("%dAD", stage_nADs(istage));
 }

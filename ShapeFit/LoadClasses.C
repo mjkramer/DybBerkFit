@@ -9,6 +9,8 @@ void LoadClasses()
 {
   gROOT->Macro("EnableOpenMP.C");
 
+  LoadFile("Utils.cc");
+  LoadFile("Paths.cc");
   LoadFile("OscCalc.cc");
   LoadFile("FluxCalculator.cc");
   LoadFile("PredSet.cc");
@@ -19,5 +21,4 @@ void LoadClasses()
   // LoadFile("OscProbTable.cc");
   LoadFile("Binning.cc");
   LoadFile("DataSet.cc");
-  LoadFile("Paths.cc");
 }

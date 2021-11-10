@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "OscCalc.h"
+#include "Utils.h"
 
 #include "TFile.h"
 #include "TH1.h"

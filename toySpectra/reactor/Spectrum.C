@@ -6,6 +6,7 @@
 #include "DataSet.h"
 #include "IsotopeTable.h"
 #include "Paths.h"
+#include "Utils.h"
 
 #include <TCanvas.h>
 #include <TDecompChol.h>
@@ -2011,13 +2012,13 @@ void Spectrum::initialize(DataSet* data)
       unified_nl_filename = Paths::unified_nl();
       nominal_graph_name = "nominal";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
-        pull_graph_name[i] = Form("pull%d", i);
+        pull_graph_name[i] = LeakStr("pull%d", i);
       }
     } else {
       unified_nl_filename = Paths::unified_nl_final();
       nominal_graph_name = "positron_0";
       for (Int_t i = 0; i < m_num_unified_nl_pars; i++) {
-        pull_graph_name[i] = Form("positron_%d", i + 1);
+        pull_graph_name[i] = LeakStr("positron_%d", i + 1);
       }
     }
 

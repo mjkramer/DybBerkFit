@@ -100,7 +100,7 @@ const char* toyconfig(const char* option)
 {
   const char* dir = normalized_or("LBNL_TOY_CONFIG_DIR",
                                   "toySpectra/data_file");
-  return formpath("%s/dyb_data_v1_%s.txt", dir, option);
+  return LeakStr("%s/dyb_data_v1_%s.txt", dir, option);
 }
 
 const char* nominal_toyconfig()
@@ -120,7 +120,7 @@ const char* toytree(const char* option)
 
 const char* reactor_spectrum(int istage)
 {
-  return formpath("../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%s_SNF_nonEq.txt",
+  return LeakStr("../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%s_SNF_nonEq.txt",
                   stage_upc(istage));
 }
 
@@ -133,11 +133,11 @@ const char* unified_nl(bool scnl)
 {
   const char* tag = scnl ? "new" : "old";
   // doc-11611
-  // return formpath("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
+  // return LeakStr("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
   //                 tag);
   // doc-11646
-  return formpath("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
-                  tag);
+  return LeakStr("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
+                 tag);
 }
 
 // ------------------------------ UNUSED ------------------------------

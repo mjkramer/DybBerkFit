@@ -23,7 +23,7 @@ const char* picpath(const char* name)
   const char* outdir = getenv("LBNL_FIT_OUTDIR");
   if (outdir == NULL)
     outdir = ".";
-  return Form("%s/pics/%s", outdir, name);
+  return LeakStr("%s/pics/%s", outdir, name);
 }
 
 void plot_LBNL_P17B_IHEP_official()

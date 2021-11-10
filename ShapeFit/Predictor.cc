@@ -1,4 +1,7 @@
 #include "Predictor.h"
+
+#include "Utils.h"
+
 #include "TF1.h"
 #include "TMatrixD.h"
 
@@ -88,8 +91,8 @@ void Predictor::SetEvisBins(Int_t n, Double_t* bins, Int_t rebin_fac)
     for (Int_t idet = 0; idet < Ndetectors; idet++) {
       for (Int_t jdet = 0; jdet < Ndetectors; jdet++) {
         PredEvtsSpec[istage][idet][jdet] =
-            new TH1F(Form("h_evis_Stage%i_AD%i_AD%i", istage, idet, jdet),
-                     Form("h_evis_Stage%i_AD%i_AD%i", istage, idet, jdet),
+            new TH1F(LeakStr("h_evis_Stage%i_AD%i_AD%i", istage, idet, jdet),
+                     LeakStr("h_evis_Stage%i_AD%i_AD%i", istage, idet, jdet),
                      n_evis_bins, evis_bins);
       }
     }
@@ -140,8 +143,8 @@ void Predictor::SetEnuBins(Int_t n, Double_t* bins)
     for (Int_t idet = 0; idet < Ndetectors; idet++) {
       for (Int_t ie = 0; ie < max_n_evis_bins; ie++) {
         CorrEvtsTrueSpec[istage][idet][ie] =
-            new TH1F(Form("h_true_enu_stage%d_det%d_e%d", istage, idet, ie),
-                     Form("h_true_enu_stage%d_det%d_e%d", istage, idet, ie),
+            new TH1F(LeakStr("h_true_enu_stage%d_det%d_e%d", istage, idet, ie),
+                     LeakStr("h_true_enu_stage%d_det%d_e%d", istage, idet, ie),
                      n_enu_bins, enu_bins);
       }
     }
@@ -415,9 +418,9 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename)
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       // tdper[istage].ObsEvtsSpec[idet] = 0;
-      // m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
+      // m_tr_toy->SetBranchAddress(LeakStr("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
       ToySpecInFile[istage][idet] = 0;
-      m_tr_toy->SetBranchAddress(Form("h_stage%i_ad%i", istage + 1, idet + 1),
+      m_tr_toy->SetBranchAddress(LeakStr("h_stage%i_ad%i", istage + 1, idet + 1),
                                   &(ToySpecInFile[istage][idet]));
     }
   }
@@ -437,7 +440,7 @@ void Predictor::LoadToyMCNominalSpec()
     for (int idet = 0; idet < Ndetectors; ++idet) {
       tdper[ii].ObsEvtsSpec[idet] =
           (TH1F*)m_toyinfilespec
-              ->Get(Form("h_nominal_stage%i_ad%d", ii + 1, idet + 1))
+              ->Get(LeakStr("h_nominal_stage%i_ad%d", ii + 1, idet + 1))
               ->Clone();
     }
     tdper[ii].CorrectSpec(true);
