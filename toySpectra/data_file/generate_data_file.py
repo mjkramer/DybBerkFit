@@ -48,62 +48,52 @@ for par, opt, val in variations:
 output_file2 = open(base_filename+'_allsys.txt','w')
 for line in basefile_lines:
     items = line.split()
+    match = False
     if len(items) > 1:
-        match = False
         for par, opt, val in variations:
             if items[0] == par and opt != 'stat':
                 output_file2.write(par + ' ' + val + '\n')
                 match = True
-        if match == False:
-            output_file2.write(line)
-    else:
+    if not match:
         output_file2.write(line)
 
-        
+
 output_file3 = open(base_filename+'_allsys_and_stat.txt','w')
 for line in basefile_lines:
     items = line.split()
+    match = False
     if len(items) > 1:
-        match = False
         for par, opt, val in variations:
             if items[0] == par:
                 output_file3.write(par + ' ' + val + '\n')
                 match = True
-        if match == False:
-            output_file3.write(line)
-    else:
+    if not match:
         output_file3.write(line)
 
-        
 
 output_file4 = open(base_filename+'_bgsys.txt','w')
 for line in basefile_lines:
     items = line.split()
+    match = False
     if len(items) > 1:
-        match = False
         for par, opt, val in variations:
             if 'vary' in items[0] or 'distort' in items[0]:
                 if items[0] == par:
                     output_file4.write(par + ' ' + val + '\n')
                     match = True
-        if match == False:
-            output_file4.write(line)
-    else:
+    if not match:
         output_file4.write(line)
 
 output_file5 = open(base_filename+'_sigsys.txt','w')
 for line in basefile_lines:
     items = line.split()
+    match = False
     if len(items) > 1:
-        match = False
         for par, opt, val in variations:
             if 'randomize' in items[0]:
                 if items[0] == par:
                     output_file5.write(par + ' ' + val + '\n')
                     match = True
-        if match == False:
-            output_file5.write(line)
-    else:
+    if not match:
         output_file5.write(line)
 
-        
