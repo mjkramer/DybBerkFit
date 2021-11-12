@@ -2,9 +2,9 @@
 # Created By: dadwyer@lbl.gov May 4, 2012
 
 # Here the suffix "LBNL" or "BCW" refers to the binning.
-deltaMSqeeNominalLBNL 2.467
-# deltaMSqeeNominalBCW 2.522      # Phys. Rev. Lett. 121, 241805 (2018)
-deltaMSqeeNominalBCW 2.501        # What we get from P17B
+deltaMSqeeNominalLBNL 2.467e-3
+# deltaMSqeeNominalBCW 2.522e-3      # Phys. Rev. Lett. 121, 241805 (2018)
+deltaMSqeeNominalBCW 2.501e-3        # What we get from P17B
 sinSq2Theta13NominalLBNL 0.0853
 # sinSq2Theta13NominalBCW 0.0856  # Phys. Rev. Lett. 121, 241805 (2018)
 sinSq2Theta13NominalBCW 0.0850    # What we get from P17B
