@@ -22,7 +22,7 @@ const char* picpath(const char* name)
   return Paths::outpath("pics/%s", name);
 }
 
-void plot_LBNL_P17B_IHEP_official()
+void plot_contours()
 {
   system(Form("mkdir -p %s", picpath("")));
 
