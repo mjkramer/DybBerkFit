@@ -47,7 +47,7 @@ const char* toytree(const char* option);
 const char* reactor_spectrum(int istage);
 const char* reactor_covmatrix();
 
-const char* unified_nl(bool scnl=false);
+const char* unified_nl(bool scnl=true);
 
 // ------------------------------ UNUSED ------------------------------
 
