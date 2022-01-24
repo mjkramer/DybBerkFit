@@ -15,10 +15,11 @@ MEV_PER_GW_S = 6.2415e21
 
 STAGE_NDET = [6, 8, 7]
 STAGE_START_WEEK = [0, 42, 264]
-STAGE_END_WEEK = [33, 261, 297]
+STAGE_END_WEEK = [33, 261, -1]
 
-DEFAULT_LIVETIME_FILE = "dbd_livetime_P17B.txt"
-DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_P17B_by_Beda.txt"
+DEFAULT_OUTDIR = "isotope_spectra_v4v5v3v1_blinded"
+DEFAULT_LIVETIME_FILE = "dbd_livetime_v4v5v3v1.txt"
+DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_v4v5v3v1_blinded.txt"
 DEFAULT_ISOTOPE_FILE = "fissionIsotopeTable_v1.txt"
 DEFAULT_MODEL_OPTION = 1
 
@@ -114,6 +115,9 @@ def dump_spectra(full_df, istage, outdir):
     start = STAGE_START_WEEK[istage]
     end = STAGE_END_WEEK[istage]
 
+    if end == -1:
+        end = full_df.index.get_level_values('week').max()
+
     df = full_df.loc[start:end].copy()
     gb = df.groupby(["core", "Enu"])
     # now we are summing over weeks, indexing over (core, Enu)
@@ -133,7 +137,7 @@ def dump_spectra(full_df, istage, outdir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--outdir", default="isotope_spectra")
+    ap.add_argument("--outdir", default=DEFAULT_OUTDIR)
     ap.add_argument("--livetime-file", default=DEFAULT_LIVETIME_FILE)
     ap.add_argument("--power-file", default=DEFAULT_POWER_FILE)
     ap.add_argument("--isotope-file", default=DEFAULT_ISOTOPE_FILE)
