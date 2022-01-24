@@ -6,6 +6,7 @@
 *.log
 .projectile
 .ccls-cache
+__pycache__/
 doxygen/
 TAGS
 outputs/
