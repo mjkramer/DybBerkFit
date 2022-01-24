@@ -120,7 +120,7 @@ const char* toytree(const char* option)
 
 const char* reactor_spectrum(int istage)
 {
-  return LeakStr("../ReactorPowerCalculator/isotope_spectra_by_Beda/reactor_P17B_%s_SNF_nonEq.txt",
+  return LeakStr("../ReactorPowerCalculator/isotope_spectra_v4v5v3v1_blinded/reactor_%s_SNF_nonEq.txt",
                   stage_upc(istage));
 }
 
