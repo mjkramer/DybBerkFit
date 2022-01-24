@@ -39,6 +39,7 @@ Spectrum::Spectrum() :
   m_randomizeIavDistortion = -1;
 
 
+  // NOTE These values have been retired in favor of m_detectorEfficiency_total
   // latest value from doc-9401-v7
   m_detectorEfficiency_Dt = 0.9870;
   m_detectorEfficiency_Ep = 0.9981;
@@ -46,6 +47,9 @@ Spectrum::Spectrum() :
   m_detectorEfficiency_flash = 0.9998;
   m_detectorEfficiency_nGd = 0.842;
   m_detectorEfficiency_spill = 1.049;
+
+  // doc-12583-v1 p7
+  m_detectorEfficiency_total = 0.802;
 
   // The (AD-dependent) nominal delayed cut efficiency is now taken from the
   // Theta13-inputs file. See extractPredictorData.
@@ -2220,10 +2224,12 @@ void Spectrum::extractPredictorData()
       m_detectorEfficiency[istage][idet] =
           pred->tdper[istage].DMCEff[idet] *
           pred->tdper[istage].MuonVetoEff[idet];
+      // m_detectorEfficiency[istage][idet] *=
+      //     m_detectorEfficiency_Dt * m_detectorEfficiency_Ep *
+      //     m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_flash *
+      //     m_detectorEfficiency_nGd * m_detectorEfficiency_spill;
       m_detectorEfficiency[istage][idet] *=
-          m_detectorEfficiency_Dt * m_detectorEfficiency_Ep *
-          m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_flash *
-          m_detectorEfficiency_nGd * m_detectorEfficiency_spill;
+          m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_total;
     }
   }
 }
@@ -2435,12 +2441,15 @@ void Spectrum::setRandomDetectorEfficiency()
         (1 + m_detectorEfficiency_rel_error * ran->Gaus(0, 1));
 
     for (int istage = 0; istage < Nstage; istage++) {
-      m_detectorEfficiency[istage][idet] =
-          ran_det_eff * pred->tdper[istage].DMCEff[idet] *
-          pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
-          m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
-          m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
-          m_detectorEfficiency_spill;
+      // m_detectorEfficiency[istage][idet] =
+      //     ran_det_eff * pred->tdper[istage].DMCEff[idet] *
+      //     pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
+      //     m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
+      //     m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
+      //     m_detectorEfficiency_spill;
+      m_detectorEfficiency[istage][idet] = ran_det_eff *
+          pred->tdper[istage].DMCEff[idet] * pred->tdper[istage].MuonVetoEff[idet] *
+          m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_total;
     }
   }
 }
@@ -2460,12 +2469,15 @@ void Spectrum::setRandomRelativeEnergyScale()
                 0.36); // 0.36 is a magic factor that convert energy scale shift to
                         // delayed energy cut efficiency (0.072/0.2) in DocDB-10956
 
+          // m_detectorEfficiency[istage][idet] =
+          //     pred->tdper[istage].DMCEff[idet] *
+          //     pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
+          //     m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
+          //     m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
+          //     m_detectorEfficiency_spill;
           m_detectorEfficiency[istage][idet] =
-              pred->tdper[istage].DMCEff[idet] *
-              pred->tdper[istage].MuonVetoEff[idet] * m_detectorEfficiency_Dt *
-              m_detectorEfficiency_Ep * m_detectorEfficiency_Ed[istage][idet] *
-              m_detectorEfficiency_flash * m_detectorEfficiency_nGd *
-              m_detectorEfficiency_spill;
+              pred->tdper[istage].DMCEff[idet] * pred->tdper[istage].MuonVetoEff[idet] *
+              m_detectorEfficiency_Ed[istage][idet] * m_detectorEfficiency_total;
     }
   }
 }

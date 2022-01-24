@@ -201,6 +201,9 @@ private:
   double m_detectorEfficiency_nGd;
   double m_detectorEfficiency_spill;
 
+  // total detector efficiency, replacing the above
+  double m_detectorEfficiency_total;
+
   double m_detectorEfficiency_Ed_nominal[Nstage][Ndetectors]; // from Theta13-inputs
   double m_detectorEfficiency_Ed[Nstage][Ndetectors]; // randomizing the above
 
