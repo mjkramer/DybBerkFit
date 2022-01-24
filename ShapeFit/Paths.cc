@@ -136,7 +136,9 @@ const char* unified_nl(bool scnl)
   // return LeakStr("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
   //                 tag);
   // doc-11646
-  return LeakStr("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
+  // return LeakStr("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
+  //                tag);
+  return LeakStr("../toySpectra/unified_nl_data/energymodel_Jan2022_%sE_v1.root",
                  tag);
 }
 
