@@ -1,5 +1,6 @@
 #include "Predictor.h"
 
+#include "Paths.h"
 #include "Utils.h"
 
 #include "TF1.h"
@@ -334,7 +335,23 @@ void Predictor::LoadMainData(const Char_t* mainmatrixname)
               tdper[istage - 1].DMCEff[ii] * tdper[istage - 1].MuonVetoEff[ii];
         }
       }
-
+      //-->muon decay bg
+      if (row == 21) {
+        for (int ii = 0; ii < Ndetectors; ii++) {
+          tdper[istage - 1].MuonDecayEvts[ii] = readvals[ii];
+          // in new input format have to correct for efficiencies here
+          tdper[istage - 1].MuonDecayEvts[ii] *=
+              tdper[istage - 1].DMCEff[ii] * tdper[istage - 1].MuonVetoEff[ii];
+        }
+      }
+      if (row == 22) {
+        for (int ii = 0; ii < Ndetectors; ii++) {
+          tdper[istage - 1].MuonDecayErr[ii] = readvals[ii];
+          // in new input format have to correct for efficiencies here
+          tdper[istage - 1].MuonDecayErr[ii] *=
+              tdper[istage - 1].DMCEff[ii] * tdper[istage - 1].MuonVetoEff[ii];
+        }
+      }
     } // only lines >1
     ++linenum;
   } // Reading main file
@@ -347,6 +364,7 @@ void Predictor::LoadMainData(const Char_t* mainmatrixname)
     tdper[istage - 1].BgEvts[ii] += tdper[istage - 1].Li9Evts[ii];
     tdper[istage - 1].BgEvts[ii] += tdper[istage - 1].FnEvts[ii];
     tdper[istage - 1].BgEvts[ii] += tdper[istage - 1].AlnEvts[ii];
+    tdper[istage - 1].BgEvts[ii] += tdper[istage - 1].MuonDecayEvts[ii];
   }
 
   // for(int ii=0;ii<Nstage;++ii){
@@ -470,9 +488,22 @@ void Predictor::LoadToyMCEntry(Int_t i, bool correct)
   RecalculateCovMatrix = true; // Force to recalculate
 }
 
+void Predictor::LoadBgSpec()
+{
+  // deliberate leak
+  TString* accLoc = new TString[3];
+  accLoc[0] = Paths::acc_spectra(0);
+  accLoc[1] = Paths::acc_spectra(1);
+  accLoc[2] = Paths::acc_spectra(2);
+
+  LoadBgSpec(accLoc, Paths::li9(), Paths::amc(), Paths::fn(),
+             Paths::aln(), Paths::muon_decay());
+}
+
 void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
                            const Char_t* amcspecname, const Char_t* fnspecname,
-                           const Char_t* alnspecname)
+                           const Char_t* alnspecname,
+                           const Char_t* muondecayspecname)
 {
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
@@ -688,6 +719,45 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   // m_alnspec->Close();
   cout << "--> loaded alpha-n spectra" << endl;
 
+  m_muondecayspec = new TFile(muondecayspecname, "READ");
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      sprintf(name, "MdSpec_EH%d;1", detConfigEH[idet]);
+      TH1F* htemp;
+      htemp = (TH1F*) m_muondecayspec->Get(name)->Clone();
+      sprintf(name, "CorrMuonDecayEvtsSpec_stage%d_ad%d", istage, idet);
+      tdper[istage].CorrMuonDecayEvtsSpec[idet] =
+        (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
+      tdper[istage].CorrMuonDecayEvtsSpec[idet]->Reset();
+
+      // fill into destination histogram
+      for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
+        tdper[istage].CorrMuonDecayEvtsSpec[idet]->Fill(
+            htemp->GetBinCenter(ibin + 1), htemp->GetBinContent(ibin + 1));
+      }
+
+      delete htemp;
+
+      // assign zero errors
+      for (Int_t ibin = 0;
+           ibin < tdper[istage].CorrMuonDecayEvtsSpec[idet]->GetNbinsX(); ibin++) {
+        tdper[istage].CorrMuonDecayEvtsSpec[idet]->SetBinError(ibin + 1, 0);
+      }
+
+      // scale
+      if (tdper[istage].CorrMuonDecayEvtsSpec[idet]->Integral() == 0)
+        tdper[istage].CorrMuonDecayEvtsSpec[idet]->Scale(0);
+      else
+        tdper[istage].CorrMuonDecayEvtsSpec[idet]->Scale(
+            tdper[istage].MuonDecayEvts[idet] * 1. /
+            tdper[istage]
+                .CorrMuonDecayEvtsSpec[idet]
+                ->Integral()); //<---Scale this histogram to expected number of
+                               // events based on input file
+    }
+  }
+  cout << "--> loaded muon decay spectra" << endl;
+
   cout << "done loading bg spectra!" << endl;
 
   // create sum of bg's spectra
@@ -704,6 +774,8 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
           tdper[istage].CorrFnEvtsSpec[idet], 1);
       tdper[istage].CorrBgEvtsSpec[idet]->Add(
           tdper[istage].CorrAlnEvtsSpec[idet], 1);
+      tdper[istage].CorrBgEvtsSpec[idet]->Add(
+          tdper[istage].CorrMuonDecayEvtsSpec[idet], 1);
 
       tdper[istage].CorrBgEvtsSpec[idet]->SetDirectory(0);
       tdper[istage].CorrAccEvtsSpec[idet]->SetDirectory(0);
@@ -711,6 +783,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       tdper[istage].CorrAmcEvtsSpec[idet]->SetDirectory(0);
       tdper[istage].CorrFnEvtsSpec[idet]->SetDirectory(0);
       tdper[istage].CorrAlnEvtsSpec[idet]->SetDirectory(0);
+      tdper[istage].CorrMuonDecayEvtsSpec[idet]->SetDirectory(0);
     }
   }
 
@@ -730,6 +803,11 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   cout << "done correcting both ibd and bg spectra!" << endl;
 
 } // end of LoadBgSpec
+
+// TimePeriodData.CorrectEvts adjusts tdper.*Evts to give the daily rate
+// assuming perfect muon/DMC eff, so, assuming that GetCorr*EvtsSpec() is called
+// after TimerPeriodData.CorrectEvts, scaling by livetime/effs gives the raw
+// background expected in the data.
 
 // Extract Bkg Spectrum here
 TH1F* Predictor::GetCorrAccEvtsSpec(Int_t istage, Int_t idet)
@@ -777,6 +855,16 @@ TH1F* Predictor::GetCorrAlnEvtsSpec(Int_t istage, Int_t idet)
   // return
   // tdper[istage].CorrAlnEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
 }
+TH1F* Predictor::GetCorrMuonDecayEvtsSpec(Int_t istage, Int_t idet)
+{
+  TH1F* dummy = (TH1F*)tdper[istage].CorrMuonDecayEvtsSpec[idet]->Clone();
+  dummy->Scale(tdper[istage].Livetime[idet] * tdper[istage].MuonVetoEff[idet] *
+               tdper[istage].DMCEff[idet]);
+  return dummy;
+  // return
+  // tdper[istage].CorrMuonDecayEvtsSpec[idet]->Scale(tdper[istage].Livetime[idet]);
+}
+
 // Done!
 
 void Predictor::EnterObsEvts(double obsad1, double obsad2, double obsad3,

@@ -34,11 +34,13 @@ public:
   Double_t AmcEvts[Ndetectors] = {};
   Double_t AlnEvts[Ndetectors] = {};
   Double_t FnEvts[Ndetectors] = {};
+  Double_t MuonDecayEvts[Ndetectors] = {};
   Double_t AccErr[Ndetectors] = {};
   Double_t Li9Err[Ndetectors] = {};
   Double_t AmcErr[Ndetectors] = {};
   Double_t AlnErr[Ndetectors] = {};
   Double_t FnErr[Ndetectors] = {};
+  Double_t MuonDecayErr[Ndetectors] = {};
   Double_t CorrBgEvts[Ndetectors] = {};
   Double_t ErrBgEvts[Ndetectors] =
       {}; // statistical uncertainties for the backgrounds
@@ -56,6 +58,7 @@ public:
   TH1F* CorrAmcEvtsSpec[Ndetectors] = {};
   TH1F* CorrFnEvtsSpec[Ndetectors] = {};
   TH1F* CorrAlnEvtsSpec[Ndetectors] = {};
+  TH1F* CorrMuonDecayEvtsSpec[Ndetectors] = {};
   TH1F* CorrEvtsSpec[Ndetectors] = {};
 
 private:

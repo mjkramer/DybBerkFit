@@ -35,6 +35,7 @@ const char* amc();
 // ihep=false. Go figure.
 const char* fn(bool ihep=true);
 const char* aln();
+const char* muon_decay();
 
 const char* baselines();
 

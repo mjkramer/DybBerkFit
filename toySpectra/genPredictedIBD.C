@@ -89,12 +89,7 @@ void genPredictedIBD(Double_t s2t13 = 0, Double_t dm2ee = -1,
   spectrumNormNominal->loadDistances(Paths::baselines());
   spectrumNormNominal->initialize(mydata_nominal);
 
-  TString AccidentalSpectrumLocation[3] = {
-    Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
-
-  spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        Paths::li9(), Paths::amc(), Paths::fn(),
-                                        Paths::aln());
+  spectrumNormNominal->loadBgSpecForToy();
 
   // Prepare destination file
   TFile* outfile = new TFile(Paths::predicted_ibd(), "RECREATE");

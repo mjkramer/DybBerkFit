@@ -108,12 +108,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
   spectrumNormNominal->loadDistances(Paths::baselines());
   spectrumNormNominal->initialize(mydata_nominal);
 
-  TString AccidentalSpectrumLocation[3] = {
-      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
-
-  spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                        Paths::li9(), Paths::amc(), Paths::fn(),
-                                        Paths::aln());
+  spectrumNormNominal->loadBgSpecForToy();
 
 
   // Create Spectrum for toy
@@ -127,9 +122,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
     // to avoid duplication
     spectrumNorm->loadDistances(Paths::baselines());
     spectrumNorm->initialize(mydata);
-    spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                   Paths::li9(), Paths::amc(), Paths::fn(),
-                                   Paths::aln());
+    spectrumNorm->loadBgSpecForToy();
     // NB: Adding 1 is important because 0 means random (UUID) seed
     spectrumNorm->setRandomSeed(1 + omp_get_thread_num());
   } // parallel

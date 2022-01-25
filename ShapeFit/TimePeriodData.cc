@@ -11,11 +11,13 @@ TimePeriodData::TimePeriodData()
     AmcEvts[idet1] = 0;
     AlnEvts[idet1] = 0;
     FnEvts[idet1] = 0;
+    MuonDecayEvts[idet1] = 0;
     AccErr[idet1] = 0;
     Li9Err[idet1] = 0;
     AmcErr[idet1] = 0;
     AlnErr[idet1] = 0;
     FnErr[idet1] = 0;
+    MuonDecayErr[idet1] = 0;
     CorrBgEvts[idet1] = 0;
     ErrBgEvts[idet1] = 0;
     MuonVetoEff[idet1] = 0;
@@ -51,11 +53,13 @@ void TimePeriodData::CorrectEvts(bool print)
     AlnEvts[idet] *= Livetime[idet];
     Li9Evts[idet] *= Livetime[idet];
     FnEvts[idet] *= Livetime[idet];
+    MuonDecayEvts[idet] *= Livetime[idet];
     AccErr[idet] *= Livetime[idet];
     AmcErr[idet] *= Livetime[idet];
     AlnErr[idet] *= Livetime[idet];
     Li9Err[idet] *= Livetime[idet];
     FnErr[idet] *= Livetime[idet];
+    MuonDecayErr[idet] *= Livetime[idet];
   }
 
   // Scale back to 1 day of livetime and correct for muon efficiencies
@@ -81,12 +85,14 @@ void TimePeriodData::CorrectEvts(bool print)
     Li9Evts[idet] *= factor_bg;
     FnEvts[idet] *= factor_bg;
     AlnEvts[idet] *= factor_bg;
+    MuonDecayEvts[idet] *= factor_bg;
 
     AccErr[idet] *= factor_bg;
     AmcErr[idet] *= factor_bg;
     Li9Err[idet] *= factor_bg;
     FnErr[idet] *= factor_bg;
     AlnErr[idet] *= factor_bg;
+    MuonDecayErr[idet] *= factor_bg;
 
     ErrEvts[idet] = ErrEvts[idet] * factor;
     CorrBgEvts[idet] = BgEvtsLiv[idet] * factor_bg;

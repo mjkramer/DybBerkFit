@@ -90,12 +90,7 @@ void genEvisToEnuMatrix(Double_t s2t13 = -1, Double_t dm2ee = -1,
     spectrumNormNominal->loadDistances(Paths::baselines());
     spectrumNormNominal->initialize(mydata_nominal);
 
-    TString AccidentalSpectrumLocation[3] = {
-      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
-
-    spectrumNormNominal->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                          Paths::li9(), Paths::amc(), Paths::fn(),
-                                          Paths::aln());
+    spectrumNormNominal->loadBgSpecForToy();
 
     // Generate nominal spectrum
     spectrumNormNominal->updateAntinu();

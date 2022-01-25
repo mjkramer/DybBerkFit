@@ -20,9 +20,11 @@ variations = [('randomizeSolarOscPars','solar_oscpars', '1'),
               ('varyFnBg', 'vary_fn', '1'),
               ('varyLi9Bg', 'vary_li9', '1'),
               ('varyAlnBg', 'vary_aln', '1' ),
+              ('varyMuonDecayBg', 'vary_muon_decay', '1' ),
               ('distortAmcBg', 'distort_amc', '0.15'),
               ('distortFnBg', 'distort_fn', '0.2'),
               ('distortLi9Bg', 'distort_li9', '../li9_spectrum/8he9li_distort_neutron100_alpha100_frac0.055_N250.root'),
+              # ('distortMuonDecayBg', 'distort_muon_decay', '0.12345'), # TODO
               ('statisticalFluctuation', 'stat', '1' )]
 
 

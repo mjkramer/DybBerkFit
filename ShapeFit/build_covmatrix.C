@@ -66,11 +66,7 @@ void build_covmatrix(const Char_t* toymc_filename,
 
     myPred->LoadToyMCEntry(0, false);
 
-    TString AccidentalSpectrumLocation[3] = {
-      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
-
-    myPred->LoadBgSpec(AccidentalSpectrumLocation,
-                       Paths::li9(), Paths::amc(), Paths::fn(), Paths::aln());
+    myPred->LoadBgSpec();
 
     myPred->SetEvisBins(n_evis_bins, evis_bins);
     myPred->SetEnuBins(n_enu_bins, enu_bins);

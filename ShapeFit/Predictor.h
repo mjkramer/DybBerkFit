@@ -31,9 +31,10 @@ public:
   Int_t LoadToyIBDSpec(const Char_t* toyibdspecname);
   void LoadToyMCEntry(Int_t i, bool correct = true);
   void LoadToyMCNominalSpec();
+  void LoadBgSpec();
   void LoadBgSpec(TString* accspecname, const Char_t* li9specname,
                   const Char_t* amcspecname, const Char_t* fnspecname,
-                  const Char_t* alnspecname);
+                  const Char_t* alnspecname, const Char_t* muondecayspecname);
   FluxCalculator* GetFluxCalculator() { return fluxcalc; }
 
   void MakePrediction(double sin2theta13, double dm2, Double_t sin22t14,
@@ -64,6 +65,7 @@ public:
   TH1F* GetCorrAmcEvtsSpec(int istage, int idet);
   TH1F* GetCorrFnEvtsSpec(int istage, int idet);
   TH1F* GetCorrAlnEvtsSpec(int istage, int idet);
+  TH1F* GetCorrMuonDecayEvtsSpec(int istage, int idet);
 
   void LoadEvisToEnuMatrix(const Char_t* evis_to_enu_matrix_name);
 
@@ -271,6 +273,7 @@ private:
   TFile* m_fnspec;
   TFile* m_amcspec;
   TFile* m_alnspec;
+  TFile* m_muondecayspec;
 
   PredSet* superpred;
 

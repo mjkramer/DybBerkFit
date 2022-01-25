@@ -993,10 +993,23 @@ void Spectrum::loadDistances(const char* distancematrixname)
   }
 }
 
+void Spectrum::loadBgSpecForToy()
+{
+  // deliberate leak
+  TString* accLoc = new TString[3];
+  accLoc[0] = Paths::acc_spectra(0);
+  accLoc[1] = Paths::acc_spectra(1);
+  accLoc[2] = Paths::acc_spectra(2);
+
+  loadBgSpecForToy(accLoc, Paths::li9(), Paths::amc(), Paths::fn(),
+                   Paths::aln(), Paths::muon_decay());
+}
+
 void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
                                 const Char_t* amcspecname,
                                 const Char_t* fnspecname,
-                                const Char_t* alnspecname)
+                                const Char_t* alnspecname,
+                                const Char_t* muondecayspecname)
 {
   cout << "Loading bg spectra..." << endl;
   Char_t name[1024];
@@ -1160,6 +1173,29 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
   // m_alnspec->Close();
   cout << "--> loaded alpha-n spectra" << endl;
 
+  //(muon decay)
+  m_muondecayspec = new TFile(muondecayspecname, "READ");
+  dir->cd();
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      sprintf(name, "CorrMuonDecayEvtsSpec_ad%d", idet);
+      Char_t nameMd[1024];
+      sprintf(nameMd, "MdSpec_EH%d;1", detConfigEH[idet]);
+
+      CorrMuonDecayEvtsSpec[istage][idet] = (TH1F*)m_muondecayspec->Get(nameMd)->Clone(name);
+
+      for (Int_t ibin = 0; ibin < CorrMuonDecayEvtsSpec[istage][idet]->GetNbinsX();
+           ibin++) {
+        CorrMuonDecayEvtsSpec[istage][idet]->SetBinError(ibin + 1, 0);
+      }
+      CorrMuonDecayEvtsSpec[istage][idet]->Scale(
+          pred->tdper[istage].MuonDecayEvts[idet] /
+          CorrMuonDecayEvtsSpec[istage][idet]->Integral());
+    }
+  }
+  // m_muondecayspec->Close();
+  cout << "--> loaded muon decay spectra" << endl;
+
   cout << "done loading bg spectra!" << endl;
 
   // un-correcting the spectrum normalization....
@@ -1177,6 +1213,7 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
       CorrLi9EvtsSpec[istage][idet]->Scale(factor);
       CorrFnEvtsSpec[istage][idet]->Scale(factor);
       CorrAlnEvtsSpec[istage][idet]->Scale(factor);
+      CorrMuonDecayEvtsSpec[istage][idet]->Scale(factor);
     }
   }
   /*
@@ -1204,13 +1241,14 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
 } // end of LoadBgSpec
 
 void Spectrum::setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag,
-                               bool amc_flag, bool aln_flag)
+                               bool amc_flag, bool aln_flag, bool muon_decay_flag)
 {
   m_removeAccBg = acc_flag;
   m_removeLi9Bg = li9_flag;
   m_removeFnBg = fn_flag;
   m_removeAmcBg = amc_flag;
   m_removeAlnBg = aln_flag;
+  m_removeMuonDecayBg = muon_decay_flag;
 
   this->updateBgDetected();
 }
@@ -1224,6 +1262,7 @@ void Spectrum::updateBgDetected()
   TH1F* CopyAlnEvtsSpec[Nstage][Ndetectors];
   TH1F* CopyLi9EvtsSpec[Nstage][Ndetectors];
   TH1F* CopyFnEvtsSpec[Nstage][Ndetectors];
+  TH1F* CopyMuonDecayEvtsSpec[Nstage][Ndetectors];
   Char_t name[1024];
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -1242,6 +1281,9 @@ void Spectrum::updateBgDetected()
       sprintf(name, "h_aln_copy_%i", idet);
       CopyAlnEvtsSpec[istage][idet] =
           (TH1F*)CorrAlnEvtsSpec[istage][idet]->Clone(name);
+      sprintf(name, "h_muondecay_copy_%i", idet);
+      CopyMuonDecayEvtsSpec[istage][idet] =
+          (TH1F*)CorrMuonDecayEvtsSpec[istage][idet]->Clone(name);
     }
   }
   // ****************************************************
@@ -1253,6 +1295,7 @@ void Spectrum::updateBgDetected()
   double scale_factor_li9[Nstage][Ndetectors];
   double scale_factor_fn[Nstage][Ndetectors];
   double scale_factor_aln[Nstage][Ndetectors];
+  double scale_factor_muondecay[Nstage][Ndetectors];
   double corr_random[Nhalls] = {0};
 
   for (int istage = 0; istage < Nstage; ++istage) {
@@ -1262,11 +1305,12 @@ void Spectrum::updateBgDetected()
       scale_factor_li9[istage][idet] = 1;
       scale_factor_fn[istage][idet] = 1;
       scale_factor_aln[istage][idet] = 1;
+      scale_factor_muondecay[istage][idet] = 1;
     }
   }
   // Fluctuate each background depending on how it makes the most sense
   // 1) For accidentals, fluctuate each AD independenlty
-  // 2) For li9 and fn, fluctuate ADs in same site with same factor
+  // 2) For li9 and fn and muon decay, fluctuate ADs in same site with same factor
   // 3) For amc, fluctuate all ADs in a correlated way
   // 4) For alpha-n, for now fluctuating all ADs independently
 
@@ -1346,6 +1390,26 @@ void Spectrum::updateBgDetected()
     }
   }
 
+  // muon decays are correlated between detectors in the same hall(?)
+  for (int ihall = 0; ihall < Nhalls; ++ihall) {
+    corr_random[ihall] = ran->Gaus(0, 1);
+  }
+
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      if (m_varyMuonDecayBg > 0) {
+        if (pred->tdper[istage].MuonDecayEvts[idet] > 0)
+          scale_factor_muondecay[istage][idet] =
+              (1 + pred->tdper[istage].MuonDecayErr[idet] * 1. /
+                       pred->tdper[istage].MuonDecayEvts[idet] *
+                       corr_random[detConfigEH[idet] - 1]);
+        else
+          scale_factor_muondecay[istage][idet] = 0;
+      }
+    }
+  }
+
+
   // force set background contribution to 0 if the flag is set
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
@@ -1359,6 +1423,8 @@ void Spectrum::updateBgDetected()
         scale_factor_li9[istage][idet] = 0;
       if (m_removeFnBg)
         scale_factor_fn[istage][idet] = 0;
+      if (m_removeMuonDecayBg)
+        scale_factor_muondecay[istage][idet] = 0;
     }
   }
 
@@ -1370,6 +1436,7 @@ void Spectrum::updateBgDetected()
   // - li9: fluctuate shape of all ADs together
   // - fn: fluctuate shape of ADs in same site together
   // - aln: fluctuate shape of all ADs together
+  // - muon decay: TODO
   // *******************************************************
   if (m_distortAccBg > 0) {
     TF1* func_acc = getDistortionCurve(m_distortAccBg);
@@ -1474,6 +1541,10 @@ void Spectrum::updateBgDetected()
     delete func_aln;
   }
 
+  if (m_distortMuonDecayBg > 0) {
+    // TODO
+  }
+
 
   // ********************************************************
   // Returning the bg spectra
@@ -1498,6 +1569,9 @@ void Spectrum::updateBgDetected()
         m_bgDetectedSpectrum[istage][idet][ibin] +=
             scale_factor_aln[istage][idet] *
             CopyAlnEvtsSpec[istage][idet]->GetBinContent(ibin + 1);
+        m_bgDetectedSpectrum[istage][idet][ibin] +=
+            scale_factor_muondecay[istage][idet] *
+            CopyMuonDecayEvtsSpec[istage][idet]->GetBinContent(ibin + 1);
       }
 
       delete CopyAccEvtsSpec[istage][idet];
@@ -1505,6 +1579,7 @@ void Spectrum::updateBgDetected()
       delete CopyLi9EvtsSpec[istage][idet];
       delete CopyFnEvtsSpec[istage][idet];
       delete CopyAlnEvtsSpec[istage][idet];
+      delete CopyMuonDecayEvtsSpec[istage][idet];
     }
   }
 
@@ -1779,6 +1854,7 @@ void Spectrum::initialize(DataSet* data)
   m_varyFnBg = data->getDouble("varyFnBg");
   m_varyLi9Bg = data->getDouble("varyLi9Bg");
   m_varyAlnBg = data->getDouble("varyAlnBg");
+  m_varyMuonDecayBg = data->getDouble("varyMuonDecayBg");
 
   m_distortAccBg = data->getDouble("distortAccBg");
   m_distortAmcBg = data->getDouble("distortAmcBg");
@@ -1793,6 +1869,7 @@ void Spectrum::initialize(DataSet* data)
   }
   m_distortFnBg = data->getDouble("distortFnBg");
   m_distortAlnBg = data->getDouble("distortAlnBg");
+  m_distortMuonDecayBg = data->getDouble("distortMuonDecayBg");
 
   m_statisticalFluctuation = data->getDouble("statisticalFluctuation");
 

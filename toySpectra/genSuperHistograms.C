@@ -46,12 +46,7 @@ void genSuperHistograms()
   // TString AccidentalSpectrumLocation[2] =
   // {"../ShapeFit/Spectra/accidental_eprompt_shapes_6ad.root","../ShapeFit/Spectra/accidental_eprompt_shapes_8ad_p14a.root"};
 
-  TString AccidentalSpectrumLocation[3] = {
-    Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
-
-  spectrumNorm->loadBgSpecForToy(AccidentalSpectrumLocation,
-                                 Paths::li9(), Paths::amc(), Paths::fn(),
-                                 Paths::aln());
+  spectrumNorm->loadBgSpecForToy();
 
   // load distances hare as well to construct traditional supermatrix
 

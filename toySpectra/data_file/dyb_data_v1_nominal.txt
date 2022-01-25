@@ -163,7 +163,8 @@ varyAccBg 0
 varyAmcBg 0
 varyFnBg 0
 varyLi9Bg 0
-varyAlnBg 0 
+varyAlnBg 0
+varyMuonDecayBg 0
 
 #These distort the shape of the background spectra by a line 
 #Note: the value is the amount of variation that you want to introduce
@@ -172,6 +173,7 @@ distortAmcBg 0
 distortFnBg 0
 distortLi9Bg null
 distortAlnBg 0
+distortMuonDecayBg 0
 
 #Finally, flag for statistical flactuation
 statisticalFluctuation 0

@@ -91,6 +91,11 @@ const char* aln()
   return "../alpha-n-spectrum/result-DocDB9667.root";
 }
 
+const char* muon_decay()
+{
+  return "../muon_decay_spectrum/MuonDecaySpec.root";
+}
+
 const char* baselines()
 {
   return "../toySpectra/unblinded_baseline.txt";

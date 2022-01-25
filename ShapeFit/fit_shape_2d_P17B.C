@@ -59,8 +59,6 @@ void fit_shape_2d_P17B(
 
   TString sig_spectra_filename[3] = {
       Paths::sig_spectra(0), Paths::sig_spectra(1), Paths::sig_spectra(2)};
-  TString AccidentalSpectrumLocation[3] = {
-      Paths::acc_spectra(0), Paths::acc_spectra(1), Paths::acc_spectra(2)};
   Char_t Theta13InputsLocation[3][1024];
 
   strcpy(Theta13InputsLocation[0], Paths::input(0));
@@ -106,8 +104,7 @@ void fit_shape_2d_P17B(
     pred->LoadIBDSpec(sig_spectra_filename);
 
     // load bg afterwards since here is when correct events
-    pred->LoadBgSpec(AccidentalSpectrumLocation,
-                     Paths::li9(), Paths::amc(), Paths::fn(), Paths::aln());
+    pred->LoadBgSpec();
 
 
     // pred->SetStatFactor(stat_factor);
@@ -992,6 +989,9 @@ void fit_shape_2d_P17B(
 
       sprintf(name, "CorrAlnEvtsSpec_stage%i_AD%i", istage, idet + 1);
       pred->GetCorrAlnEvtsSpec(istage, idet)->Clone(name)->Write();
+
+      sprintf(name, "CorrMuonDecayEvtsSpec_stage%i_AD%i", istage, idet + 1);
+      pred->GetCorrMuonDecayEvtsSpec(istage, idet)->Clone(name)->Write();
     }
   }
 

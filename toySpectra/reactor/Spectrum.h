@@ -86,9 +86,10 @@ public:
   // which are loaded by Predictor)
   void loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
                         const Char_t* amcspecname, const Char_t* fnspecname,
-                        const Char_t* alnspecname);
+                        const Char_t* alnspecname, const Char_t* muondecayspecname);
+  void loadBgSpecForToy();
   void setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag,
-                       bool amc_flag, bool aln_flag);
+                       bool amc_flag, bool aln_flag, bool muon_decay_flag);
 
   // Update Oscillation
   // void setDeltaMSqee(double deltaMSqee);
@@ -137,6 +138,7 @@ private:
   TH1F* CorrAlnEvtsSpec[Nstage][Ndetectors];
   TH1F* CorrLi9EvtsSpec[Nstage][Ndetectors];
   TH1F* CorrFnEvtsSpec[Nstage][Ndetectors];
+  TH1F* CorrMuonDecayEvtsSpec[Nstage][Ndetectors];
 
   void setRandomSolarOscPars();
   void setRandomDm2ee();
@@ -343,6 +345,7 @@ private:
   double m_varyFnBg;
   double m_varyLi9Bg;
   double m_varyAlnBg;
+  double m_varyMuonDecayBg;
 
   double m_distortAccBg;
   double m_distortAmcBg;
@@ -353,6 +356,7 @@ private:
   TH1F* m_func_distortLi9Bg;
   int m_entries_distortLi9Bg;
   double m_distortAlnBg;
+  double m_distortMuonDecayBg;
 
   double m_statisticalFluctuation;
 
@@ -362,7 +366,7 @@ private:
   bool m_removeFnBg;
   bool m_removeAmcBg;
   bool m_removeAlnBg;
-
+  bool m_removeMuonDecayBg;
 
   void extractPredictorData();
   void loadIavCorrection(const char* iavcorrectionname);
@@ -411,6 +415,7 @@ private:
   TFile* m_fnspec;
   TFile* m_amcspec;
   TFile* m_alnspec;
+  TFile* m_muondecayspec;
 
   TFile* m_iavCorrFile;
 };
