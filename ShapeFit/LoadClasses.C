@@ -11,6 +11,7 @@ void LoadClasses()
 
   LoadFile("Utils.cc");
   LoadFile("Paths.cc");
+  LoadFile("Binning.cc");
   LoadFile("OscCalc.cc");
   LoadFile("FluxCalculator.cc");
   LoadFile("PredSet.cc");
@@ -19,6 +20,5 @@ void LoadClasses()
   // LoadFile("Ranger.cc");
   // LoadFile("ExtrapTable.cc");
   // LoadFile("OscProbTable.cc");
-  LoadFile("Binning.cc");
   LoadFile("DataSet.cc");
 }

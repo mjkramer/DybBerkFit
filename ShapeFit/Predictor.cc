@@ -1,14 +1,17 @@
 #include "Predictor.h"
 
+#include "Binning.h"
 #include "Paths.h"
 #include "Utils.h"
 
 #include "TF1.h"
 #include "TMatrixD.h"
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string_view>
 
 /*
   June 19: Yasu
@@ -397,10 +400,34 @@ void Predictor::LoadPredictedIBD(const Char_t* nibdname)
   cout << "done loading # ibd!" << endl;
 }
 
+static void replace_all(std::string& inout,
+                        std::string_view what, std::string_view with)
+{
+  for (std::string::size_type pos{};
+       inout.npos != (pos = inout.find(what.data(), pos, what.length()));
+       pos += with.length()) {
+    inout.replace(pos, what.length(), with.data(), with.length());
+  }
+}
+
+// When fitting Toy MC samples, the histogram may be named differently.
+static std::string get_ibd_eprompt_hname(int stage, int globalDet)
+{
+  const char* format = getenv("LBNL_FIT_IBD_HNAME");
+  if (!format) format = "h_ibd_eprompt_inclusive_ehHALL_adLOCALDET";
+
+  std::string hname(format);
+  replace_all(hname, "STAGE", Form("%d", stage));
+  replace_all(hname, "HALL", Form("%d", detConfigEH[globalDet - 1]));
+  replace_all(hname, "LOCALDET", Form("%d", detConfigAD[globalDet - 1]));
+  replace_all(hname, "GLOBALDET", Form("%d", globalDet));
+
+  return hname;
+}
+
 void Predictor::LoadIBDSpec(TString* ibdspecname)
 {
   cout << "Loading ibd spectra..." << endl;
-  Char_t name[1024];
   Char_t name2[1024];
   //++ IBDs
   for (int istage = 0; istage < Nstage; ++istage) {
@@ -410,15 +437,18 @@ void Predictor::LoadIBDSpec(TString* ibdspecname)
 
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
-      sprintf(name, "h_ibd_eprompt_inclusive_eh%i_ad%d", detConfigEH[idet],
-              detConfigAD[idet]);
+      std::string name = get_ibd_eprompt_hname(istage + 1, idet + 1);
       sprintf(name2, "h_ibd_eprompt_inclusive_stage%i_eh%i_ad%d", istage + 1,
               detConfigEH[idet], detConfigAD[idet]);
 
       // cout << "tdper[iweek].ObsEvtsSpec[idet]->Integral(): " <<
       // tdper[0].ObsEvtsSpec[idet]->Integral() << endl;
-      tdper[istage].ObsEvtsSpec[idet] =
-          (TH1F*)m_infilespec[istage]->Get(name)->Clone(name2);
+
+      // The Toy MC exchange files use fine binning, but we are probably fitting
+      // with BCW or LBNL binning, so rebin.
+      tdper[istage].ObsEvtsSpec[idet] = dynamic_cast<TH1F*>(
+          ((TH1F*)m_infilespec[istage]->Get(name.c_str()))
+          ->Rebin(Binning::n_evis(), name2, Binning::evis()));
     }
   }
   cout << "done loading ibd spectra!" << endl;
