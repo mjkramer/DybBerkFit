@@ -22,6 +22,12 @@ bool useBcwBinning()
   return val && strcmp("BCW", val) == 0;
 }
 
+bool useFineBinning()
+{
+  const char* val = getenv("LBNL_FIT_BINNING");
+  return val && strcmp("fine", val) == 0;
+}
+
 static double min_energy()
 {
   const char* val = getenv("LBNL_FIT_EMIN");
@@ -71,7 +77,8 @@ static void init_enu()
 
 double* evis()
 {
-  return useBcwBinning() ? _evis_bcw : _evis_lbnl;
+  return useFineBinning() ? _evis_fine :
+    (useBcwBinning() ? _evis_bcw : _evis_lbnl);
 }
 
 double* evis_fine()
@@ -86,7 +93,8 @@ double* enu()
 
 int n_evis()
 {
-  return useBcwBinning() ? _n_evis_bcw : _n_evis_lbnl;
+  return useFineBinning() ? _n_evis_fine :
+    (useBcwBinning() ? _n_evis_bcw : _n_evis_lbnl);
 }
 
 int n_evis_fine()
