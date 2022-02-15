@@ -16,11 +16,31 @@ void genToyForExchange(const char* output_filename_format,
   double* evis_bins = Binning::evis_fine();
 
   TH1F* h_nominal_ad[Nstage][Ndetectors];
+  TH1F* h_noBkg_ad[Nstage][Ndetectors];
+  TH1F* h_onlyBkg_ad[Nstage][Ndetectors];
+  TH1F* h_bkgAcc_ad[Nstage][Ndetectors];
+  TH1F* h_bkgLi9_ad[Nstage][Ndetectors];
+  TH1F* h_bkgFn_ad[Nstage][Ndetectors];
+  TH1F* h_bkgAmC_ad[Nstage][Ndetectors];
+  TH1F* h_bkgAln_ad[Nstage][Ndetectors];
+  TH1F* h_bkgMD_ad[Nstage][Ndetectors];
 
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       const char* name = Form("h_nominal_stage%i_ad%i", istage + 1, idet + 1);
-      h_nominal_ad[istage][idet] = new TH1F(name, name, n_evis_bins, evis_bins);
+      auto mkhist = [&](const char* label) {
+        auto name = Form("h_%s_stage%i_ad%i", label, istage + 1, idet + 1);
+        return new TH1F(name, name, n_evis_bins, evis_bins);
+      };
+      h_nominal_ad[istage][idet] = mkhist("nominal");
+      h_noBkg_ad[istage][idet] = mkhist("noBkg");
+      h_onlyBkg_ad[istage][idet] = mkhist("onlyBkg");
+      h_bkgAcc_ad[istage][idet] = mkhist("bkgAcc");
+      h_bkgLi9_ad[istage][idet] = mkhist("bkgLi9");
+      h_bkgFn_ad[istage][idet] = mkhist("bkgFn");
+      h_bkgAmC_ad[istage][idet] = mkhist("bkgAmC");
+      h_bkgAln_ad[istage][idet] = mkhist("bkgAln");
+      h_bkgMD_ad[istage][idet] = mkhist("bkgMD");
     }
   }
 
@@ -52,15 +72,63 @@ void genToyForExchange(const char* output_filename_format,
           ->Fill(spectrumNormNominal->energyArray(idet)[ibin],
                  spectrumNormNominal->positronDetectedArray(istage, idet)[ibin]
                  * spectrumNormNominal->binWidth());
+        h_noBkg_ad[istage][idet]
+          ->Fill(spectrumNormNominal->energyArray(idet)[ibin],
+                 spectrumNormNominal->positronDetectedArray(istage, idet)[ibin]
+                 * spectrumNormNominal->binWidth());
       }
+
       for (int ibin = 0; ibin < spectrumNormNominal->nSamplesBkg(); ++ibin) {
+        // do not multiply by binWidth for backgrounds
         h_nominal_ad[istage][idet]
           ->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
                  spectrumNormNominal->bgDetectedArray(istage, idet)[ibin]);
-        // do not multiply by binWidth for backgrounds
+        h_onlyBkg_ad[istage][idet]
+          ->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
+                 spectrumNormNominal->bgDetectedArray(istage, idet)[ibin]);
       }
+
     }
   }
+
+  auto fillBkg = [&](TH1F* hs[Nstage][Ndetectors]) {
+    spectrumNormNominal->updateBgDetected();
+    for (int istage = 0; istage < Nstage; ++istage) {
+      for (int idet = 0; idet < Ndetectors; ++idet) {
+        for (int ibin = 0; ibin < spectrumNormNominal->nSamplesBkg(); ++ibin) {
+          hs[istage][idet]
+            ->Fill(spectrumNormNominal->energyArrayBkg(idet)[ibin],
+                   spectrumNormNominal->bgDetectedArray(istage, idet)[ibin]);
+        }
+      }
+    }
+  };
+
+  spectrumNormNominal->setBgRemoveFlag(true, true, true, true, true, true);
+
+  spectrumNormNominal->setRemoveAcc(false);
+  fillBkg(h_bkgAcc_ad);
+  spectrumNormNominal->setRemoveAcc(true);
+
+  spectrumNormNominal->setRemoveLi9(false);
+  fillBkg(h_bkgLi9_ad);
+  spectrumNormNominal->setRemoveLi9(true);
+
+  spectrumNormNominal->setRemoveFn(false);
+  fillBkg(h_bkgFn_ad);
+  spectrumNormNominal->setRemoveFn(true);
+
+  spectrumNormNominal->setRemoveAmc(false);
+  fillBkg(h_bkgAmC_ad);
+  spectrumNormNominal->setRemoveAmc(true);
+
+  spectrumNormNominal->setRemoveAln(false);
+  fillBkg(h_bkgAln_ad);
+  spectrumNormNominal->setRemoveAln(true);
+
+  spectrumNormNominal->setRemoveMuonDecay(false);
+  fillBkg(h_bkgMD_ad);
+  spectrumNormNominal->setRemoveMuonDecay(true);
 
   const char* istage2name[3] = {"6AD", "8AD", "7AD"};
 
@@ -68,8 +136,17 @@ void genToyForExchange(const char* output_filename_format,
     const char* outname = Form(output_filename_format, istage2name[istage]);
     TFile *outfile = new TFile(outname, "RECREATE");
     outfile->cd();
-    for (int idet = 0; idet < Ndetectors; ++idet)
+    for (int idet = 0; idet < Ndetectors; ++idet) {
       h_nominal_ad[istage][idet]->Write();
+      h_noBkg_ad[istage][idet]->Write();
+      h_onlyBkg_ad[istage][idet]->Write();
+      h_bkgAcc_ad[istage][idet]->Write();
+      h_bkgLi9_ad[istage][idet]->Write();
+      h_bkgFn_ad[istage][idet]->Write();
+      h_bkgAmC_ad[istage][idet]->Write();
+      h_bkgAln_ad[istage][idet]->Write();
+      h_bkgMD_ad[istage][idet]->Write();
+    }
     outfile->Write();
     outfile->Close();
   }

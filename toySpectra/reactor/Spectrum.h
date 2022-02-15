@@ -90,6 +90,12 @@ public:
   void loadBgSpecForToy();
   void setBgRemoveFlag(bool acc_flag, bool li9_flag, bool fn_flag,
                        bool amc_flag, bool aln_flag, bool muon_decay_flag);
+  void setRemoveAcc(bool flag) { m_removeAccBg = flag; }
+  void setRemoveLi9(bool flag) { m_removeLi9Bg = flag; }
+  void setRemoveFn(bool flag) { m_removeFnBg = flag; }
+  void setRemoveAmc(bool flag) { m_removeAmcBg = flag; }
+  void setRemoveAln(bool flag) { m_removeAlnBg = flag; }
+  void setRemoveMuonDecay(bool flag) { m_removeMuonDecayBg = flag; }
 
   // Update Oscillation
   // void setDeltaMSqee(double deltaMSqee);
