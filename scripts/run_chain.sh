@@ -8,6 +8,11 @@
 step=$1; shift
 step=${step:-all}
 
+if [ -z $TOYXCHG ]; then
+    echo "TOYXCHG is not set, bailing"
+    exit 1
+fi
+
 if [ -z $LBNL_FIT_OUTDIR ]; then
     export LBNL_FIT_OUTDIR=$LBNL_FIT_INDIR
 fi
@@ -55,7 +60,8 @@ genToys() {
 genEvisEnu() {
     set_threads 30
     cd $BASE/toySpectra
-    root -b -q LoadClasses.C genEvisToEnuMatrix.C+$DBG
+    # root -b -q LoadClasses.C genEvisToEnuMatrix.C+$DBG
+    cp $TOYXCHG/static/DubnaResponse/DubnaResponse.root $LBNL_FIT_OUTDIR/response/evis_to_enu_fine.root
     cd ../ShapeFit
     root -b -q LoadClasses.C make_evis_to_enu_matrix_fine_P17B.C+$DBG
 }
