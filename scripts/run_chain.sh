@@ -8,6 +8,10 @@
 step=$1; shift
 step=${step:-all}
 
+if [ -z $LBNL_FIT_OUTDIR ]; then
+    export LBNL_FIT_OUTDIR=$LBNL_FIT_INDIR
+fi
+
 # RECOMPILE=1
 
 BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/..
