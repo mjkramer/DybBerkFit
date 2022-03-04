@@ -1,3 +1,5 @@
+* Thoughts
+- Should IAV effect and NL (quenching/Cerenkov) be folded together? Will this improve the uncertainty on the lowest bins? Technically the combined effect should vary depending on whether the positron passes through the IAV at the beginning or at the end of its range.
 * What's a super histogram?
 From comment above FluxCalculator::LoadSuperHistograms:
 #+begin_quote
