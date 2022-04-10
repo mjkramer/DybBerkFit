@@ -10,6 +10,14 @@
 #include <stdexcept>
 #include <string>
 
+// Returns true if $envvar is set to anything except "0".
+// Returns false if $envvar is unset or it is set to "0".
+static bool checkenv(const char* envvar)
+{
+  const char* val = getenv(envvar);
+  return val && (strcmp(val, "0") != 0);
+}
+
 static void ensure_dir(const char* path)
 {
   std::string s(path);

@@ -136,15 +136,16 @@ const char* reactor_covmatrix()
   return "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt";
 }
 
-const char* unified_nl(bool scnl)
+const char* unified_nl()
 {
-  const char* tag = scnl ? "new" : "old";
+  const char* tag = checkenv("IBDSEL_USE_SCNL") ? "new" : "old";
   // doc-11611
   // return LeakStr("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
   //                 tag);
   // doc-11646
   // return LeakStr("../toySpectra/unified_nl_data/energymodel_Apr2018_%sE.root",
   //                tag);
+  // doc-12585
   return LeakStr("../toySpectra/unified_nl_data/energymodel_Jan2022_%sE_v1.root",
                  tag);
 }
