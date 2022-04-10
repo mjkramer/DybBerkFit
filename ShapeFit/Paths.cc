@@ -7,6 +7,8 @@
 
 namespace Paths {
 
+const char* gReactorSuffix = "_SNF_nonEq";
+
 const char* input(int istage)
 {
   return inpath("Theta13-inputs_P17B_inclusive_%s.txt",
@@ -125,8 +127,8 @@ const char* toytree(const char* option)
 
 const char* reactor_spectrum(int istage)
 {
-  return LeakStr("../ReactorPowerCalculator/isotope_spectra_v4v5v3v1_blinded/reactor_%s_SNF_nonEq.txt",
-                  stage_upc(istage));
+  return LeakStr("../ReactorPowerCalculator/isotope_spectra_v4v5v3v1_blinded/reactor_%s%s.txt",
+                  stage_upc(istage), gReactorSuffix);
 }
 
 const char* reactor_covmatrix()

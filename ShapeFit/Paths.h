@@ -5,6 +5,8 @@
 
 namespace Paths {
 
+extern const char* gReactorSuffix;
+
 const char* outpath(const char* fmt, ...);
 const char* inpath(const char* fmt, ...);
 
