@@ -136,9 +136,15 @@ const char* reactor_covmatrix()
   return "../reactor_covmatrix/p15a/nNu_Mcov_combined_huber-french_u238cor.txt";
 }
 
-const char* unified_nl(bool scnl)
+static bool useSCNL()
 {
-  const char* tag = scnl ? "new" : "old";
+  const char* val = getenv("IBDSEL_USE_SCNL");
+  return val && (strcmp(val, "0") != 0);
+}
+
+const char* unified_nl()
+{
+  const char* tag = useSCNL() ? "new" : "old";
   // doc-11611
   // return LeakStr("../toySpectra/unified_nl_data/energymodel_%s_v1.root",
   //                 tag);
