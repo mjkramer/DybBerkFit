@@ -16,8 +16,23 @@
 using namespace Config;
 
 
-void genPredForCompare()
+void genPredForCompare(bool noOffEq = false, bool noSNF = false)
 {
+  const char* outfilename;
+  if (noOffEq && noSNF) {
+    Paths::gReactorSuffix = "";
+    outfilename = "predForCompare_noOffEq_noSNF.root";
+  } else if (noOffEq) {
+    Paths::gReactorSuffix = "_SNF";
+    outfilename = "predForCompare_noOffEq.root";
+  } else if (noSNF) {
+    Paths::gReactorSuffix = "_nonEq";
+    outfilename = "predForCompare_noSNF.root";
+  } else {
+    Paths::gReactorSuffix = "_SNF_nonEq";
+    outfilename = "predForCompare.root";
+  }
+
   TH1F* h_nu[Nstage][Ndetectors];
   TH1F* h_true[Nstage][Ndetectors];
   TH1F* h_dep[Nstage][Ndetectors];
@@ -59,7 +74,7 @@ void genPredForCompare()
   spectrum->initialize(mydata);
   spectrum->loadBgSpecForToy();
 
-  TFile* outfile = new TFile("predForCompare.root", "RECREATE");
+  TFile* outfile = new TFile(outfilename, "RECREATE");
 
   spectrum->updateAntinu();
 

@@ -7,9 +7,6 @@
 
 using namespace std;
 
-Bool_t AddSNF = true;
-Bool_t AddNonEq = true;
-
 Double_t snf_fraction = 0.003;
 
 const Int_t nMaxIbdPoints = 1200;
@@ -95,7 +92,7 @@ Double_t get_noneq_corr(Int_t isotope_id, Double_t e){
 
 
 
-void make_combined_spectra_v4v5v3v1_blinded() {
+void make_combined_spectra_v4v5v3v1_blinded(bool AddSNF = true, bool AddNonEq = true) {
 
 
 
@@ -169,7 +166,9 @@ void make_combined_spectra_v4v5v3v1_blinded() {
     }
     fin.close();
 
-    ofstream fout(Form("reactor_%s_SNF_nonEq.txt",stage_name[istage].Data()));
+    const char* snfStr = AddSNF ? "_SNF" : "";
+    const char* neqStr = AddNonEq ? "_nonEq" : "";
+    ofstream fout(Form("reactor_%s%s%s.txt",stage_name[istage].Data(), snfStr, neqStr));
 
     //  cout << 1./flux_snf_total[2]*flux_wo_snf_total_ave << endl;
     for (Int_t i = 0; i < 220; i ++){

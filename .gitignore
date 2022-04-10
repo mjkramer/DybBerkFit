@@ -17,7 +17,7 @@ ShapeFit/PredictedIBD/
 ShapeFit/covariance_matrices/
 ShapeFit/fit_result_files/
 ShapeFit/final_covmatrix_*.txt
-ReactorPowerCalculator/isotope_spectra*/reactor_P17B_*.txt
+ReactorPowerCalculator/isotope_spectra*/reactor_*.txt
 toySpectra/data_file/dyb_data_v1_*.txt
 !dyb_data_v1_nominal.txt
 matrix_evis_to_enu_*.txt
