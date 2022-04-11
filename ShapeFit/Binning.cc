@@ -8,11 +8,13 @@ namespace Binning {
 
 static const int _n_evis_lbnl = 37;
 static const int _n_evis_bcw = 26;
+static const int _n_evis_ihep = 29;
 static const int _n_evis_fine = 240;
 static const int _n_enu = 156;
 
 static double _evis_lbnl[_n_evis_lbnl + 1];
 static double _evis_bcw[_n_evis_bcw + 1];
+static double _evis_ihep[_n_evis_ihep + 1];
 static double _evis_fine[_n_evis_fine + 1];
 static double _enu[_n_enu + 1];
 
@@ -20,6 +22,17 @@ bool useBcwBinning()
 {
   const char* val = getenv("LBNL_FIT_BINNING");
   return val && strcmp("BCW", val) == 0;
+}
+
+bool useIhepBinning()
+{
+  const char* val = getenv("LBNL_FIT_BINNING");
+  return val && strcmp("IHEP", val) == 0;
+}
+
+bool useLbnlBinning()
+{
+  return !useBcwBinning() && !useIhepBinning();
 }
 
 bool useFineBinning()
@@ -56,6 +69,19 @@ static void init_evis_bcw()
   _evis_bcw[_n_evis_bcw] = 12.0;
 }
 
+static void init_evis_ihep() __attribute__((constructor));
+static void init_evis_ihep()
+{
+  _evis_ihep[0] = min_energy();
+  for (Int_t i = 0; i < 25; i++) {
+    _evis_ihep[i + 1] = 0.25 * i + 1.0;
+  }
+  _evis_ihep[26] = 7.5;
+  _evis_ihep[27] = 8.0;
+  _evis_ihep[28] = 9.5;
+  _evis_ihep[29] = 12.0;
+}
+
 // Previously used by genPredictedIBD
 static void init_evis_fine() __attribute__((constructor));
 static void init_evis_fine()
@@ -78,7 +104,8 @@ static void init_enu()
 double* evis()
 {
   return useFineBinning() ? _evis_fine :
-    (useBcwBinning() ? _evis_bcw : _evis_lbnl);
+    (useBcwBinning() ? _evis_bcw :
+     (useIhepBinning() ? _evis_ihep : _evis_lbnl));
 }
 
 double* evis_fine()
@@ -94,7 +121,8 @@ double* enu()
 int n_evis()
 {
   return useFineBinning() ? _n_evis_fine :
-    (useBcwBinning() ? _n_evis_bcw : _n_evis_lbnl);
+    (useBcwBinning() ? _n_evis_bcw :
+     (useIhepBinning() ? _n_evis_ihep : _n_evis_lbnl));
 }
 
 int n_evis_fine()

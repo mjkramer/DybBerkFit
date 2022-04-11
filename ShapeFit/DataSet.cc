@@ -179,6 +179,8 @@ int DataSet::load(const char* filename)
                   << "(got " << s << ")" << std::endl;
         return -1;
       }
+      // For IHEP binning, just use the LBNL values, since IHEP binning is more
+      // similar to LBNL in the lowest two bins.
       auto binning = Binning::useBcwBinning() ? "BCW" : "LBNL";
       auto vnom = Form("%sNominal%s", v, binning);
       double val = this->getDouble(vnom);

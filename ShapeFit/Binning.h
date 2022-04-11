@@ -3,6 +3,8 @@
 namespace Binning {
 
 extern bool useBcwBinning();
+extern bool useIhepBinning();
+extern bool useLbnlBinning();
 extern bool useFineBinning();
 
 extern double* evis();
