@@ -127,8 +127,9 @@ const char* toytree(const char* option)
 
 const char* reactor_spectrum(int istage)
 {
-  return LeakStr("../ReactorPowerCalculator/isotope_spectra_v4v5v3v1_blinded/reactor_%s%s.txt",
-                  stage_upc(istage), gReactorSuffix);
+  const char* tag = checkenv("LBNL_FIT_BLINDED") ? "blinded" : "unblinded";
+  return LeakStr("../ReactorPowerCalculator/isotope_spectra_v4v5v3v1_%s/reactor_%s%s.txt",
+                  tag, stage_upc(istage), gReactorSuffix);
 }
 
 const char* reactor_covmatrix()

@@ -17,9 +17,9 @@ STAGE_NDET = [6, 8, 7]
 STAGE_START_WEEK = [0, 42, 264]
 STAGE_END_WEEK = [33, 261, -1]
 
-DEFAULT_OUTDIR = "isotope_spectra_v4v5v3v1_blinded"
+DEFAULT_OUTDIR = "isotope_spectra_v4v5v3v1_unblinded"
 DEFAULT_LIVETIME_FILE = "dbd_livetime_v4v5v3v1.txt"
-DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_v4v5v3v1_blinded.txt"
+DEFAULT_POWER_FILE = "WeeklyAvg/WeeklyAvg_v4v5v3v1_unblinded.txt"
 DEFAULT_ISOTOPE_FILE = "fissionIsotopeTable_v1.txt"
 DEFAULT_MODEL_OPTION = 1
 
@@ -36,7 +36,7 @@ def weekly_livetime(path=DEFAULT_LIVETIME_FILE):
 
 
 def weekly_power(path=DEFAULT_POWER_FILE):
-    return pd.read_csv(path, sep=r"\s+",
+    return pd.read_csv(path, sep=r"\s+", comment="#",
                        names=["week", "core", "start", "end", "frac_pow",
                               "DUMMY",
                               "frac_U235", "frac_U238",
