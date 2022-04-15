@@ -19,7 +19,7 @@ genReactor() {
             popd
         else
             tag=v4v5v3v1_unblinded
-            power_file=weekly_power_fulldata_release.dat
+            power_file=weekly_power_fulldata_release_v2.dat
         fi
     fi
     ./prod_isotope_spec.py --power-file WeeklyAvg/$power_file --outdir isotope_spectra_$tag
