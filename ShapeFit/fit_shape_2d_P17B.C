@@ -421,7 +421,8 @@ void fit_shape_2d_P17B(
   TH1D* h_final_pred_null_sum[nModes][16];
   TH1D* h_final_pred_nom_sum[nModes][16];
 
-  TH2D* h_final_covmatrix[nModes];
+  TH2D* h_final_covmatrix[nModes]; // actually the correlation matrix
+  TH2D* h_final_covmatrix_really[nModes]; // this is really the covmatrix
 
   Int_t n_rebinned_evis_bins = pred->GetNumRebinnedEvisBins();
   Double_t* rebinned_evis_bins = pred->GetRebinnedEvisBins();
@@ -430,6 +431,12 @@ void fit_shape_2d_P17B(
   for (Int_t iMode = 0; iMode < nModes; iMode++) {
     h_final_covmatrix[iMode] = new TH2D(
         LeakStr("h_final_covmatrix_mode%d", iMode), "Final covariance matrix",
+        nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
+        nPredictions[iMode] * Nstage * n_rebinned_evis_bins,
+        nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
+        nPredictions[iMode] * Nstage * n_rebinned_evis_bins);
+    h_final_covmatrix_really[iMode] = new TH2D(
+        LeakStr("h_final_covmatrix_really_mode%d", iMode), "Final covariance matrix (really)",
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins,
         nPredictions[iMode] * Nstage * n_rebinned_evis_bins, 0,
@@ -812,6 +819,9 @@ void fit_shape_2d_P17B(
             i + 1, j + 1,
             final_covmatrix[iMode][i][j] / sqrt(final_covmatrix[iMode][i][i] *
                                                 final_covmatrix[iMode][j][j]));
+        h_final_covmatrix_really[iMode]->SetBinContent(
+            i + 1, j + 1,
+            final_covmatrix[iMode][i][j]);
       }
     }
   }
