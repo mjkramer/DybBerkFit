@@ -175,5 +175,9 @@ distortLi9Bg null
 distortAlnBg 0
 distortMuonDecayBg 0
 
-#Finally, flag for statistical flactuation
+#Flag for statistical flactuation
 statisticalFluctuation 0
+
+#Stage-correlated reactor fluctuations
+stageCorrelatedReactorPower 1
+stageCorrelatedCoreSpectra 1

@@ -2,6 +2,9 @@
 
 #include "CrossSectionTable.h"
 #include "Predictor.h"
+
+#include <vector>
+
 //#include "IsotopeTable.h"
 const int MAX_CORESPECTRA_SAMPLES = 240;
 const int MAX_ABINITIO_CORESPECTRA_SAMPLES = 12000;
@@ -21,7 +24,8 @@ public:
   Bool_t loadAbInitioSpectra(const char* filename_nom);
   Bool_t setFlatSpectra();
   void setRandomSeed(unsigned int seed);
-  void setRandomAntiNuSpectra();
+  std::vector<double> setRandomAntiNuSpectra();
+  void setRandomAntiNuSpectra(const std::vector<double>& ranvec);
 
   bool loadCrossSectionTable(const char* filename_xsec);
   Bool_t loadCovMatrixBCW(const char* filename_mcov);

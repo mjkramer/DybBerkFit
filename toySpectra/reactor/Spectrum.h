@@ -2,6 +2,8 @@
 
 #include "Predictor.h"
 
+#include <vector>
+
 #define MAX_SAMPLES 3000
 //#define MAX_SAMPLES 240
 // const int Ncores=6;
@@ -365,6 +367,9 @@ private:
   double m_distortMuonDecayBg;
 
   double m_statisticalFluctuation;
+
+  bool m_stageCorrelatedReactorPower;
+  bool m_stageCorrelatedCoreSpectra;
 
 
   bool m_removeAccBg;

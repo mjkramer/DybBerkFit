@@ -129,16 +129,23 @@ void CoreSpectrum::setRandomSeed(unsigned int seed)
 }
 
 
-void CoreSpectrum::setRandomAntiNuSpectra()
+std::vector<double> CoreSpectrum::setRandomAntiNuSpectra()
 {
-  if (isAbInitioSpectraUsed) {
-    return;
-  }
-
-  double ranvec[Ncores * MAX_CORESPECTRA_SAMPLES];
+  auto ranvec = std::vector<double>(Ncores * MAX_CORESPECTRA_SAMPLES);
 
   for (int i = 0; i < Ncores * m_nSamples; i++) {
     ranvec[i] = ran->Gaus(0, 1);
+  }
+
+  setRandomAntiNuSpectra(ranvec);
+
+  return ranvec;
+}
+
+void CoreSpectrum::setRandomAntiNuSpectra(const std::vector<double>& ranvec)
+{
+  if (isAbInitioSpectraUsed) {
+    return;
   }
 
   for (int iCore = 0; iCore < Ncores; iCore++) {

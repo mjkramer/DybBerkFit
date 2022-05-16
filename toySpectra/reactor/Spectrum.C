@@ -353,6 +353,11 @@ void Spectrum::updateAntinu(int icore_select)
 
   if (UseChristineModel || m_useAbInitioSpectra > 0) {
     if (m_randomizeCoreSpectra > 0) {
+      if (m_stageCorrelatedCoreSpectra && !m_useBcwFluxUncertainty) {
+        std::vector<double> ranvec = m_corespectrum[0]->setRandomAntiNuSpectra();
+        for (int istage = 1; istage < Nstage; ++istage)
+          m_corespectrum[istage]->setRandomAntiNuSpectra(ranvec);
+      }
       for (int istage = 0; istage < Nstage; istage++) {
         // YN: Add option to BCW flux uncertainty
         if (m_useBcwFluxUncertainty > 0) {
@@ -1889,6 +1894,9 @@ void Spectrum::initialize(DataSet* data)
 
   m_statisticalFluctuation = data->getDouble("statisticalFluctuation");
 
+  m_stageCorrelatedReactorPower = data->getDouble("stageCorrelatedReactorPower");
+  m_stageCorrelatedCoreSpectra = data->getDouble("stageCorelatedCoreSpectra");
+
   m_useIhepNonLinearModel = data->getDouble("useIhepNonLinearModel");
 
   m_useBcwNonLinearModel = data->getDouble("useBcwNonLinearModel");
@@ -2346,11 +2354,15 @@ void Spectrum::setRandomSeed(unsigned int i)
 
 void Spectrum::setRandomReactorPower()
 {
-  for (int istage = 0; istage < Nstage; istage++) {
-    for (int i = 0; i < Ncores; i++) {
-      m_reactorPower[istage][i] =
-          (1 + m_reactorPowerError[istage][i] * ran->Gaus(0, 1)) *
-          m_nominalReactorPower[istage][i];
+  for (int i = 0; i < Ncores; ++i) {
+    double corr_random = ran->Gaus(0, 1);
+    for (int istage = 0; istage < Nstage; ++istage) {
+      double random = m_stageCorrelatedReactorPower
+        ? corr_random : ran->Gaus(0, 1);
+
+        m_reactorPower[istage][i] =
+            (1 + m_reactorPowerError[istage][i] * random) *
+            m_nominalReactorPower[istage][i];
     }
   }
 }
