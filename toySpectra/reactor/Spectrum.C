@@ -1314,7 +1314,7 @@ void Spectrum::updateBgDetected()
   // 3) For amc, fluctuate all ADs in a correlated way
   // 4) For alpha-n, for now fluctuating all ADs independently
 
-  // Accidental and alpha-n are entirely uncorrelated
+  // Accidental are entirely uncorrelated
   for (int istage = 0; istage < Nstage; ++istage) {
     for (int idet = 0; idet < Ndetectors; ++idet) {
       if (m_varyAccBg > 0) {
@@ -1326,14 +1326,14 @@ void Spectrum::updateBgDetected()
           scale_factor_acc[istage][idet] = 0;
       }
 
-      if (m_varyAlnBg > 0) {
-        if (pred->tdper[istage].AlnEvts[idet] > 0)
-          scale_factor_aln[istage][idet] =
-              (1 + pred->tdper[istage].AlnErr[idet] * 1. /
-                       pred->tdper[istage].AlnEvts[idet] * ran->Gaus(0, 1));
-        else
-          scale_factor_aln[istage][idet] = 0;
-      }
+      // if (m_varyAlnBg > 0) {
+      //   if (pred->tdper[istage].AlnEvts[idet] > 0)
+      //     scale_factor_aln[istage][idet] =
+      //         (1 + pred->tdper[istage].AlnErr[idet] * 1. /
+      //                  pred->tdper[istage].AlnEvts[idet] * ran->Gaus(0, 1));
+      //   else
+      //     scale_factor_aln[istage][idet] = 0;
+      // }
     }
   }
 
@@ -1348,6 +1348,22 @@ void Spectrum::updateBgDetected()
                        pred->tdper[istage].AmcEvts[idet] * corr_random[0]);
         else
           scale_factor_amc[istage][idet] = 0;
+      }
+    }
+  }
+
+  // aln are treated completely correlated as of ACC decision, 2022-05-12
+  // previously they were entirely uncorrelated
+  corr_random[0] = ran->Gaus(0, 1);
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      if (m_varyAlnBg > 0) {
+        if (pred->tdper[istage].AlnEvts[idet] > 0)
+          scale_factor_aln[istage][idet] =
+              (1 + pred->tdper[istage].AlnErr[idet] * 1. /
+                       pred->tdper[istage].AlnEvts[idet] * corr_random[0]);
+        else
+          scale_factor_aln[istage][idet] = 0;
       }
     }
   }
