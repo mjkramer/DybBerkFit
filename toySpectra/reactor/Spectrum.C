@@ -1895,7 +1895,7 @@ void Spectrum::initialize(DataSet* data)
   m_statisticalFluctuation = data->getDouble("statisticalFluctuation");
 
   m_stageCorrelatedReactorPower = data->getDouble("stageCorrelatedReactorPower");
-  m_stageCorrelatedCoreSpectra = data->getDouble("stageCorelatedCoreSpectra");
+  m_stageCorrelatedCoreSpectra = data->getDouble("stageCorrelatedCoreSpectra");
 
   m_useIhepNonLinearModel = data->getDouble("useIhepNonLinearModel");
 
