@@ -10,7 +10,7 @@
 void genAsimovToy(double s2t13, double dm2ee)
 {
   const int n_evis_bins = Binning::n_evis();
-  double* evis_bins = Binning::evis_fine();
+  double* evis_bins = Binning::evis();
 
   TH1F* h_eprompt[Nstage][Ndetectors];
 
