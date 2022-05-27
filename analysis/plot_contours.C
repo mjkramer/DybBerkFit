@@ -22,7 +22,7 @@ const char* picpath(const char* name)
   return Paths::outpath("pics/%s", name);
 }
 
-void plot_contours()
+void plot_contours(bool plot_dm32=false)
 {
   system(Form("mkdir -p %s", picpath("")));
 
@@ -44,12 +44,12 @@ void plot_contours()
   Double_t chi2_best = 1e10;
   Double_t chi2_min_from_tree = 1e10;
 
-  Double_t dm_corr = 0.; // 5.17e-5;
+  Double_t dm_corr = plot_dm32 ? 5.22e-5 : 0.; // 5.17e-5;
 
   Double_t s2t_min = Config::s22t13start;
   Double_t s2t_max = Config::s22t13end;
-  Double_t dm2_min = Config::dm2eestart;
-  Double_t dm2_max = Config::dm2eeend;
+  Double_t dm2_min = Config::dm2eestart - dm_corr;
+  Double_t dm2_max = Config::dm2eeend - dm_corr;
   // Double_t s2t_min = 0.06;      // IHEP-official
   // Double_t s2t_max = 0.11;      // IHEP-official
   // Double_t dm2_min = 2.1e-3 - dm_corr; // IHEP-official
@@ -111,8 +111,8 @@ void plot_contours()
   tr_full->SetBranchAddress("s2t_min", &s2t_best);
   tr_full->SetBranchAddress("dm2_min", &dm2_best);
   tr_full->SetBranchAddress("chi2_min", &chi2_min_from_tree);
-  // dm2_best -= dm_corr;
   tr_full->GetEntry(0);
+  dm2_best -= dm_corr;
   cout << s2t_best << endl;
   cout << "Real chi2 min from tr_fit is " << chi2_min_from_tree << endl;
 
@@ -232,7 +232,11 @@ void plot_contours()
   Double_t contours[4] = {-1, 2.30, 6.18, 11.83};
 
   hchi2_map->SetTitleOffset(2.0, "Y");
-  hchi2_map->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{ee}");
+  if (plot_dm32) {
+    hchi2_map->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{32}");
+  } else {
+    hchi2_map->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{ee}");
+  }
   hchi2_map->SetContour(4, contours);
   //  hchi2_map->Draw("cont2");
 
@@ -308,7 +312,11 @@ void plot_contours()
   TH1F *hh = c2->DrawFrame(0.06, 0.0021, 0.11, 0.0029);
   hh->SetTitleOffset(2.0, "Y");
   // hh->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} (10^{-3} eV^{2})");
-  hh->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [eV^{2}])");
+  if (plot_dm32) {
+    hh->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{32} [eV^{2}])");
+  } else {
+    hh->SetTitle(";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [eV^{2}])");
+  }
   // hh->SetTitle(";sin^{2}(2#theta_{13});#sigma_{rel}");
 
   for (Int_t i = 0; i < list_68->GetSize(); i++) {
@@ -494,8 +502,13 @@ void plot_contours()
   TH1F *small_frame =
     gPad->DrawFrame(0.065, 0.00215 * 1000, 0.105, 0.00285 * 1000);
 
-  small_frame->SetTitle(
-                        ";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [#times10^{-3} eV^{2}]");
+  if (plot_dm32) {
+    small_frame->SetTitle(
+                          ";sin^{2}(2#theta_{13});#Deltam^{2}_{32} [#times10^{-3} eV^{2}]");
+  } else {
+    small_frame->SetTitle(
+                          ";sin^{2}(2#theta_{13});#Deltam^{2}_{ee} [#times10^{-3} eV^{2}]");
+  }
   small_frame->GetXaxis()->CenterTitle();
   small_frame->GetYaxis()->CenterTitle();
   small_frame->GetXaxis()->SetTitleOffset(1.);
@@ -670,5 +683,5 @@ void plot_contours()
   ll2_3->Draw("SAME");
   ll3_3->Draw("SAME");
 
-  c_limits->Print(picpath("limits.pdf"));
+  c_limits->Print(picpath("limits.eps"));
 }
