@@ -41,7 +41,7 @@ bool useFineBinning()
   return val && strcmp("fine", val) == 0;
 }
 
-static double min_energy()
+double min_energy()
 {
   const char* val = getenv("LBNL_FIT_EMIN");
   return val ? atof(val) : 0.7;

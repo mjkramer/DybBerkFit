@@ -1,5 +1,6 @@
 #include "Spectrum.h"
 
+#include "Binning.h"
 #include "Config.h"
 #include "CoreSpectrum.h"
 #include "CrossSectionTable.h"
@@ -1072,9 +1073,11 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
         CorrLi9EvtsSpec[istage][idet]->SetBinError(ibin + 1, 0);
       }
 
-      CorrLi9EvtsSpec[istage][idet]->Scale(
-          pred->tdper[istage].Li9Evts[idet] /
-          CorrLi9EvtsSpec[istage][idet]->Integral());
+      auto* h = CorrLi9EvtsSpec[istage][idet];
+      int lowbin = h->FindBin(Binning::min_energy());
+      assert(h->GetBinLowEdge(lowbin) == Binning::min_energy());
+      h->Scale(pred->tdper[istage].Li9Evts[idet] /
+               h->Integral(lowbin, h->GetNbinsX()));
     }
   }
   // m_li9spec->Close();
@@ -1088,7 +1091,7 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
     for (int idet = 0; idet < Ndetectors; ++idet) {
       sprintf(name, "CorrAmcEvtsSpec_ad%d", idet);
       amcfunc = (TF1*)m_amcspec->Get("expo")->Clone();
-      amcfunc->SetRange(0.7, 9.0);
+      amcfunc->SetRange(Binning::min_energy(), 9.0);
       CorrAmcEvtsSpec[istage][idet] =
           (TH1F*)CorrLi9EvtsSpec[istage][idet]->Clone(name);
       CorrAmcEvtsSpec[istage][idet]->Reset();
@@ -1126,9 +1129,11 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
            ibin++) {
         CorrFnEvtsSpec[istage][idet]->SetBinError(ibin + 1, 0);
       }
-      CorrFnEvtsSpec[istage][idet]->Scale(
-          pred->tdper[istage].FnEvts[idet] /
-          CorrFnEvtsSpec[istage][idet]->Integral());
+      auto* h = CorrFnEvtsSpec[istage][idet];
+      int lowbin = h->FindBin(Binning::min_energy());
+      assert(h->GetBinLowEdge(lowbin) == Binning::min_energy());
+      h->Scale(pred->tdper[istage].FnEvts[idet] /
+               h->Integral(lowbin, h->GetNbinsX()));
     }
   }
   // m_fnspec->Close();
@@ -1155,8 +1160,8 @@ void Spectrum::loadBgSpecForToy(TString* accspecname, const Char_t* li9specname,
       htemp = (TH1F*)m_alnspec->Get(alnhistname)->Clone(name);
 
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
-        // Only want spectrum if between 0.7 to 12 MeV
-        if (htemp->GetXaxis()->GetBinCenter(ibin + 1) > 0.7 &&
+        // Only want spectrum if between min_energy (e.g. 0.7) to 12 MeV
+        if (htemp->GetXaxis()->GetBinCenter(ibin + 1) > Binning::min_energy() &&
             htemp->GetXaxis()->GetBinCenter(ibin + 1) < 12.0)
           CorrAlnEvtsSpec[istage][idet]->Fill(htemp->GetBinCenter(ibin + 1),
                                               htemp->GetBinContent(ibin + 1));

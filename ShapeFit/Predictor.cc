@@ -609,13 +609,14 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       // scale
       if (tdper[istage].CorrLi9EvtsSpec[idet]->Integral() == 0)
         tdper[istage].CorrLi9EvtsSpec[idet]->Scale(0);
-      else
-        tdper[istage].CorrLi9EvtsSpec[idet]->Scale(
-            tdper[istage].Li9Evts[idet] * 1. /
-            tdper[istage]
-                .CorrLi9EvtsSpec[idet]
-                ->Integral()); //<---Scale this histogram to expected number of
-                               // events based on input file
+      else {
+        // Scale this histogram to expected number of events based on input file
+        auto* h = tdper[istage].CorrLi9EvtsSpec[idet];
+        int lowbin = h->FindBin(Binning::min_energy());
+        assert(h->GetBinLowEdge(lowbin) == Binning::min_energy());
+        h->Scale(tdper[istage].Li9Evts[idet] * 1. /
+                 h->Integral(lowbin, h->GetNbinsX()));
+      }
     }
   }
   // m_li9spec->Close();
@@ -647,13 +648,14 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       }
       if (tdper[istage].CorrFnEvtsSpec[idet]->Integral() == 0)
         tdper[istage].CorrFnEvtsSpec[idet]->Scale(0);
-      else
-        tdper[istage].CorrFnEvtsSpec[idet]->Scale(
-            tdper[istage].FnEvts[idet] * 1. /
-            tdper[istage]
-                .CorrFnEvtsSpec[idet]
-                ->Integral()); //<---Scale this histogram to expected number of
-                               // events based on input file
+      else {
+         // Scale this histogram to expected number of events based on input file
+        auto* h = tdper[istage].CorrFnEvtsSpec[idet];
+        int lowbin = h->FindBin(Binning::min_energy());
+        assert(h->GetBinLowEdge(lowbin) == Binning::min_energy());
+        h->Scale(tdper[istage].FnEvts[idet] * 1. /
+                 h->Integral(lowbin, h->GetNbinsX()));
+      }
     }
   }
   // m_fnspec->Close();
@@ -665,6 +667,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
     for (int idet = 0; idet < Ndetectors; ++idet) {
       TF1* amcfunc;
       amcfunc = (TF1*)m_amcspec->Get("expo");
+      amcfunc->SetRange(Binning::min_energy(), 9.0);
       sprintf(name, "CorrAmcEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrAmcEvtsSpec[idet] =
           (TH1F*)tdper[istage].CorrFnEvtsSpec[idet]->Clone(name);
@@ -722,8 +725,10 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
 
       // fill into destination histogram
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
-        tdper[istage].CorrAlnEvtsSpec[idet]->Fill(
-            htemp->GetBinCenter(ibin + 1), htemp->GetBinContent(ibin + 1));
+        if (htemp->GetXaxis()->GetBinCenter(ibin + 1) > Binning::min_energy() &&
+            htemp->GetXaxis()->GetBinCenter(ibin + 1) < 12.0)
+          tdper[istage].CorrAlnEvtsSpec[idet]->Fill(
+              htemp->GetBinCenter(ibin + 1), htemp->GetBinContent(ibin + 1));
       }
 
       delete htemp;
