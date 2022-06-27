@@ -1,8 +1,10 @@
 All paths, unless stated otherwise, are relative to the root of the repository.
 
+By default, the fitter assumes we are fitting the full dataset with unblinded power. To fit the full dataset with /blinded/ power, ~export LBNL_FIT_BLINDED=1~. For fitting (unblinded) P17B, ~export LBNL_FIT_P17B=1~. Do this before running ~scripts/init.sh~.
+
 * Getting started
 
-In a fresh clone, place the reactor power/burnup table in WeeklyAvg/WeeklyAvg_P17B_by_Beda.txt. Then run ~scripts/init.sh~ to generate static data (reactor flux, toy MC configs). This only needs to be done once.
+In a fresh clone, place the reactor power/burnup table in ~ReactorPowerCalculator/WeeklyAvg/weekly_power_fulldata_release_v2.dat~ (or ~ReactorPowerCalculator/WeeklyAvg/WeeklyAvg_P17B_by_Beda.txt~ for P17B). Then run ~scripts/init.sh~ to generate static data (reactor flux, toy MC configs). This only needs to be done once.
 
 Export the environment variable ~LBNL_FIT_INDIR~ to point to the directory containing the input files, or else create the ~input~ directory and put the inputs there. The inputs should look like:
 #+begin_example
@@ -20,4 +22,4 @@ Now you can run the toyMC/fitter chain. If you are not the only user of the mach
 
 If you get crashes, export ~LBNL_FIT_DEBUG=1~, and run ~scripts/clean.sh~ to delete the compiled code. On the next crash, you'll get a proper backtrace.
 
-For an example of producing theta/delta contours from the output files, see ~analysis/plot_LBNL_P17B.C~.
+For an example of producing theta/delta contours from the output files, see ~analysis/plot_contours.C~.
