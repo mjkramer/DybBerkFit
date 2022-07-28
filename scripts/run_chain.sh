@@ -85,10 +85,8 @@ genPredIBD() {
 genCovMat() {
     set_threads 8
     cd $BASE/ShapeFit
-    ## sigsys:
-    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(9)" &
-    ## bgsys:
-    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(21)" &
+    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(\"sigsys\", 0)" &
+    root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(\"bgsys\", 1)" &
     wait
 }
 
