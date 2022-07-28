@@ -44,10 +44,8 @@ time $BASE/scripts/compile.sh
 genToys() {
     set_threads 10
     cd $BASE/toySpectra
-    ## sigsys:
-    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(2)" &
-    ## bgsys:
-    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(3)" &
+    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"sigsys\")" &
+    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"bgsys\")" &
     wait
 }
 
