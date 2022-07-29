@@ -832,8 +832,12 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
   // cout << "FIXME: need correction code here for data" << endl;
   // apply corrections
   for (int istage = 0; istage < Nstage; ++istage) {
-    cout << "Period #" << istage + 1 << endl;
-    tdper[istage].CorrectSpec(true);
+    // Only correct the spectra if the spectra have been loaded
+    // Check EH1-AD2 since it's present in all stages
+    if (tdper[istage].ObsEvtsSpec[1] != nullptr) {
+      cout << "Period #" << istage + 1 << endl;
+      tdper[istage].CorrectSpec(true);
+    }
   }
   cout << "done correcting both ibd and bg spectra!" << endl;
 
