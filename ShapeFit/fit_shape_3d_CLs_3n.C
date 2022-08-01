@@ -1,0 +1,149 @@
+#include "Binning.h"
+#include "Config.h"
+#include "FluxCalculator.h"
+#include "OscProbTable.h"
+#include "Paths.h"
+#include "Predictor.h"
+
+#include <TMinuit.h>
+
+#include <cstring>
+#include <fstream>
+
+const double S22T13 = 0.084;
+const double DM2EE = 2.49e-3;
+
+Predictor *pred;
+OscProbTable *oscprobtab;
+
+int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
+
+void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+  double sin22t13 = x[0];
+  double dm2_ee = x[1];
+  double sin22t14 = x[2];
+  double dm2_41 = x[3];
+  //f =  pred->CalculateChi2Cov(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
+  f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
+}
+
+void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1);
+
+void fit_shape_3d_CLs_3n()
+{
+  pred = new Predictor;
+  pred->SetStage(PeriodFlag);
+  auto fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
+  pred->EnterFluxCalculator(fluxcalc);
+  for (int istage = 0; istage < Nstage; ++istage)
+    pred->LoadMainData(Paths::input(istage));
+  pred->LoadPredictedIBD(Paths::predicted_ibd());
+  pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
+  pred->LoadBgSpec();
+  pred->LoadToyMCNominalSpec();
+  pred->SetEvisBins(Binning::n_evis(), Binning::evis());
+  pred->SetEnuBins(Binning::n_enu(), Binning::enu());
+  pred->LoadEvisToEnuMatrix(Paths::response());
+  pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
+                      Paths::dm2ee_covmatrix());
+
+  // this overrides the values in Config
+  // const int nsteps = 1;
+  // const double s22t13start = S22T13;
+  // const double s22t13end = S22T13;
+
+  const int nsteps_dm2 = 1;
+  const double dm2eestart = DM2EE;
+  const double dm2eeend = DM2EE;
+
+  const int nsteps_s22t14 = 31;
+  const double s22t14start=1.0e-3;
+  const double s22t14end=1.0e-0;
+  const double log_s2t14_step = log(s22t14end/s22t14start) / (double)(nsteps_s22t14-1);
+
+  //grid in dm241 has to be same as that of toy MC generation -----------
+  const int nsteps_dm214 = 120;
+  const int nsteps_dm214_2 = 100;
+  const int nsteps_dm214_all = nsteps_dm214 + nsteps_dm214_2;
+
+  const double old_log_dm214_step = log(0.05/0.0005) / 99.0; //Set log step first
+  const double dm214start = exp(log(0.0005) + old_log_dm214_step*(-20));
+  const double dm214end = 0.05;
+
+  const double dm214start_2 = 0.05 + 0.25/100;
+  const double dm214end_2 = 0.3;
+
+  Ranger *ranger_dm41 = new Ranger();
+  Ranger *ranger_dm41_2 = new Ranger();
+  ranger_dm41->nsteps = nsteps_dm214;
+  ranger_dm41->min = dm214start;
+  ranger_dm41->max = dm214end;
+  ranger_dm41->setLogScale();
+  ranger_dm41_2->nsteps = nsteps_dm214_2;
+  ranger_dm41_2->min = dm214start_2;
+  ranger_dm41_2->max = dm214end_2;
+
+  oscprobtab = new OscProbTable(pred);
+  oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
+  oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
+  oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
+  oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
+
+  auto minu = new TMinuit(4);
+  minu->SetPrintLevel(-1);
+  minu->SetFCN(minuit_fcn);
+
+  pred->SetSin22t13Step(20, 0.00, 0.20); //Set here!
+  pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3, PeriodFlag);
+
+  ofstream fout(Paths::outpath("asimov_dchi2_3n.txt"));
+
+  for (int step_dm214 = 0; step_dm214 < nsteps_dm214_all; ++step_dm214) {
+    cout << "========" << step_dm214 << "/" << nsteps_dm214_all << "========"
+         << endl;
+
+    double dm214;
+    if (step_dm214 < nsteps_dm214)
+      dm214=ranger_dm41->returnVal(step_dm214);
+    else
+      dm214=ranger_dm41_2->returnVal(step_dm214-nsteps_dm214);
+
+    for (int step_s22t14=0; step_s22t14 < nsteps_s22t14; ++step_s22t14) {
+      double s22t14 = exp(log(s22t14start) + log_s2t14_step*step_s22t14);
+      double bests22t13_true14, bests22t13_true14_err;
+      DoMinuitFit(minu, dm214, s22t14);
+      minu->GetParameter(0, bests22t13_true14, bests22t13_true14_err);
+      double chi2 = oscprobtab->CalculateChi2CovQuick(bests22t13_true14, DM2EE,
+                                                      s22t14, dm214,
+                                                      PeriodFlag);
+      fout << step_dm214 << " " << step_s22t14 << " " << chi2;
+    }
+  }
+
+  fout.close();
+}
+
+// If s22t14 is -1, float it; otherwise, fix it
+void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
+{
+  int ierflag;
+  minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);
+  minu->mnparm(1, "DeltaMSqee", DM2EE, 0.0001, 0.0015, 0.0035, ierflag);
+  minu->mnparm(2, "SinSq2Theta14",
+               s22t14 == -1 ? 0.02 : s22t14,
+               0.01, 0, 1.0, ierflag);
+  minu->mnparm(3, "DeltaMSq41", dm214, 0.5*dm214, 1e-4, 10.0, ierflag);
+
+  minu->FixParameter(1);
+  minu->FixParameter(3);
+
+  if (s22t14 != -1)
+    minu->FixParameter(2);
+  else
+    minu->Release(2);
+
+  double arglist[2];
+  arglist[0] = 10000;
+  arglist[1] = 1.0;
+  minu->mnexcm("MIGRAD", arglist, 2, ierflag);
+}
