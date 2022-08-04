@@ -111,3 +111,14 @@ for line in basefile_lines:
     if not match:
         output_file6.write(line)
 
+output_file7 = open(base_filename+'_dm2ee.txt', 'w')
+for line in basefile_lines:
+    items = line.split()
+    match = False
+    if len(items) > 1:
+        if items[0] ==  'randomizeDm2ee':
+            items[1] = '1'
+            output_file7.write(" ".join(items) + '\n')
+            match = True
+    if not match:
+        output_file7.write(line)

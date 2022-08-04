@@ -16,6 +16,8 @@ const Int_t max_n_evis_bins = 37; // number of evis bins
 
 const Int_t nNearHalls = 2; // number of near halls
 
+const Int_t maxS22t13steps = 100; //Number of steps (for sterile analysis)
+
 class Predictor : public TObject {
 public:
   Predictor();
@@ -77,7 +79,8 @@ public:
   // Chi-squares
   Double_t CalculateChi2Cov(Double_t sin22t13, Double_t dm2_ee,
                             Double_t sin22t14 = 0, Double_t dm2_41 = -1);
-  Double_t CalculateChi2Cov();
+  // sin22t13 used for sterile analysis:
+  Double_t CalculateChi2Cov(Double_t sin22t13 = -1);
 
   Double_t CalculateChi2CovRate(Double_t sin22t13, Double_t dm2_ee,
                                 Double_t sin22t14 = 0, Double_t dm2_41 = -1);
@@ -86,10 +89,14 @@ public:
 
   // Covariance matrix stuff
   void LoadCovMatrix(const Char_t* covmatrixname_sig,
-                     const Char_t* covmatrixname_bg);
-  void AddandScaleCovMatrix(Int_t type = -1);
-  void InvertMatrix();
+                     const Char_t* covmatrixname_bg,
+                     const Char_t* covmatrixname_dm2ee = nullptr);
+  void AddandScaleCovMatrix(Int_t type = -1, Double_t sin22t13 = -1);
+  void InvertMatrix(int step_sin22t13 = -1);
   void InvertRateMatrix();
+
+  void InterpolateInvMatrix(Double_t sin22t13=0); // for sterile analysis
+
   void CalculateStatError();
   void CalculateNearSiteStatError();
 
@@ -108,6 +115,9 @@ public:
 
   void SetEvisBins(Int_t n, Double_t* bins, Int_t rebin_fac = 1);
   void SetEnuBins(Int_t n, Double_t* bins);
+
+  // for sterile analysis
+  void SetSin22t13Step(Int_t n = 100, Double_t low = 0, Double_t high = 0.10);
 
   Double_t* GetRebinnedEvisBins();
   Int_t GetNumRebinnedEvisBins();
@@ -183,6 +193,8 @@ private:
   Double_t M_rate_inv[MaxPredictions * Nstage]
                      [MaxPredictions * Nstage]; // inverted covariance matrix
                                                 // for the rate-only fit
+  //For interpolating for quick sterile fits
+  Double_t M_fix_inv[maxS22t13steps+1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
 
   Double_t M_sig_sys[MaxPredictions * Nstage * max_n_evis_bins]
                     [MaxPredictions * Nstage * max_n_evis_bins];
@@ -196,6 +208,11 @@ private:
       M_stat_frac[MaxPredictions * Nstage * max_n_evis_bins]
                  [MaxPredictions * Nstage *
                   max_n_evis_bins]; // fractional size of the statistical error
+  Double_t
+      M_dm2ee_sys[MaxPredictions * Nstage * max_n_evis_bins]
+                 [MaxPredictions * Nstage *
+                  max_n_evis_bins]; // for sterile analysis
+
 
   Double_t mode1_coeff[Nstage]
                       [Ndetectors]; // coefficients for taking weighted mean.
@@ -234,6 +251,9 @@ private:
 
   Int_t evis_rebin_map[max_n_evis_bins];
 
+  Int_t nSin22t13;
+  Double_t minSin22t13;
+  Double_t maxSin22t13;
 
   Bool_t FirstToySample;
   Bool_t FirstMakePrediction;

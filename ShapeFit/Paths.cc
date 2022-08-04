@@ -1,9 +1,12 @@
 // Relative paths assume that CWD is a direct child dir of the fitter root,
 // e.g. that we are in ShapeFit or toySpectra
 
+#include "Config.h"
 #include "Paths.h"
 
 #include "PathUtils.cxx"
+
+using namespace Config;
 
 namespace Paths {
 
@@ -20,6 +23,15 @@ const char* sig_spectra(int istage)
   return inpath("ibd_eprompt_shapes_%s.root",
                 stage_lwc(istage));
 }
+
+std::vector<TString> all_sig_spectra()
+{
+  std::vector<TString> v;
+  for (int istage = 0; istage < Nstage; ++istage)
+    v.push_back(sig_spectra(istage));
+  return v;
+}
+
 
 const char* acc_spectra(int istage)
 {
@@ -70,6 +82,11 @@ const char* sig_covmatrix()
 const char* bg_covmatrix()
 {
   return covmatrix("bgsys");
+}
+
+const char* dm2ee_covmatrix()
+{
+  return covmatrix("dm2ee");
 }
 
 const char* li9()

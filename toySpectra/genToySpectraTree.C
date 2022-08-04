@@ -23,9 +23,9 @@ extern int omp_get_thread_num();
 using namespace Config;
 
 void genToySpectraTree(TString dataset_filename, TString output_filename,
-                       double s2t13, double dm2ee, double s2t14, double dm241)
+                       double s2t13, double dm2ee, double s2t14, double dm241,
+                       int nToys)
 {
-  int nToys = 1000;
   // string opt="_allerrors";
 
   // // define output histograms

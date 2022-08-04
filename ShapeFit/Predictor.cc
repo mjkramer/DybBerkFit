@@ -7,6 +7,7 @@
 #include "TF1.h"
 #include "TMatrixD.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -65,6 +66,10 @@ Predictor::Predictor()
   // combine_mode = 3: Ultimate scaling with  Nstage*n_evis_bins dimensions,
   // which fit the sum of three far detectors against the weigthed mean of 3
   // near site predictions
+
+  // This should be 0 for a standard 3nu fit
+  // For a 4nu fit, use SetSin22t13Step
+  nSin22t13 = 0;
 }
 
 Predictor::~Predictor(){};
@@ -1292,7 +1297,8 @@ void Predictor::LoadEvisToEnuMatrix(const Char_t* evis_to_enu_matrix_name)
 
 
 void Predictor::LoadCovMatrix(const Char_t* covmatrixname_sig,
-                              const Char_t* covmatrixname_bg)
+                              const Char_t* covmatrixname_bg,
+                              const Char_t* covmatrixname_dm2ee)
 {
   string dummyLine;
   string thead;
@@ -1323,9 +1329,27 @@ void Predictor::LoadCovMatrix(const Char_t* covmatrixname_sig,
     if (i % (Nstage * n_evis_bins) == 0)
       cout << endl;
   }
+
+  std::fill_n(&M_dm2ee_sys[0][0], MaxPredictions * Nstage * n_evis_bins,
+              0);
+  if (covmatrixname_dm2ee != nullptr) {
+    cout
+        << " dm2ee coavariance matrix ++++++++++++++++++++++++++++++++++++++"
+        << endl;
+    ifstream covfile_dm2ee(covmatrixname_dm2ee);
+    for (Int_t i = 0; i < MaxPredictions * Nstage * n_evis_bins; i++) {
+      for (Int_t j = 0; j < MaxPredictions * Nstage * n_evis_bins; j++) {
+        covfile_dm2ee >> M_dm2ee_sys[i][j];
+        if (i % n_evis_bins == 0 && j % n_evis_bins == 0)
+          cout << "\t" << M_dm2ee_sys[i][j];
+      }
+      if (i % (Nstage * n_evis_bins) == 0)
+        cout << endl;
+    }
+  }
 }
 
-void Predictor::AddandScaleCovMatrix(Int_t type)
+void Predictor::AddandScaleCovMatrix(Int_t type, Double_t sin22t13)
 {
   for (Int_t i = 0; i < MaxPredictions * Nstage * n_evis_bins; i++) {
     for (Int_t j = 0; j < MaxPredictions * Nstage * n_evis_bins; j++) {
@@ -1403,6 +1427,14 @@ void Predictor::AddandScaleCovMatrix(Int_t type)
                   } else if (type == 3) {          // near-site stat error only
                     M[i2][j2] += M_stat[i2][j2];
                   }
+                  if (sin22t13 >= 0) { //Include dm2ee systematic
+                    M[i2][j2]
+                      += M_dm2ee_sys[i2][j2]
+                      * predper->GetPred(istage,idet,idet2)->GetBinContent(i+1)
+                      * predper->GetPred(jstage,jdet,jdet2)->GetBinContent(j+1)
+                      * sin22t13/S22T13
+                      * sin22t13/S22T13;
+                  }
                 }
               }
             }
@@ -1414,7 +1446,7 @@ void Predictor::AddandScaleCovMatrix(Int_t type)
 }
 
 
-void Predictor::InvertMatrix()
+void Predictor::InvertMatrix(int step_sin22t13)
 {
   Int_t npredictions = 2;
 
@@ -1430,6 +1462,9 @@ void Predictor::InvertMatrix()
 
   Double_t* M_scaled_tmp = CombineMatrix(combine_mode);
 
+  auto the_M_inv = step_sin22t13 == -1 ? M_inv
+    : M_fix_inv[step_sin22t13];
+
   if (stage == -1) { // Use full covariance matrix
     TMatrixD* mat = new TMatrixD(npredictions * Nstage * n_evis_bins_rebin,
                                  npredictions * Nstage * n_evis_bins_rebin);
@@ -1443,7 +1478,7 @@ void Predictor::InvertMatrix()
     Double_t* m_tmp = mat->GetMatrixArray();
     for (Int_t i = 0; i < npredictions * Nstage * n_evis_bins_rebin; i++) {
       for (Int_t j = 0; j < npredictions * Nstage * n_evis_bins_rebin; j++) {
-        M_inv[i][j] = m_tmp[i * npredictions * Nstage * n_evis_bins_rebin + j];
+        the_M_inv[i][j] = m_tmp[i * npredictions * Nstage * n_evis_bins_rebin + j];
         // cout << " " << M_inv[i][j];
       }
       // cout << endl;
@@ -1493,15 +1528,15 @@ void Predictor::InvertMatrix()
         for (Int_t i = 0; i < npredictions * n_evis_bins_rebin; i++) {
           for (Int_t j = 0; j < npredictions * n_evis_bins_rebin; j++) {
             if (istage != 2 && jstage != 2) // skip 7AD stage
-              M_inv[istage * npredictions * n_evis_bins_rebin +
+              the_M_inv[istage * npredictions * n_evis_bins_rebin +
                     i][jstage * npredictions * n_evis_bins_rebin + j] =
                   m_tmp[(i + istage * npredictions * n_evis_bins_rebin) *
                             npredictions * Stages_in_68AD * n_evis_bins_rebin +
                         (jstage * npredictions * n_evis_bins_rebin + j)];
             else
-              M_inv[istage * npredictions * n_evis_bins_rebin + i]
+              the_M_inv[istage * npredictions * n_evis_bins_rebin + i]
                    [jstage * npredictions * n_evis_bins_rebin + j] = 0;
-            // cout << " " << M_inv[i][j];
+            // cout << " " << the_M_inv[i][j];
           }
           // cout << endl;
         }
@@ -1542,13 +1577,13 @@ void Predictor::InvertMatrix()
         for (Int_t i = 0; i < npredictions * n_evis_bins_rebin; i++) {
           for (Int_t j = 0; j < npredictions * n_evis_bins_rebin; j++) {
             if (istage == stage && jstage == stage)
-              M_inv[istage * npredictions * n_evis_bins_rebin + i]
+              the_M_inv[istage * npredictions * n_evis_bins_rebin + i]
                    [jstage * npredictions * n_evis_bins_rebin + j] =
                        m_tmp[i * npredictions * n_evis_bins_rebin + j];
             else
-              M_inv[istage * npredictions * n_evis_bins_rebin + i]
+              the_M_inv[istage * npredictions * n_evis_bins_rebin + i]
                    [jstage * npredictions * n_evis_bins_rebin + j] = 0;
-            // cout << " " << M_inv[i][j];
+            // cout << " " << the_M_inv[i][j];
           }
           // cout << endl;
         }
@@ -1790,6 +1825,43 @@ void Predictor::InvertRateMatrix()
   cout << "Inversion done" << endl;
 }
 
+void Predictor::InterpolateInvMatrix(Double_t sin22t13)
+{
+  Int_t npredictions = 2;
+
+  if (combine_mode == 0)
+    npredictions = 16;
+  if (combine_mode == 1)
+    npredictions = 2;
+  if (combine_mode == 2)
+    npredictions = 4;
+  if (combine_mode == 3)
+    npredictions = 1;
+
+  //cout << sin22t13 << endl;
+
+  if (sin22t13 <=  maxSin22t13){
+    Double_t step = (maxSin22t13 - minSin22t13) / (double)nSin22t13;
+    Int_t istep = int(sin22t13 / step);
+    Double_t dx = sin22t13 - ((double)istep * step);
+
+    for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
+      for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){
+
+        M_inv[i][j] = (dx * (M_fix_inv[istep+1][i][j] - M_fix_inv[istep][i][j])/step) + M_fix_inv[istep][i][j];
+      }
+    }
+  }
+  else { //Out of bound, so set as largest value
+    //cout << "Oh no!  " << sin22t13 << endl;
+    for (Int_t i = 0; i < npredictions*Nstage*n_evis_bins_rebin; i++){
+      for (Int_t j = 0; j < npredictions*Nstage*n_evis_bins_rebin; j++){
+        M_inv[i][j] = M_fix_inv[nSin22t13][i][j];
+      }
+    }
+  }
+}
+
 Double_t Predictor::CalculateChi2Cov(Double_t sin22t13, Double_t dm2_ee,
                                      Double_t sin22t14, Double_t dm2_41)
 {
@@ -1797,7 +1869,7 @@ Double_t Predictor::CalculateChi2Cov(Double_t sin22t13, Double_t dm2_ee,
   return this->CalculateChi2Cov();
 }
 
-Double_t Predictor::CalculateChi2Cov()
+Double_t Predictor::CalculateChi2Cov(Double_t sin22t13)
 {
   Int_t npredictions = 2;
 
@@ -1814,6 +1886,9 @@ Double_t Predictor::CalculateChi2Cov()
     AddandScaleCovMatrix();
     InvertMatrix();
   }
+
+  if (sin22t13 != -1)           // sterile analysis
+    InterpolateInvMatrix(sin22t13);
 
   Double_t N_pred[npredictions * Nstage * n_evis_bins];
   Double_t N_obs[npredictions * Nstage * n_evis_bins];
@@ -2010,14 +2085,32 @@ Double_t Predictor::CalculateChi2CovRate()
   return chi2out;
 }
 
+void Predictor::SetSin22t13Step(Int_t n, Double_t low, Double_t high)
+{
+  nSin22t13 = n;
+  minSin22t13 = low;
+  maxSin22t13 = high;
+}
+
 void Predictor::FixCovMatrix(Double_t sin22t13, Double_t dm2_ee,
                              Double_t sin22t14, Double_t dm2_41)
 {
-  this->MakeAllPredictions(sin22t13, dm2_ee, sin22t14, dm2_41, false);
-
   if (RecalculateCovMatrix) {
-    AddandScaleCovMatrix();
-    InvertMatrix();
+    this->MakeAllPredictions(sin22t13, dm2_ee, sin22t14, dm2_41, false);
+
+    if (nSin22t13 == 0) { // 3nu fit
+      AddandScaleCovMatrix();
+      InvertMatrix();
+    } else {     // 4nu fit
+      double stepSin22t13 = (maxSin22t13 - minSin22t13) / (double)(nSin22t13) ;
+      // the +1 is because nSin22t13 is number of _steps_ not points?
+      for (int x = 0; x < nSin22t13 + 1; ++x) {
+        double sin22t13_tmp = minSin22t13 + ((double)(x) * stepSin22t13);
+
+        AddandScaleCovMatrix(-1, sin22t13_tmp);
+        InvertMatrix(x);
+      }
+    }
   }
 
   cout << "Calculated and fixed the covariance matrix using parameters: "

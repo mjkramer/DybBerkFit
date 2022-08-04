@@ -17,8 +17,8 @@ void LoadClasses()
   LoadFile("PredSet.cc");
   LoadFile("TimePeriodData.cc");
   LoadFile("Predictor.cc");
-  // LoadFile("Ranger.cc");
+  LoadFile("Ranger.cc");
   // LoadFile("ExtrapTable.cc");
-  // LoadFile("OscProbTable.cc");
+  LoadFile("OscProbTable.cc");
   LoadFile("DataSet.cc");
 }

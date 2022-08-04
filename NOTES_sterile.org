@@ -1,0 +1,51 @@
+* The sterile (CLs) chain
+** Parallel block:
+*** Generate toy spectra trees (including dm2ee)
+- How does randomizeDm2ee work?
+- [ ] Need to generate separate (asimov) toy for each point in s22t14/dm2_14 space?
+- [ ] Add true_pars tree (necessary?)
+*** Generate evis/enu matrix
+*** Generate super histograms
+*** Generate PredictedIBD (necessary)? (Note: fit_shape_3d_XXX does in fact dump the summed covmatrix)
+Our rewrite of fit_shape_3d does not; we just load the nominal PredictedIBD to be safe (and wrong in the 4nu case)
+** Parallel block:
+*** Generate osc prob table
+*** Generate covariance matrices (sigsys, bgsys, dm2ee)
+** Run fit_shape_3d_CLs_3n.C and fit_shape_3d_CLs_4n.c (via run_fit_XXX)
+** Run fit_shape_sterile.C?
+** Run toyjobs/CLs/make_data_contours_cls.C
+** Plot: Run toyjobs/CLs/make_data_contours_comparison.C
+
+* Notes on FluxCalculator
+** CalculateFluxHistRow (idet)
+- iterm < 0 => Map core -> histogram containing fraction of (oscillated, 1/R^2) flux from the core (for each energy bin)
+- iterm >= 0 => Map core -> histogram containing 1/R^2, partially oscillated flux (without energy-independent factor?) (NON-FRACTIONAL)
+** ExtrapolationFactorRow (idet_far, idet_near)
+- idet_near < 0 => Map core to histgoram with osc prob to a far AD from the core (for each energy bin)
+- idet_near >= 0 => Map core to histogram with extrapolation factors (i.e. far/near including osc, 1/R^2) (per bin)
+
+* Notes on OscProbTable
+- This comment is inaccurate:
+  #+begin_src c++
+  //      fac_extrap = Sum_enubin (M' * fac_far/fac_near)
+  //                 = Sum_enubin (M * fac_far/fac_near_null)
+  #+end_src
+  There's a nested inner Sum_enubin (to calculate the norm). See the actual code.
+
+* Changes to Predictor
+- Add dm2ee covariance matrix (LoadCovMatrix)
+- Add SetSin22t13Step
+- Calling convention of FixCovMatrix? (PeriodFlag)
+- Likewise for CalculateChi2Cov? Probably not; SetStage is used instead.
+- Add sin22t13-only CalculateChi2Cov?
+
+* Other action items
+- [ ] Generate data_file for randomizeDm2ee. XXX Do we want dm2ee or sigsys_w_dm2ee?
+
+* Questions
+- In Predictor::MakePrediction, why do we use mapflux_noosc * oscprob? Why is this not equivalent to mapflux? Normalization? Note that OscProbTable seems to essentially "use mapflux".
+- How does Beda's Predictor do the MakeSum without the PredictedIBD?
+
+* More action items
+- Add to compile.sh (in sterile branch)
+- Keep sterile branch minimal, regularly rebased onto master

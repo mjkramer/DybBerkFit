@@ -9,7 +9,6 @@
 
 #include <TMinuit.h>
 
-#include <cstring>
 #include <fstream>
 
 Predictor *pred;
@@ -49,6 +48,15 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
   pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
                       Paths::dm2ee_covmatrix());
 
+  // override values from Config.h
+  const int nsteps = 1;
+  const double s22t13start = S22T13;
+  const double s22t13end = S22T13;
+
+  const int nsteps_dm2 = 1;
+  const double dm2eestart = DM2EE;
+  const double dm2eeend = DM2EE;
+
   Ranger *ranger_dm41 = new Ranger();
   Ranger *ranger_dm41_2 = new Ranger();
   ranger_dm41->nsteps = nsteps_dm214;
@@ -75,7 +83,8 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
   }
 
   bool FixedTheMatrix = false;
-  ofstream fout(Paths::outpath("asimov_dchi2_3n.txt"));
+  ofstream fout(Paths::outpath("asimov_dchi2_%s.txt",
+                               fit4nuSamples ? "4n" : "3n"));
 
   for (int step_dm214 = 0; step_dm214 < nsteps_dm214_all; ++step_dm214) {
     cout << "========" << step_dm214 << "/" << nsteps_dm214_all << "========"
@@ -88,7 +97,7 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
       dm214=ranger_dm41_2->returnVal(step_dm214-nsteps_dm214);
 
     for (int step_s22t14 = step_s22t14_start; step_s22t14 < step_s22t14_end; ++step_s22t14) {
-      double s22t14 = exp(log(s22t14start) + log_s2t14_step*step_s22t14);
+      double s22t14 = exp(log(s22t14start) + log_s22t14_step*step_s22t14);
       double bests22t13, bests22t13_err;
       if (fit4nuSamples) {
         auto path = Paths::outpath("toys_parscan/toySpectra_allsys_w_dm2ee_and_stat_s2t14_%4.4f_dm241_%5.5f.root",
@@ -98,7 +107,7 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
       }
       if (not FixedTheMatrix) {
         pred->SetSin22t13Step(20, 0.00, 0.20); //Set here!
-        pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3, PeriodFlag);
+        pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3);
         FixedTheMatrix = true;
       }
       // We are fitting toy data to the _opposite_ model

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <TString.h>
+
+#include <vector>
+
 // These functions are allowed to leak memory, so don't call them too
 // repeatedly.
 
@@ -14,6 +18,7 @@ const char* fit_result();
 
 const char* input(int istage);
 const char* sig_spectra(int istage);
+std::vector<TString> all_sig_spectra();
 const char* acc_spectra(int istage);
 
 const char* histogram();
@@ -26,6 +31,7 @@ const char* response_root();
 const char* covmatrix(const char* option);
 const char* sig_covmatrix();
 const char* bg_covmatrix();
+const char* dm2ee_covmatrix();
 
 const char* li9();
 const char* amc();
