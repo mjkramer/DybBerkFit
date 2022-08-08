@@ -1,4 +1,4 @@
-#define LBNL_FIT_STERILE
+// XXX switch to OscProbTab?
 
 #include "Binning.h"
 #include "Config.h"
@@ -10,11 +10,12 @@
 
 #include <fstream>
 
-Predictor *pred;
+static Predictor *pred;
+#pragma omp threadprivate(pred)
 
-int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
+static int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
 
-void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+static void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
   double sin22t13 = x[0];
   double dm2_ee = x[1];
   double sin22t14 = x[2];
@@ -23,25 +24,31 @@ void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // fun
   //f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
 }
 
-void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1,
+static void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1,
                  bool fixedSterileParams=false);
 
 void fit_shape_3d()
 {
-  pred = new Predictor;
-  pred->SetStage(PeriodFlag);
-  auto fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
-  pred->EnterFluxCalculator(fluxcalc);
-  for (int istage = 0; istage < Nstage; ++istage)
-    pred->LoadMainData(Paths::input(istage));
-  pred->LoadPredictedIBD(Paths::predicted_ibd());
-  pred->LoadIBDSpec(Paths::all_sig_spectra().data());
-  pred->LoadBgSpec();
-  pred->SetEvisBins(Binning::n_evis(), Binning::evis());
-  pred->SetEnuBins(Binning::n_enu(), Binning::enu());
-  pred->LoadEvisToEnuMatrix(Paths::response());
-  pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
-                      Paths::dm2ee_covmatrix());
+  static FluxCalculator* fluxcalc;
+#pragma omp threadprivate(fluxcalc)
+
+#pragma omp parallel
+  {
+    pred = new Predictor;
+    pred->SetStage(PeriodFlag);
+    fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
+    pred->EnterFluxCalculator(fluxcalc);
+    for (int istage = 0; istage < Nstage; ++istage)
+      pred->LoadMainData(Paths::input(istage));
+    pred->LoadPredictedIBD(Paths::predicted_ibd());
+    pred->LoadIBDSpec(Paths::all_sig_spectra().data());
+    pred->LoadBgSpec();
+    pred->SetEvisBins(Binning::n_evis(), Binning::evis());
+    pred->SetEnuBins(Binning::n_enu(), Binning::enu());
+    pred->LoadEvisToEnuMatrix(Paths::response());
+    pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
+                        Paths::dm2ee_covmatrix());
+  }
 
   // override values from Config.h
   const int nsteps = 1;
@@ -95,68 +102,71 @@ void fit_shape_3d()
   tr->Branch("dm241_min",&dm241_min,"dm241_min/D");
   tr->Branch("s2t14_min",&s2t14_min,"s2t14_min/D");
 
-  dir->cd();
+  dir->cd();                    // XXX ???
 
-  for (Int_t iDM2 = 0; iDM2 < nDM2;  iDM2 ++) {
-    double dm214 = dm214_bins[iDM2];
-    for (Int_t iS2T = 0; iS2T < nS2T;  iS2T ++) {
-      double s22t14 = s22t14_bins[iS2T];
-    }
+  static TMinuit* minu;
+#pragma omp threadprivate(minu)
+#pragma omp parallel
+  {
+    minu = new TMinuit(4);
+    minu->SetPrintLevel(-1);
+    minu->SetFCN(minuit_fcn);
   }
 
-  auto minu = new TMinuit(4);
-  minu->SetPrintLevel(-1);
-  minu->SetFCN(minuit_fcn);
+  for (int ievt = 0; ievt < 1; ++ievt) {
+    double minchi2 = 1e8;
+    double bests22t13 = 0;
+    double bestdm213 = 0;
+    double bests22t14 = 0;
+    double bestdm214 = 0;
 
-  for(int ievt=0;ievt<1;++ievt){
-    double minchi2=1e8;
-    double bests22t13=0;
-    double bestdm213=0;
-    double bests22t14=0;
-    double bestdm214=0;
-
-    Double_t sin22t14;
-    Double_t dm214;
-
-    Double_t * grad;
-    Double_t fpar,ferr;
     // semi parameter scan:
-    for(int step_dm214=0;step_dm214<nsteps_dm214_fit;++step_dm214){
+#pragma omp parallel for
+    for (int step_dm214 = 0; step_dm214 < nsteps_dm214_fit; ++step_dm214) {
       //      dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214_fit-1)+log(dm214start));
       //      dm214=(dm214end-dm214start)*step_dm214*1./(nsteps_dm214-1)+dm214start;
 
-      //      dm214=(0.501-0.001)*step_dm214*1./(nsteps_dm214_fit-1)+0.001;  // linear scan with 5e-3 steps
+      //      dm214=(0.501-0.001)*step_dm214*1./(nsteps_dm214_fit-1)+0.001;  //
+      //      linear scan with 5e-3 steps
       //      dm214=exp(log(1.0/0.01)*step_dm214*1./(nsteps_dm214_fit-1)+log(0.01));
       // attempt to optimize the initial point distributions
-      if (step_dm214 < 3){
-        dm214= 0.003 * step_dm214+0.001;
-      }else if (step_dm214 < 11){
-        dm214= 0.005 * (step_dm214 - 3) +0.01;
-      }else{
-        dm214= 0.01 * (step_dm214 - 11) +0.05;
+      Double_t *grad = nullptr;
+      Double_t fpar, ferr;
+      double dm214;
+      if (step_dm214 < 3) {
+        dm214 = 0.003 * step_dm214 + 0.001;
+      } else if (step_dm214 < 11) {
+        dm214 = 0.005 * (step_dm214 - 3) + 0.01;
+      } else {
+        dm214 = 0.01 * (step_dm214 - 11) + 0.05;
       }
 
-      cout << " ========== " << step_dm214 << " / " << nsteps_dm214_fit <<" (initial dm2 = " << dm214 << " ) ========== " << endl;
+#pragma omp critical
+      cout << " ========== " << step_dm214 << " / " << nsteps_dm214_fit
+           << " (initial dm2 = " << dm214 << " ) ========== " << endl;
       DoMinuitFit(minu, dm214, 0.02);
 
       Double_t pars[4];
-      minu->GetParameter(0,fpar,ferr);
+      minu->GetParameter(0, fpar, ferr);
       pars[0] = fpar;
-      minu->GetParameter(1,fpar,ferr);
-      pars[1]= fpar;
-      minu->GetParameter(2,fpar,ferr);
+      minu->GetParameter(1, fpar, ferr);
+      pars[1] = fpar;
+      minu->GetParameter(2, fpar, ferr);
       pars[2] = fpar;
-      minu->GetParameter(3,fpar,ferr);
+      minu->GetParameter(3, fpar, ferr);
       pars[3] = fpar;
       Double_t minchi2_tmp = 1e6;
-      minu->Eval(4,grad,minchi2_tmp,pars,0);
+      minu->Eval(4, grad, minchi2_tmp, pars, 0);
 
-      if (minchi2_tmp < minchi2){
-        minchi2 = minchi2_tmp;
-        bests22t13 = pars[0];
-        bestdm213 =  pars[1];
-        bests22t14 = pars[2];
-        bestdm214 =  pars[3];
+#pragma omp critical
+      {
+        if (minchi2_tmp < minchi2) {
+          minchi2 = minchi2_tmp;
+          bests22t13 = pars[0];
+          bestdm213 = pars[1];
+          bests22t14 = pars[2];
+          bestdm214 = pars[3];
+        }
       }
     }
 
@@ -170,27 +180,37 @@ void fit_shape_3d()
 
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       for(int step=0;step<nsteps;++step){
-        for(int step_dm214=0;step_dm214<nsteps_dm214;++step_dm214){
-          cout << " ========== " << step_dm214 << " / " << nsteps_dm214 <<" ========== " << endl;
+#pragma omp parallel for
+        for(int step_dm214=0;step_dm214<nsteps_dm214_all;++step_dm214){
+#pragma omp critical
+          cout << " ========== " << step_dm214 << " / " << nsteps_dm214_all <<" ========== " << endl;
           for(int step_s22t14=0;step_s22t14<nsteps_s22t14;++step_s22t14){
-            if (nsteps == 1)
-              sin22t13[step_dm2][step]=S22T13;
-            else
-              sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;
+            assert(nsteps == 1);
+            sin22t13[step_dm2][step] = S22T13;
+            // if (nsteps == 1)
+            //   sin22t13[step_dm2][step]=S22T13;
+            // else
+            //   sin22t13[step_dm2][step]=(s22t13end-s22t13start)*step*1./(nsteps-1)+s22t13start;
 
-            if (nsteps_dm2 == 1)
-              dm213[step_dm2][step]=DM2EE;
+            assert(nsteps_dm2 == 1);
+            dm213[step_dm2][step]=DM2EE;
+            // if (nsteps_dm2 == 1)
+            //   dm213[step_dm2][step]=DM2EE;
             // else
             //   dm213[step_dm2][step]=(dm213end-dm213start)*step_dm2*1./(nsteps_dm2-1)+dm213start;
 
-            sin22t14=(s22t14end-s22t14start)*step_s22t14*1./(nsteps_s22t14-1)+s22t14start;
+            // double sin22t14=(s22t14end-s22t14start)*step_s22t14*1./(nsteps_s22t14-1)+s22t14start;
+            double sin22t14 = s22t14_bins[step_s22t14];
             //            dm214=(dm214end-dm214start)*step_dm214*1./(nsteps_dm214-1)+dm214start;
             // log scale
-            dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214-1)+log(dm214start));
+            // double dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214-1)+log(dm214start));
+            double dm214 = dm214_bins[step_dm214];
 
             DoMinuitFit(minu, dm214, sin22t14, true);
 
             Double_t pars[4];
+            Double_t *grad = nullptr;
+            Double_t fpar, ferr;
             minu->GetParameter(0,fpar,ferr);
             pars[0] = fpar;
             minu->GetParameter(1,fpar,ferr);
@@ -227,21 +247,21 @@ void fit_shape_3d()
 
     tr->Fill();
 
+  } // loop over toys
 
-  }//loop over toys
-
+  savefile->cd();
+  tr->Write();
+  savefile->Close();
 }
 
-void DoMinuitFit(TMinuit* minu, double dm214, double s22t14,
-                 bool fixedSterileParams)
-{
+static void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
+                        bool fixedSterileParams) {
   int ierflag;
   minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);
   minu->mnparm(1, "DeltaMSqee", DM2EE, 0.0001, 0.0015, 0.0035, ierflag);
-  minu->mnparm(2, "SinSq2Theta14",
-               s22t14 == -1 ? 0.02 : s22t14,
-               0.01, 0, 1.0, ierflag);
-  minu->mnparm(3, "DeltaMSq41", dm214, 0.5*dm214, 1e-4, 10.0, ierflag);
+  minu->mnparm(2, "SinSq2Theta14", s22t14 == -1 ? 0.02 : s22t14, 0.01, 0, 1.0,
+               ierflag);
+  minu->mnparm(3, "DeltaMSq41", dm214, 0.5 * dm214, 1e-4, 10.0, ierflag);
 
   minu->FixParameter(1);
 

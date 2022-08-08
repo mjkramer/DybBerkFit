@@ -114,15 +114,17 @@ shapeFit() {
     local period=${1:--1}       # default = -1 (6+8+7 AD)
     set_threads 12
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(${period})"
+    # root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(${period})"
+    root -b -q LoadClasses.C "fit_shape_3d.C+$DBG"
 }
 
 # Generate Asimove delta-chi2 (4nu vs 3nu)
+# TODO: Make it multiprocess because threading doesn't seem to scale
 genAsimovDChi2() {
     set_threads 12
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C fit_shape_3d_CLs.C+$DBG run_fit_shape_3d_CLs_3n.C &
-    root -b -q LoadClasses.C fit_shape_3d_CLs.C+$DBG run_fit_shape_3d_CLs_4n.C &
+    root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_3n.C &
+    root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_4n.C &
     wait
 }
 

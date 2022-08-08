@@ -465,22 +465,25 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename)
 
   m_toyinfilespec = new TFile(filename);
   m_tr_toy = (TTree*)m_toyinfilespec->Get("tr");
-  m_tr_toy->Print();
+  if (m_tr_toy) {
+    m_tr_toy->Print();
 
-  //++ IBDs
-  for (int istage = 0; istage < Nstage; ++istage) {
-    for (int idet = 0; idet < Ndetectors; ++idet) {
-      // tdper[istage].ObsEvtsSpec[idet] = 0;
-      // m_tr_toy->SetBranchAddress(LeakStr("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
-      ToySpecInFile[istage][idet] = 0;
-      m_tr_toy->SetBranchAddress(LeakStr("h_stage%i_ad%i", istage + 1, idet + 1),
-                                  &(ToySpecInFile[istage][idet]));
+    //++ IBDs
+    for (int istage = 0; istage < Nstage; ++istage) {
+      for (int idet = 0; idet < Ndetectors; ++idet) {
+        // tdper[istage].ObsEvtsSpec[idet] = 0;
+        // m_tr_toy->SetBranchAddress(LeakStr("h_stage%i_ad%i",istage+1,idet+1),&(tdper[istage].ObsEvtsSpec[idet]));
+        ToySpecInFile[istage][idet] = 0;
+        m_tr_toy->SetBranchAddress(
+            LeakStr("h_stage%i_ad%i", istage + 1, idet + 1),
+            &(ToySpecInFile[istage][idet]));
+      }
     }
+    isMC = true;
   }
-  cout << "done loading ibd spectra file!" << endl;
 
-  isMC = true;
-  return m_tr_toy->GetEntries();
+  cout << "done loading ibd spectra file!" << endl;
+  return m_tr_toy ? m_tr_toy->GetEntries() : 0;
 }
 
 
@@ -489,7 +492,6 @@ void Predictor::LoadToyMCNominalSpec(const char* suffix)
   m_toyinfilespec->cd();
 
   for (int ii = 0; ii < Nstage; ++ii) {
-    cout << "Period #" << ii + 1 << endl;
     for (int idet = 0; idet < Ndetectors; ++idet) {
       tdper[ii].ObsEvtsSpec[idet] =
           (TH1F*)m_toyinfilespec

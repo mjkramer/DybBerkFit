@@ -9,14 +9,18 @@
 
 #include <TMinuit.h>
 
+#include <cstdio>
 #include <fstream>
+#include <iostream>
 
-Predictor *pred;
-OscProbTable *oscprobtab;
+static Predictor *pred;
+#pragma omp threadprivate(pred)
+static OscProbTable *oscprobtab;
+#pragma omp threadprivate(oscprobtab)
 
-int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
+static int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
 
-void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+static void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
   double sin22t13 = x[0];
   double dm2_ee = x[1];
   double sin22t14 = x[2];
@@ -25,28 +29,43 @@ void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // fun
   f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
 }
 
-void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1);
+static void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1);
 
 void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
 {
+  std::setbuf(stdout, nullptr);
+
   const int step_s22t14_start = igrid != -1 ? igrid : 0;
   const int step_s22t14_end = igrid != -1 ? (igrid+1) : nsteps_s22t14;
 
-  pred = new Predictor;
-  pred->SetStage(PeriodFlag);
-  auto fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
-  pred->EnterFluxCalculator(fluxcalc);
-  for (int istage = 0; istage < Nstage; ++istage)
-    pred->LoadMainData(Paths::input(istage));
-  // NB: For the 4nu case, these are not the correct PredictedIBD values, but we
-  // don't care since we're not looking at the summed matrix
-  pred->LoadPredictedIBD(Paths::predicted_ibd());
-  pred->LoadBgSpec();
-  pred->SetEvisBins(Binning::n_evis(), Binning::evis());
-  pred->SetEnuBins(Binning::n_enu(), Binning::enu());
-  pred->LoadEvisToEnuMatrix(Paths::response());
-  pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
-                      Paths::dm2ee_covmatrix());
+#pragma omp parallel
+  {
+    pred = new Predictor;
+    pred->SetStage(PeriodFlag);
+    auto fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
+    pred->EnterFluxCalculator(fluxcalc);
+    for (int istage = 0; istage < Nstage; ++istage)
+      pred->LoadMainData(Paths::input(istage));
+    // NB: For the 4nu case, these are not the correct PredictedIBD values, but
+    // we don't care since we're not looking at the summed matrix
+    pred->LoadPredictedIBD(Paths::predicted_ibd());
+    pred->LoadIBDSpec(Paths::all_sig_spectra().data()); // XXX
+    pred->LoadBgSpec();
+    pred->SetEvisBins(Binning::n_evis(), Binning::evis());
+    pred->SetEnuBins(Binning::n_enu(), Binning::enu());
+    pred->LoadEvisToEnuMatrix(Paths::response());
+    pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
+                        Paths::dm2ee_covmatrix());
+
+    if (fit4nuSamples) {
+      auto path =
+          Paths::outpath("toys_parscans/toySpectra_parscans_nominal.root");
+      pred->LoadToyIBDSpec(path);
+    } else {
+      pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
+      pred->LoadToyMCNominalSpec();
+    }
+  }
 
   // override values from Config.h
   const int nsteps = 1;
@@ -67,30 +86,33 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
   ranger_dm41_2->min = dm214start_2;
   ranger_dm41_2->max = dm214end_2;
 
-  oscprobtab = new OscProbTable(pred);
-  oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
-  oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
-  oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
-  oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
-
-  auto minu = new TMinuit(4);
-  minu->SetPrintLevel(-1);
-  minu->SetFCN(minuit_fcn);
-
-  if (fit4nuSamples) {
-    auto path =
-        Paths::outpath("toys_parscans/toySpectra_parscans_nominal.root");
-    pred->LoadToyIBDSpec(path);
-  } else {
-    pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
-    pred->LoadToyMCNominalSpec();
+#pragma omp parallel
+  {
+    oscprobtab = new OscProbTable(pred);
+    oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
+    oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
+    oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
+    oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
   }
 
-  bool FixedTheMatrix = false;
+  static TMinuit* minu;
+#pragma omp threadprivate(minu)
+#pragma omp parallel
+  {
+    minu = new TMinuit(4);
+    minu->SetPrintLevel(-1);
+    minu->SetFCN(minuit_fcn);
+  }
+
+  static bool FixedTheMatrix = false;
+#pragma omp threadprivate(FixedTheMatrix)
+
   ofstream fout(Paths::outpath("asimov_dchi2_%s.txt",
                                fit4nuSamples ? "4n" : "3n"));
 
+#pragma omp parallel for
   for (int step_dm214 = 0; step_dm214 < nsteps_dm214_all; ++step_dm214) {
+#pragma omp critical
     cout << "========" << step_dm214 << "/" << nsteps_dm214_all << "========"
          << endl;
 
@@ -119,18 +141,23 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
       double chi2 = oscprobtab->CalculateChi2CovQuick(bests22t13, DM2EE,
                                                       model_s22t14, dm214,
                                                       PeriodFlag);
-      fout << step_dm214 << " " << step_s22t14 << " " << chi2;
-      if (fit4nuSamples)
-        fout << " " << bests22t13;
-      fout << endl;
+#pragma omp critical
+      {
+        fout << step_dm214 << " " << step_s22t14 << " " << chi2;
+        if (fit4nuSamples)
+          fout << " " << bests22t13;
+        fout << endl;
+      }
+
     }
   }
 
   fout.close();
+  quick_exit(0);
 }
 
 // If s22t14 is -1, float it; otherwise, fix it
-void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
+static void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
 {
   int ierflag;
   minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);

@@ -194,8 +194,7 @@ private:
                      [MaxPredictions * Nstage]; // inverted covariance matrix
                                                 // for the rate-only fit
   //For interpolating for quick sterile fits
-  // Double_t M_fix_inv[maxS22t13steps+1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
-  Double_t M_fix_inv[1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
+  Double_t M_fix_inv[maxS22t13steps+1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
 
   Double_t M_sig_sys[MaxPredictions * Nstage * max_n_evis_bins]
                     [MaxPredictions * Nstage * max_n_evis_bins];
