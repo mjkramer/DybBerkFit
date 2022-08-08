@@ -296,6 +296,20 @@ void Spectrum::setOscillation(double sinSq2Th12, double sinSq2Th13,
   m_osccalc->SetTheta12(TMath::ASin(sqrt(sinSq2Th12)) * 0.5);
 }
 
+void Spectrum::setOscillationSterile(double sinSq2Th13, double deltaMSqee,
+                                     double sinSq2Th14, double deltaMSq41)
+{
+  m_sinSq2Th13 = sinSq2Th13;
+  m_deltaMSqee = deltaMSqee;
+  m_sinSq2Th14 = sinSq2Th14;
+  m_deltaMSq41 = deltaMSq41;
+
+  m_osccalc->SetDeltaM2_ee(deltaMSqee);
+  m_osccalc->SetTheta14(TMath::ASin(sqrt(sinSq2Th14)) * 0.5);
+  m_osccalc->SetDeltaM2_41(deltaMSq41);
+}
+
+
 void Spectrum::setRandomSolarOscPars()
 {
   m_sinSq2Th12 = m_sinSq2Th12_nominal + m_sinSq2Th12_error * ran->Gaus(0, 1);

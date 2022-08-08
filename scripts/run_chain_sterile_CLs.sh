@@ -47,8 +47,14 @@ genToys() {
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"sigsys\")" &
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"bgsys\")" &
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"dm2ee\")" &
-    root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" rungenToySpectraTree_parscans.C &
     wait
+}
+
+# Generate Asimov toys (for sterile analysis)
+# Run this in an interactive salloc session
+genToys_parscans() {
+    unset OMP_NUM_THREADS
+    root -b -q LoadClasses.C -e ".L genToySpectraTree_parscans.C+$DBG" rungenToySpectraTree_parscans.C
 }
 
 # -------------------------- Generate evis/enu matrix --------------------------

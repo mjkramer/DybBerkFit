@@ -103,6 +103,8 @@ public:
   // void setDeltaMSqee(double deltaMSqee);
   void setOscillation(double sinSq2Th12, double sinSq2Th13, double deltaMSq21,
                       double deltaMSqee);
+  void setOscillationSterile(double sinSq2Th13, double deltaMSqee,
+                             double sinSq2Th14, double deltaMSq41);
   // Update the energy scale
   void setEnergyScale(double alpha, double beta);
   // Number of samples

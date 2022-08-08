@@ -2,12 +2,12 @@
 
 #include "Config.h"
 #include "FluxCalculator.h"
+#include "TimePeriodData.h"
 
 #include "TFile.h"
 #include "TGraph.h"
 #include "TObject.h"
 #include "TTree.h"
-#include "TimePeriodData.h"
 
 using namespace Config;
 
@@ -16,7 +16,7 @@ const Int_t max_n_evis_bins = 37; // number of evis bins
 
 const Int_t nNearHalls = 2; // number of near halls
 
-const Int_t maxS22t13steps = 100; //Number of steps (for sterile analysis)
+const Int_t maxS22t13steps = 20; //Number of steps (for sterile analysis)
 
 class Predictor : public TObject {
 public:
@@ -117,7 +117,7 @@ public:
   void SetEnuBins(Int_t n, Double_t* bins);
 
   // for sterile analysis
-  void SetSin22t13Step(Int_t n = 100, Double_t low = 0, Double_t high = 0.10);
+  void SetSin22t13Step(Int_t n = maxS22t13steps, Double_t low = 0, Double_t high = 0.10);
 
   Double_t* GetRebinnedEvisBins();
   Int_t GetNumRebinnedEvisBins();
@@ -194,7 +194,8 @@ private:
                      [MaxPredictions * Nstage]; // inverted covariance matrix
                                                 // for the rate-only fit
   //For interpolating for quick sterile fits
-  Double_t M_fix_inv[maxS22t13steps+1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
+  // Double_t M_fix_inv[maxS22t13steps+1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
+  Double_t M_fix_inv[1][MaxPredictions*Nstage*max_n_evis_bins][MaxPredictions*Nstage*max_n_evis_bins]; // fix inverted covariance matrix
 
   Double_t M_sig_sys[MaxPredictions * Nstage * max_n_evis_bins]
                     [MaxPredictions * Nstage * max_n_evis_bins];

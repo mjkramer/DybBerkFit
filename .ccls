@@ -5,7 +5,7 @@ clang++
 -m64
 -pthread
 -fopenmp
--I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/ShapeFit
--I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/toySpectra
--I/global/u2/m/mkramer/mywork/ThesisAnalysis/samples/beda.mine/toySpectra/reactor
--I/global/homes/m/mkramer/projscratch/apps/root-6.18.00-py37/include
+-I/global/u2/m/mkramer/mywork/ThesisAnalysis/Fitter/ShapeFit
+-I/global/u2/m/mkramer/mywork/ThesisAnalysis/Fitter/toySpectra
+-I/global/u2/m/mkramer/mywork/ThesisAnalysis/Fitter/toySpectra/reactor
+-I/global/cfs/cdirs/dayabay/scratch/mkramer/apps/root-6.24.06-mypy310-2/include
