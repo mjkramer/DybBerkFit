@@ -18,7 +18,9 @@ extern int omp_get_thread_num();
 
 using namespace Config;
 
-void genToySpectraTree_parscans(TString dataset_filename, TString output_filename, int igrid)
+void genToySpectraTree_parscans(const char *dataset_name,
+                                int itask,
+                                int ntasks)
 {
   const int n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
@@ -35,7 +37,7 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_filenam
   }
 
   DataSet* mydata = new DataSet();
-  mydata->load(Paths::nominal_toyconfig());
+  mydata->load(Paths::toyconfig(dataset_name));
 
   const char *Theta13InputsLocation[3] = {Paths::input(0), Paths::input(1),
                                           Paths::input(2)};
@@ -78,7 +80,7 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_filenam
   // And comment the following assert:
   assert(nsteps == 1 && nsteps_dm2 == 1);
 
-  const int npoints = nsteps * nsteps_dm2 * nsteps_s22t14 * nsteps_dm214;
+  const int npoints = nsteps * nsteps_dm2 * nsteps_s22t14 * nsteps_dm214_all;
 
   Double_t s2t13_array[npoints + 1];
   Double_t dm2ee_array[npoints + 1];
@@ -87,7 +89,7 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_filenam
   Int_t dm214_id[npoints + 1];
   Int_t ipoint = 0;
   for (Int_t it14 = 0; it14 < nsteps_s22t14; it14++) {
-    for (Int_t im41 = 0; im41 < nsteps_dm214; im41++) {
+    for (Int_t im41 = 0; im41 < nsteps_dm214_all; im41++) {
       for (Int_t it13 = 0; it13 < nsteps; it13++) {
         for (Int_t imee = 0; imee < nsteps_dm2; imee++) {
           s2t13_array[ipoint] = s22t13start;
@@ -125,17 +127,16 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_filenam
   dm214_array[npoints] = 0.0;
   dm214_id[npoints] = 0.0;
 
-  Int_t ipar_start = 0;
-  Int_t ipar_end = npoints + 1;
-  if (igrid > 0 && igrid <= npoints) {
-    ipar_start = igrid - 1;
-    ipar_end = igrid;
-  } else if (igrid == 0) {
-    ipar_start = npoints;
-    ipar_end = npoints + 1;
-  }
+  // Note that the REAL number of points is npoints+1
 
-  TFile *outfile = new TFile(output_filename.Data(), "RECREATE");
+  int points_per_task = (npoints+1) / ntasks;
+  int ipar_start = itask * points_per_task;
+  int ipar_end = ipar_start + points_per_task;
+  // in case npoints+1 is not divisible by ntasks
+  if ( itask == ntasks - 1 ) ipar_end = npoints+1;
+
+  auto output_filename = Paths::outpath("toys_parscans/toySpectra_parscans_%s_%02d.root", dataset_name, itask);
+  TFile *outfile = new TFile(output_filename, "RECREATE");
 
 #pragma omp parallel for
   for (int ipar = ipar_start; ipar < ipar_end; ++ipar) {

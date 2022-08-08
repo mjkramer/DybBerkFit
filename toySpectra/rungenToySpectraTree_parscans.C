@@ -1,11 +1,11 @@
-#include "Paths.h"
+#include <cstdlib>
 
-#include <TString.h>
+using namespace std;
 
-void genToySpectraTree_parscans(TString dataset_filename, TString output_base, int igrid = -1);
+void genToySpectraTree_parscans(const char *dataset_filename, int itask = 0,
+                                int ntasks = 1);
 
-void rungenToySpectraTree_parscans()
-{
-  genToySpectraTree_parscans(Paths::toyconfig("nominal"),
-                             Paths::outpath("toys_parscans/toySpectra_parscans_allsys_w_dm2ee_and_stat.root"));
+void rungenToySpectraTree_parscans() {
+  genToySpectraTree_parscans("nominal", atoi(getenv("SLURM_LOCALID")),
+                             atoi(getenv("SLURM_NTASKS")));
 }
