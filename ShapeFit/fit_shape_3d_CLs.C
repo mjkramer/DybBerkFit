@@ -77,7 +77,11 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
   minu->SetPrintLevel(-1);
   minu->SetFCN(minuit_fcn);
 
-  if (not fit4nuSamples) {
+  if (fit4nuSamples) {
+    auto path =
+        Paths::outpath("toys_parscans/toySpectra_parscans_nominal.root");
+    pred->LoadToyIBDSpec(path);
+  } else {
     pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
     pred->LoadToyMCNominalSpec();
   }
@@ -100,10 +104,8 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
       double s22t14 = exp(log(s22t14start) + log_s22t14_step*step_s22t14);
       double bests22t13, bests22t13_err;
       if (fit4nuSamples) {
-        auto path = Paths::outpath("toys_parscan/toySpectra_allsys_w_dm2ee_and_stat_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_dm214_%5.5f.root",
-                                   S22T13, DM2EE, s22t14, dm214);
-        pred->LoadToyIBDSpec(path);
-        pred->LoadToyMCNominalSpec();
+        pred->LoadToyMCNominalSpec(Form("_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_dm214_%5.5f",
+                                        S22T13, DM2EE, s22t14, dm214));
       }
       if (not FixedTheMatrix) {
         pred->SetSin22t13Step(20, 0.00, 0.20); //Set here!

@@ -484,7 +484,7 @@ Int_t Predictor::LoadToyIBDSpec(const Char_t* filename)
 }
 
 
-void Predictor::LoadToyMCNominalSpec()
+void Predictor::LoadToyMCNominalSpec(const char* suffix)
 {
   m_toyinfilespec->cd();
 
@@ -493,7 +493,7 @@ void Predictor::LoadToyMCNominalSpec()
     for (int idet = 0; idet < Ndetectors; ++idet) {
       tdper[ii].ObsEvtsSpec[idet] =
           (TH1F*)m_toyinfilespec
-              ->Get(LeakStr("h_nominal_stage%i_ad%d", ii + 1, idet + 1))
+              ->Get(LeakStr("h_nominal_stage%i_ad%d%s", ii + 1, idet + 1, suffix))
               ->Clone();
     }
     tdper[ii].CorrectSpec(true);

@@ -32,7 +32,7 @@ public:
   void LoadIBDSpec(TString* ibdspecname);
   Int_t LoadToyIBDSpec(const Char_t* toyibdspecname);
   void LoadToyMCEntry(Int_t i, bool correct = true);
-  void LoadToyMCNominalSpec();
+  void LoadToyMCNominalSpec(const char* suffix = "");
   void LoadBgSpec();
   void LoadBgSpec(TString* accspecname, const Char_t* li9specname,
                   const Char_t* amcspecname, const Char_t* fnspecname,

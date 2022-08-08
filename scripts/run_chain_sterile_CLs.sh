@@ -52,10 +52,13 @@ genToys() {
 
 # Generate Asimov toys (for sterile analysis)
 # Run this in an interactive salloc session
+# Takes 5-ish minutes
 genToys_parscans() {
     # unset OMP_NUM_THREADS
     export OMP_NUM_THREADS=2
-    srun -n 32 root -b -q LoadClasses.C -e ".L genToySpectraTree_parscans.C+$DBG" rungenToySpectraTree_parscans.C
+    srun -n 32 root -b -q LoadClasses.C -e ".L genToySpectraTree_parscans.C+$DBG" rungenToySpectraTree_parscans.C+
+    hadd $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal.root $LBNL_FIT_OUTDIR/toys_parscans/*.root
+    rm $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal_*.root
 }
 
 # -------------------------- Generate evis/enu matrix --------------------------
@@ -92,7 +95,7 @@ genPredIBD() {
 
 # Generate OscProbTables for faster near->far extrapolation
 genOscProb() {
-    cd $BASE/toySpectra
+    cd $BASE/ShapeFit
     root -b -q LoadClasses.C genOscProbTable.C+$DBG
 }
 
@@ -111,7 +114,7 @@ shapeFit() {
     local period=${1:--1}       # default = -1 (6+8+7 AD)
     set_threads 12
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C "fit_shape_sterile.C+$DBG(${period})"
+    root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(${period})"
 }
 
 # Generate Asimove delta-chi2 (4nu vs 3nu)
@@ -132,6 +135,7 @@ contours() {
 
 all() {
     genToys &
+    # genToys_parscans &
     genEvisEnu &
     genSuperHists &
     genPredIBD &
