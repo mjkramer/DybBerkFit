@@ -18,7 +18,7 @@ extern int omp_get_thread_num();
 
 using namespace Config;
 
-void genToySpectraTree_parscans(TString dataset_filename, TString output_base, int igrid)
+void genToySpectraTree_parscans(TString dataset_filename, TString output_filename, int igrid)
 {
   const int n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
@@ -135,16 +135,10 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_base, i
     ipar_end = npoints + 1;
   }
 
+  TFile *outfile = new TFile(output_filename.Data(), "RECREATE");
+
 #pragma omp parallel for
   for (int ipar = ipar_start; ipar < ipar_end; ++ipar) {
-    TString outname =
-        output_base +
-        Form("_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_dm214_%5.5f.root",
-             s2t13_array[ipar], dm2ee_array[ipar], s2t14_array[ipar],
-             dm214_array[ipar]);
-
-    TFile *outfile = new TFile(outname.Data(), "RECREATE");
-
     spectrumNormNominal->setOscillationSterile(
         s2t13_array[ipar], dm2ee_array[ipar], s2t14_array[ipar],
         dm214_array[ipar]);
@@ -152,32 +146,42 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_base, i
     spectrumNormNominal->updateAntinu();
     spectrumNormNominal->updateBgDetected();
 
-    for (int istage = 0; istage < Nstage; ++istage) {
-      for (int idet = 0; idet < Ndetectors; ++idet) {
-        h_nominal_ad[istage][idet]->Reset();
-        for (int ibin = 0; ibin < spectrumNormNominal->nSamples(); ++ibin) {
-          h_nominal_ad[istage][idet]->Fill(
-              spectrumNormNominal->energyArray(idet)[ibin],
-              spectrumNormNominal->positronDetectedArray(istage, idet)[ibin] *
-                  spectrumNormNominal->binWidth());
-        }                 // ibin loop
-        for (int ibin = 0; ibin < spectrumNormNominal->nSamplesBkg(); ++ibin) {
-          h_nominal_ad[istage][idet]->Fill(
-              spectrumNormNominal->energyArrayBkg(idet)[ibin],
-              spectrumNormNominal->bgDetectedArray(istage, idet)[ibin]);
+#pragma omp critical
+    {
+      for (int istage = 0; istage < Nstage; ++istage) {
+        for (int idet = 0; idet < Ndetectors; ++idet) {
+          auto name =
+              Form("h_nominal_stage%i_ad%i_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_"
+                   "dm214_%5.5f",
+                   istage + 1, idet + 1, s2t13_array[ipar], dm2ee_array[ipar],
+                   s2t14_array[ipar], dm214_array[ipar]);
+          h_nominal_ad[istage][idet]->SetName(name);
+          h_nominal_ad[istage][idet]->SetTitle(name);
+          h_nominal_ad[istage][idet]->Reset();
+
+          for (int ibin = 0; ibin < spectrumNormNominal->nSamples(); ++ibin) {
+            h_nominal_ad[istage][idet]->Fill(
+                spectrumNormNominal->energyArray(idet)[ibin],
+                spectrumNormNominal->positronDetectedArray(istage, idet)[ibin] *
+                    spectrumNormNominal->binWidth());
+          }
+
+          for (int ibin = 0; ibin < spectrumNormNominal->nSamplesBkg();
+               ++ibin) {
+            h_nominal_ad[istage][idet]->Fill(
+                spectrumNormNominal->energyArrayBkg(idet)[ibin],
+                spectrumNormNominal->bgDetectedArray(istage, idet)[ibin]);
+          }
+
+          outfile->cd();
+          h_nominal_ad[istage][idet]->Write();
+          cout << "WROTE " << name << endl;
         }
       }
+      cout << endl;
     }
-
-    outfile->cd();
-
-    for (int istage = 0; istage < Nstage; ++istage) {
-      for (int idet = 0; idet < Ndetectors; ++idet) {
-        h_nominal_ad[istage][idet]->Write();
-      }
-    }
-
-    outfile->Write();
-    outfile->Close();
   }
+
+  outfile->Write();
+  outfile->Close();
 }

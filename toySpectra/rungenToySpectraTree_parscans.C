@@ -7,5 +7,5 @@ void genToySpectraTree_parscans(TString dataset_filename, TString output_base, i
 void rungenToySpectraTree_parscans()
 {
   genToySpectraTree_parscans(Paths::toyconfig("nominal"),
-                             Paths::outpath("toys_parscan/toySpectra_allsys_w_dm2ee_and_stat"));
+                             Paths::outpath("toys_parscans/toySpectra_parscans_allsys_w_dm2ee_and_stat.root"));
 }
