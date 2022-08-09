@@ -84,6 +84,7 @@ void fit_shape_3d() {
   Double_t dm2_min = 1e6;
   Double_t s2t14_min = 1e6;
   Double_t dm241_min = 1e6;
+  Double_t chi2_null = 1e6;
 
   Ranger *ranger_dm41 = new Ranger();
   Ranger *ranger_dm41_2 = new Ranger();
@@ -130,6 +131,7 @@ void fit_shape_3d() {
              Form("chi2_map[%d][%d][%d][%d]/D", nsteps_dm2, nsteps,
                   nsteps_dm214, nsteps_s22t14));
   tr->Branch("chi2_min", &chi2_min, "chi2_min/D");
+  tr->Branch("chi2_null", &chi2_null, "chi2_null/D");
   tr->Branch("dm2_min", &dm2_min, "dm2_min/D");
   tr->Branch("s2t_min", &s2t_min, "s2t_min/D");
   // new branched for sterile mixing
@@ -216,6 +218,12 @@ void fit_shape_3d() {
          << " " <<  bests22t13 << " " << bestdm213
          << " " <<  bests22t14 << " " << bestdm214
          << " " << minchi2 << endl;
+
+    // Now get the chi2 for the null (3nu) hypothesis
+    DoMinuitFit(minu, 0.1, 0, true);
+    double bests22t13_null, bests22t13_null_err;
+    minu->GetParameter(0, bests22t13_null, bests22t13_null_err);
+    chi2_null = pred->CalculateChi2Cov(bests22t13_null, DM2EE, 0, 0.1);
 
     // Now that we're fixing dm214, we can use OscProbTable
 #pragma omp parallel
