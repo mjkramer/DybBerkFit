@@ -1,8 +1,10 @@
 // XXX switch to OscProbTab?
+// Problem: OscProbTable doesn't go down to dm241 = 0
 
 #include "Binning.h"
 #include "Config.h"
 #include "FluxCalculator.h"
+#include "OscProbTable.h"
 #include "Paths.h"
 #include "Predictor.h"
 
@@ -10,33 +12,40 @@
 
 #include <fstream>
 
-static Predictor *pred;
+Predictor *pred;
 #pragma omp threadprivate(pred)
+OscProbTable *oscprobtab;
+#pragma omp threadprivate(oscprobtab)
 
-static int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
+int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
 
-static void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
   double sin22t13 = x[0];
   double dm2_ee = x[1];
   double sin22t14 = x[2];
   double dm2_41 = x[3];
   f =  pred->CalculateChi2Cov(sin22t13,dm2_ee,sin22t14,dm2_41);
-  //f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
+  // f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
 }
 
-static void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1,
-                 bool fixedSterileParams=false);
+void minuit_fcn_quick(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+  double sin22t13 = x[0];
+  double dm2_ee = x[1];
+  double sin22t14 = x[2];
+  double dm2_41 = x[3];
+  // f =  pred->CalculateChi2Cov(sin22t13,dm2_ee,sin22t14,dm2_41);
+  f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
+}
 
-void fit_shape_3d()
-{
-  static FluxCalculator* fluxcalc;
-#pragma omp threadprivate(fluxcalc)
+void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1,
+                 bool fixedSterileParams = false);
 
+void fit_shape_3d() {
 #pragma omp parallel
   {
     pred = new Predictor;
     pred->SetStage(PeriodFlag);
-    fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
+    auto fluxcalc = new FluxCalculator(Paths::baselines(), Paths::histogram());
     pred->EnterFluxCalculator(fluxcalc);
     for (int istage = 0; istage < Nstage; ++istage)
       pred->LoadMainData(Paths::input(istage));
@@ -63,6 +72,7 @@ void fit_shape_3d()
   const int nDM2 = nsteps_dm214_all;
 
   const Int_t nsteps_dm214_fit = 56;
+  // const Int_t nsteps_dm214_fit = nDM2;
 
   Double_t chi2result[nsteps_dm2][nsteps][nDM2][nS2T];
   Double_t dchi2result[nsteps_dm2][nsteps][nDM2][nS2T];
@@ -75,36 +85,60 @@ void fit_shape_3d()
   Double_t s2t14_min = 1e6;
   Double_t dm241_min = 1e6;
 
-  Double_t s22t14_bins[nS2T+1];
-  Double_t dm214_bins[nDM2+1];
+  Ranger *ranger_dm41 = new Ranger();
+  Ranger *ranger_dm41_2 = new Ranger();
+  ranger_dm41->nsteps = nsteps_dm214;
+  ranger_dm41->min = dm214start;
+  ranger_dm41->max = dm214end;
+  ranger_dm41->setLogScale();
+  ranger_dm41_2->nsteps = nsteps_dm214_2;
+  ranger_dm41_2->min = dm214start_2;
+  ranger_dm41_2->max = dm214end_2;
 
-  for (int step_dm214=0; step_dm214<nsteps_dm214; ++step_dm214){
-    dm214_bins[step_dm214] = exp(log(dm214start) + log_dm214_step*((Double_t)step_dm214-0.5));
+  // Double_t s22t14_bins[nS2T+1];
+  // Double_t dm214_bins[nDM2+1];
+
+  // for (int step_dm214=0; step_dm214<nsteps_dm214; ++step_dm214){
+  //   dm214_bins[step_dm214] = exp(log(dm214start) +
+  //   log_dm214_step*((Double_t)step_dm214-0.5));
+  // }
+
+  // for (int step_dm214=0; step_dm214<nsteps_dm214_2+1; ++step_dm214){
+  //   dm214_bins[step_dm214+nsteps_dm214] = dm214start_2 +
+  //   lin_dm214_step*((Double_t)step_dm214-0.5);
+  // }
+
+  // for (int step_s22t14=0; step_s22t14<nsteps_s22t14+1; ++step_s22t14){
+  //   s22t14_bins[step_s22t14] = exp(log(s22t14start) +
+  //   log_s22t14_step*((Double_t)step_s22t14-0.5));
+  // }
+
+#pragma omp parallel
+  {
+    oscprobtab = new OscProbTable(pred);
+    oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
+    oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
+    oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
+    oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
   }
 
-  for (int step_dm214=0; step_dm214<nsteps_dm214_2+1; ++step_dm214){
-    dm214_bins[step_dm214+nsteps_dm214] = dm214start_2 + lin_dm214_step*((Double_t)step_dm214-0.5);
-  }
-
-  for (int step_s22t14=0; step_s22t14<nsteps_s22t14+1; ++step_s22t14){
-    s22t14_bins[step_s22t14] = exp(log(s22t14start) + log_s22t14_step*((Double_t)step_s22t14-0.5));
-  }
-
-  TDirectory * dir = gDirectory;
+  TDirectory *dir = gDirectory;
 
   TFile *savefile = new TFile(Paths::outpath("fit_shape_3d.root"), "RECREATE");
-  TTree * tr = new TTree("tr_fit","fit results");
-  tr->Branch("chi2_map",&dchi2result[0][0][0][0],Form("chi2_map[%d][%d][%d][%d]/D",nsteps_dm2,nsteps,nsteps_dm214,nsteps_s22t14));
-  tr->Branch("chi2_min",&chi2_min,"chi2_min/D");
-  tr->Branch("dm2_min",&dm2_min,"dm2_min/D");
-  tr->Branch("s2t_min",&s2t_min,"s2t_min/D");
+  TTree *tr = new TTree("tr_fit", "fit results");
+  tr->Branch("chi2_map", &dchi2result[0][0][0][0],
+             Form("chi2_map[%d][%d][%d][%d]/D", nsteps_dm2, nsteps,
+                  nsteps_dm214, nsteps_s22t14));
+  tr->Branch("chi2_min", &chi2_min, "chi2_min/D");
+  tr->Branch("dm2_min", &dm2_min, "dm2_min/D");
+  tr->Branch("s2t_min", &s2t_min, "s2t_min/D");
   // new branched for sterile mixing
-  tr->Branch("dm241_min",&dm241_min,"dm241_min/D");
-  tr->Branch("s2t14_min",&s2t14_min,"s2t14_min/D");
+  tr->Branch("dm241_min", &dm241_min, "dm241_min/D");
+  tr->Branch("s2t14_min", &s2t14_min, "s2t14_min/D");
 
-  dir->cd();                    // XXX ???
+  dir->cd(); // XXX ???
 
-  static TMinuit* minu;
+  static TMinuit *minu;
 #pragma omp threadprivate(minu)
 #pragma omp parallel
   {
@@ -132,7 +166,12 @@ void fit_shape_3d()
       // attempt to optimize the initial point distributions
       Double_t *grad = nullptr;
       Double_t fpar, ferr;
+      // double dm214 = dm214_bins[step_dm214];
       double dm214;
+      // if (step_dm214 < nsteps_dm214)
+      //   dm214 = ranger_dm41->returnVal(step_dm214);
+      // else
+      //   dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
       if (step_dm214 < 3) {
         dm214 = 0.003 * step_dm214 + 0.001;
       } else if (step_dm214 < 11) {
@@ -144,6 +183,7 @@ void fit_shape_3d()
 #pragma omp critical
       cout << " ========== " << step_dm214 << " / " << nsteps_dm214_fit
            << " (initial dm2 = " << dm214 << " ) ========== " << endl;
+
       DoMinuitFit(minu, dm214, 0.02);
 
       Double_t pars[4];
@@ -177,6 +217,11 @@ void fit_shape_3d()
          << " " <<  bests22t14 << " " << bestdm214
          << " " << minchi2 << endl;
 
+    // Now that we're fixing dm214, we can use OscProbTable
+#pragma omp parallel
+    {
+      minu->SetFCN(minuit_fcn_quick);
+    }
 
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       for(int step=0;step<nsteps;++step){
@@ -200,11 +245,18 @@ void fit_shape_3d()
             //   dm213[step_dm2][step]=(dm213end-dm213start)*step_dm2*1./(nsteps_dm2-1)+dm213start;
 
             // double sin22t14=(s22t14end-s22t14start)*step_s22t14*1./(nsteps_s22t14-1)+s22t14start;
-            double sin22t14 = s22t14_bins[step_s22t14];
+            // double sin22t14 = s22t14_bins[step_s22t14];
             //            dm214=(dm214end-dm214start)*step_dm214*1./(nsteps_dm214-1)+dm214start;
+            double sin22t14 =
+                exp(log(s22t14start) + log_s22t14_step * step_s22t14);
             // log scale
             // double dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214-1)+log(dm214start));
-            double dm214 = dm214_bins[step_dm214];
+            // double dm214 = dm214_bins[step_dm214];
+            double dm214;
+            if (step_dm214 < nsteps_dm214)
+              dm214 = ranger_dm41->returnVal(step_dm214);
+            else
+              dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
 
             DoMinuitFit(minu, dm214, sin22t14, true);
 
@@ -254,7 +306,7 @@ void fit_shape_3d()
   savefile->Close();
 }
 
-static void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
+void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
                         bool fixedSterileParams) {
   int ierflag;
   minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);

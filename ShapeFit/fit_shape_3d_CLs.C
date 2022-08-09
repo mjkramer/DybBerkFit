@@ -13,14 +13,14 @@
 #include <fstream>
 #include <iostream>
 
-static Predictor *pred;
+Predictor *pred;
 #pragma omp threadprivate(pred)
-static OscProbTable *oscprobtab;
+OscProbTable *oscprobtab;
 #pragma omp threadprivate(oscprobtab)
 
-static int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
+int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
 
-static void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
+void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){ // function for minuit minimization
   double sin22t13 = x[0];
   double dm2_ee = x[1];
   double sin22t14 = x[2];
@@ -29,7 +29,7 @@ static void minuit_fcn(int &npar, double *gin, double &f, double *x, int iflag){
   f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
 }
 
-static void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1);
+void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14=-1);
 
 void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
 {
@@ -62,6 +62,8 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
           Paths::outpath("toys_parscans/toySpectra_parscans_nominal.root");
       pred->LoadToyIBDSpec(path);
     } else {
+      // Doesn't matter whether we use sigsys, bgsys, etc. since we're loading
+      // the nominal spectrum
       pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
       pred->LoadToyMCNominalSpec();
     }
@@ -157,7 +159,7 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
 }
 
 // If s22t14 is -1, float it; otherwise, fix it
-static void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
+void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
 {
   int ierflag;
   minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);

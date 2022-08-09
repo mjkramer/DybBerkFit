@@ -110,6 +110,7 @@ genCovMat() {
 }
 
 # ------------------------------------ Fit! ------------------------------------
+# run in salloc
 shapeFit() {
     local period=${1:--1}       # default = -1 (6+8+7 AD)
     set_threads 12
@@ -120,6 +121,7 @@ shapeFit() {
 
 # Generate Asimove delta-chi2 (4nu vs 3nu)
 # TODO: Make it multiprocess because threading doesn't seem to scale
+# run in salloc
 genAsimovDChi2() {
     set_threads 12
     cd $BASE/ShapeFit
