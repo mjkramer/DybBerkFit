@@ -40,7 +40,7 @@ void minuit_fcn_quick(int &npar, double *gin, double &f, double *x, int iflag){ 
 void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1,
                  bool fixedSterileParams = false);
 
-void fit_shape_3d() {
+void fit_shape_3d(bool useOscProbTable = true) {
 #pragma omp parallel
   {
     pred = new Predictor;
@@ -116,11 +116,13 @@ void fit_shape_3d() {
 
 #pragma omp parallel
   {
-    oscprobtab = new OscProbTable(pred);
-    oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
-    oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
-    oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
-    oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
+    if (useOscProbTable) {
+      oscprobtab = new OscProbTable(pred);
+      oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
+      oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
+      oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
+      oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
+    }
   }
 
   TDirectory *dir = gDirectory;
@@ -219,17 +221,27 @@ void fit_shape_3d() {
          << " " <<  bests22t14 << " " << bestdm214
          << " " << minchi2 << endl;
 
+    // Now that we're fixing dm214, we can use OscProbTable
+#pragma omp parallel
+    {
+      if (useOscProbTable) {
+        minu->SetFCN(minuit_fcn_quick);
+        // OscProbTable requires that we fix the covariance matrix?
+        // Don't move this up since we use pred (w/o fixed covmatrix) for the 4nu
+        // fits above
+        pred->SetSin22t13Step(20, 0.00, 0.20); // Set here!
+        pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3);
+      }
+    }
+
     // Now get the chi2 for the null (3nu) hypothesis
     DoMinuitFit(minu, 0.1, 0, true);
     double bests22t13_null, bests22t13_null_err;
     minu->GetParameter(0, bests22t13_null, bests22t13_null_err);
-    chi2_null = pred->CalculateChi2Cov(bests22t13_null, DM2EE, 0, 0.1);
-
-    // Now that we're fixing dm214, we can use OscProbTable
-#pragma omp parallel
-    {
-      minu->SetFCN(minuit_fcn_quick);
-    }
+    if (useOscProbTable)
+      chi2_null = oscprobtab->CalculateChi2CovQuick(bests22t13_null, DM2EE, 0, 0.1, PeriodFlag);
+    else
+      chi2_null = pred->CalculateChi2Cov(bests22t13_null, DM2EE, 0, 0.1);
 
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       for(int step=0;step<nsteps;++step){
