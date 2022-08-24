@@ -133,8 +133,8 @@ genAsimovDChi2() {
 # Generate contours
 contours() {
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C "make_data_contours_cls.C+$DBG(${period})"
-    # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG(${period})"
+    root -b -q LoadClasses.C "make_data_contours_CLs.C+$DBG"
+    # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
 }
 
 all() {

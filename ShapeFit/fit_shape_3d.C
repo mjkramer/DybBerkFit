@@ -131,7 +131,7 @@ void fit_shape_3d(bool useOscProbTable = true) {
   TTree *tr = new TTree("tr_fit", "fit results");
   tr->Branch("chi2_map", &dchi2result[0][0][0][0],
              Form("chi2_map[%d][%d][%d][%d]/D", nsteps_dm2, nsteps,
-                  nsteps_dm214, nsteps_s22t14));
+                  nsteps_dm214_all, nsteps_s22t14));
   tr->Branch("chi2_min", &chi2_min, "chi2_min/D");
   tr->Branch("chi2_null", &chi2_null, "chi2_null/D");
   tr->Branch("dm2_min", &dm2_min, "dm2_min/D");
@@ -305,7 +305,7 @@ void fit_shape_3d(bool useOscProbTable = true) {
 
     cout << "Event: " << ievt << "; --> best fit: " << bests22t13 << "," << bestdm213 << "; minchi2=" << minchi2 << endl;//tmp
 
-    for(int step_dm214=0;step_dm214<nsteps_dm214;++step_dm214){
+    for(int step_dm214=0;step_dm214<nsteps_dm214_all;++step_dm214){
       for(int step_s22t14=0;step_s22t14<nsteps_s22t14;++step_s22t14){
         dchi2result[0][0][step_dm214][step_s22t14] = chi2result[0][0][step_dm214][step_s22t14]-minchi2;
       }
@@ -324,6 +324,8 @@ void fit_shape_3d(bool useOscProbTable = true) {
   savefile->cd();
   tr->Write();
   savefile->Close();
+
+  quick_exit(0);
 }
 
 void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,

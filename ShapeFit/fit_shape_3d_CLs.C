@@ -146,11 +146,10 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
 #pragma omp critical
       {
         fout << step_dm214 << " " << step_s22t14 << " " << chi2;
-        if (fit4nuSamples)
-          fout << " " << bests22t13;
+        // if (fit4nuSamples)
+        //   fout << " " << bests22t13;
         fout << endl;
       }
-
     }
   }
 

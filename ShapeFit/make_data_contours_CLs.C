@@ -53,8 +53,8 @@ void make_data_contours_CLs()
   Double_t dchi2_ave_3n[nDM2][nS2T];
   Double_t dchi2_ave_4n[nDM2][nS2T];
 
-  Double_t cls_asimov[nsteps_dm214][nsteps_s22t14];
-  Double_t cls_map[nsteps_dm214][nsteps_s22t14];
+  Double_t cls_asimov[nDM2][nS2T];
+  Double_t cls_map[nDM2][nS2T];
 
   ifstream fin_3n(Paths::outpath("asimov_dchi2_3n.txt"));
   for (int iline = 0; iline < nS2T*nDM2; ++iline) {
@@ -68,8 +68,8 @@ void make_data_contours_CLs()
     fin_4n >> id >> is >> dchi2_ave_4n[id][is];
   }
 
-  TH2D* h_cls = new TH2D("h_cls", "h_cls", nsteps_s22t14, s22t14_bins,
-                          nsteps_dm214, dm214_bins);
+  TH2D* h_cls = new TH2D("h_cls", "h_cls", nS2T, s22t14_bins,
+                          nDM2, dm214_bins);
 
   TFile* f_data = new TFile(Paths::outpath("fit_shape_3d.root"));
 
@@ -83,9 +83,19 @@ void make_data_contours_CLs()
   tr->SetBranchAddress("chi2_min",&chi2_min);
   tr->GetEntry(0);
 
+  TH2D* h_dchi2_obs = (TH2D*) h_cls->Clone("h_dchi2_obs");
+  TH2D* h_p0 = (TH2D*) h_cls->Clone("h_p0");
+  TH2D* h_p1 = (TH2D*) h_cls->Clone("h_p1");
+  TH2D* h_numer0 = (TH2D*) h_cls->Clone("h_numer0");
+  TH2D* h_numer1 = (TH2D*) h_cls->Clone("h_numer1");
+  TH2D* h_denom0 = (TH2D*) h_cls->Clone("h_denom0");
+  TH2D* h_denom1 = (TH2D*) h_cls->Clone("h_denom1");
+  TH2D* h_arg0 = (TH2D*) h_cls->Clone("h_arg0");
+  TH2D* h_arg1 = (TH2D*) h_cls->Clone("h_arg1");
+
   for (Int_t iDM2 = 0; iDM2 < nDM2;  iDM2 ++) {
     for (Int_t iS2T = 0; iS2T < nS2T;  iS2T ++) {
-      //Double_t dchi2_obs = chi2_map[0][0][iDM2][iS2T] + chi2_min;
+      // Double_t dchi2_obs = chi2_map[0][0][iDM2][iS2T] + chi2_min;
       Double_t dchi2_obs = chi2_map[0][0][iDM2][iS2T] - chi2_null+chi2_min;
       //dchi2_obs = dchi2_ave_3n[iDM2][iS2T]; // in case of expected
 
@@ -101,6 +111,18 @@ void make_data_contours_CLs()
       }
 
       h_cls->SetBinContent(iS2T+1, iDM2+1, cls_map[iDM2][iS2T]);
+
+      h_dchi2_obs->SetBinContent(iS2T+1, iDM2+1, dchi2_obs);
+      h_p0->SetBinContent(iS2T+1, iDM2+1, p0);
+      h_p1->SetBinContent(iS2T+1, iDM2+1, p1);
+      h_numer0->SetBinContent(iS2T+1, iDM2+1, (dchi2_obs - dchi2_ave_3n[iDM2][iS2T]));
+      h_numer1->SetBinContent(iS2T+1, iDM2+1, (dchi2_obs + dchi2_ave_4n[iDM2][iS2T]));
+      h_denom0->SetBinContent(iS2T+1, iDM2+1, TMath::Sqrt(8*TMath::Abs(dchi2_ave_3n[iDM2][iS2T])));
+      h_denom1->SetBinContent(iS2T+1, iDM2+1, TMath::Sqrt(8*TMath::Abs(dchi2_ave_4n[iDM2][iS2T])));
+      h_arg0->SetBinContent(iS2T+1, iDM2+1, ((dchi2_obs - dchi2_ave_3n[iDM2][iS2T])
+                                           /TMath::Sqrt(8*TMath::Abs(dchi2_ave_3n[iDM2][iS2T]))));
+      h_arg1->SetBinContent(iS2T+1, iDM2+1, ((dchi2_obs + dchi2_ave_4n[iDM2][iS2T])
+                                           /TMath::Sqrt(8*TMath::Abs(dchi2_ave_4n[iDM2][iS2T]))));
     }
   }
 
@@ -159,5 +181,16 @@ void make_data_contours_CLs()
     cont_68->Write();
   }
   h_cls->Write();
+
+  h_dchi2_obs->Write();
+  h_p0->Write();
+  h_p1->Write();
+  h_numer0->Write();
+  h_numer1->Write();
+  h_denom0->Write();
+  h_denom1->Write();
+  h_arg0->Write();
+  h_arg1->Write();
+
   fout->Close();
 }
