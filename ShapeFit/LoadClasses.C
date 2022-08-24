@@ -12,6 +12,7 @@ void LoadClasses()
   LoadFile("Utils.cc");
   LoadFile("Paths.cc");
   LoadFile("Binning.cc");
+  LoadFile("Config.cc");
   LoadFile("OscCalc.cc");
   LoadFile("FluxCalculator.cc");
   LoadFile("PredSet.cc");

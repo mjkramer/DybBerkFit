@@ -137,6 +137,7 @@ contours() {
     # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
 }
 
+# NOTE: all() doesn't actually work since we run genToys_parscans within a Slurm job
 all() {
     genToys &
     # genToys_parscans &

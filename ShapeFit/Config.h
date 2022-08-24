@@ -20,6 +20,12 @@ const int NdetectorsConfig[3][Ndetectors] = {{1, 1, 1, 0, 1, 1, 1, 0},
                                              {1, 1, 1, 1, 1, 1, 1, 1},
                                              {0, 1, 1, 1, 1, 1, 1, 1}};
 
+// Used when osc pars are set to "nominal" in the ToyMC config
+const double S22T13_NOMINAL_LBNLBINS = 0.0853;
+const double S22T13_NOMINAL_BCWBINS = 0.0848;
+const double DM2EE_NOMINAL_LBNLBINS = 2.467e-3;
+const double DM2EE_NOMINAL_BCWBINS = 2.501e-3;
+
 // chi2 map binning
 // const Int_t nsteps = 101;
 // const Double_t s22t13start=0.06;
@@ -36,8 +42,13 @@ const Int_t nsteps_dm2 = 31;
 Double_t dm2eestart = 2.1e-3;
 Double_t dm2eeend = 2.8e-3;
 
-const double S22T13 = 0.084;
-const double DM2EE = 2.49e-3;
+// Stuff below is used only by the sterile analysis
+
+// const double S22T13 = 0.084;
+// const double DM2EE = 2.49e-3;
+
+// Initialized in Config.cc
+double S22T13, DM2EE;
 
 const int nsteps_s22t14 = 31;
 const double s22t14start=1.0e-3;

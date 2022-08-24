@@ -36,6 +36,7 @@ public:
   void dump();
 
 private:
+  void maybeSetNominal(const char* varname, double value);
   TMap m_data; // Container for data
   bool m_warnOnReplace = true;
 };

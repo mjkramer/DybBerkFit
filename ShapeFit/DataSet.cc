@@ -1,6 +1,7 @@
 #include "DataSet.h"
 
 #include "Binning.h"
+#include "Config.h"
 
 #include "TGraph.h"
 #include "TH1F.h"
@@ -169,27 +170,27 @@ int DataSet::load(const char* filename)
 
   // Replace the string "nominal" with the appropriate nominal value.
   m_warnOnReplace = false;
-  vector<const char*> special_vars = {"deltaMSqee", "sinSq2Theta13"};
-  for (auto&& v : special_vars) {
-    if (!this->isDouble(v)) {
-      string s = this->getString(v);
-      if (s != "nominal") {
-        std::cout << "DataSet::load: "
-                  << v << "should be either  nominal  or a number"
-                  << "(got " << s << ")" << std::endl;
-        return -1;
-      }
-      // For IHEP binning, just use the LBNL values, since IHEP binning is more
-      // similar to LBNL in the lowest two bins.
-      auto binning = Binning::useBcwBinning() ? "BCW" : "LBNL";
-      auto vnom = Form("%sNominal%s", v, binning);
-      double val = this->getDouble(vnom);
-      this->setDouble(v, val);
-    }
-  }
+  maybeSetNominal("sinSq2Theta13", Config::S22T13);
+  maybeSetNominal("deltaMSqee", Config::DM2EE);
   m_warnOnReplace = true;       // just in case...
 
   return 0;
+}
+
+void DataSet::maybeSetNominal(const char* varname, double value)
+{
+  if (this->isDouble(varname))
+    return;
+
+  string s = this->getString(varname);
+  if (s != "nominal") {
+    std::cout << "DataSet::load: "
+              << varname << "should be either  nominal  or a number "
+              << "(got " << s << ")" << std::endl;
+    throw;
+  }
+
+  this->setDouble(varname, value);
 }
 
 void DataSet::dump()
