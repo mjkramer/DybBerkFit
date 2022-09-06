@@ -17,7 +17,7 @@
 using namespace Config;
 using namespace std;
 
-void make_data_contours_CLs()
+void make_data_contours_CLs(bool expected = false)
 {
   gStyle->SetPalette(1);
 
@@ -71,7 +71,8 @@ void make_data_contours_CLs()
   TH2D* h_cls = new TH2D("h_cls", "h_cls", nS2T, s22t14_bins,
                           nDM2, dm214_bins);
 
-  TFile* f_data = new TFile(Paths::outpath("fit_shape_3d.root"));
+  const char* fitfilename = expected ? "fit_shape_3d_nominal.root" : "fit_shape_3d.root";
+  TFile* f_data = new TFile(Paths::outpath(fitfilename));
 
   TTree * tr = (TTree*)f_data->Get("tr_fit");
   tr->SetBranchAddress("chi2_map",chi2_map);
@@ -167,7 +168,9 @@ void make_data_contours_CLs()
   }
   g_best->Draw("P");
 
-  TFile * fout = new TFile(Paths::outpath("data_contours.root"),
+  const char* outfilename = expected ? "expected_contours.root"
+    : "data_contours.root";
+  TFile * fout = new TFile(Paths::outpath(outfilename),
                            "RECREATE");
 
   g_best->SetName("dm241_vs_sin22theta14_best");

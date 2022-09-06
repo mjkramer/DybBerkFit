@@ -13,9 +13,9 @@
 #include <fstream>
 #include <iostream>
 
-Predictor *pred;
+static Predictor *pred;
 #pragma omp threadprivate(pred)
-OscProbTable *oscprobtab;
+static OscProbTable *oscprobtab;
 #pragma omp threadprivate(oscprobtab)
 
 int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
@@ -49,7 +49,7 @@ void fit_shape_3d_CLs(bool fit4nuSamples=false, int igrid=-1)
     // NB: For the 4nu case, these are not the correct PredictedIBD values, but
     // we don't care since we're not looking at the summed matrix
     pred->LoadPredictedIBD(Paths::predicted_ibd());
-    pred->LoadIBDSpec(Paths::all_sig_spectra().data()); // XXX
+    // pred->LoadIBDSpec(Paths::all_sig_spectra().data()); // XXX
     pred->LoadBgSpec();
     pred->SetEvisBins(Binning::n_evis(), Binning::evis());
     pred->SetEnuBins(Binning::n_enu(), Binning::enu());

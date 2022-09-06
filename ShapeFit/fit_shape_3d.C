@@ -12,9 +12,9 @@
 
 #include <fstream>
 
-Predictor *pred;
+static Predictor *pred;
 #pragma omp threadprivate(pred)
-OscProbTable *oscprobtab;
+static OscProbTable *oscprobtab;
 #pragma omp threadprivate(oscprobtab)
 
 int PeriodFlag = -1;//(0=6AD, 1=8AD, 2=7AD, -1=6+8+7AD)
@@ -40,7 +40,7 @@ void minuit_fcn_quick(int &npar, double *gin, double &f, double *x, int iflag){ 
 void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1,
                  bool fixedSterileParams = false);
 
-void fit_shape_3d(bool useOscProbTable = true) {
+void fit_shape_3d(bool nominal = false, bool useOscProbTable = true) {
 #pragma omp parallel
   {
     pred = new Predictor;
@@ -50,7 +50,16 @@ void fit_shape_3d(bool useOscProbTable = true) {
     for (int istage = 0; istage < Nstage; ++istage)
       pred->LoadMainData(Paths::input(istage));
     pred->LoadPredictedIBD(Paths::predicted_ibd());
-    pred->LoadIBDSpec(Paths::all_sig_spectra().data());
+
+    if (nominal) {
+      // Doesn't matter whether we use sigsys, bgsys, etc. since we're loading
+      // the nominal spectrum
+      pred->LoadToyIBDSpec(Paths::toytree("sigsys"));
+      pred->LoadToyMCNominalSpec();
+    } else {
+      pred->LoadIBDSpec(Paths::all_sig_spectra().data());
+    }
+
     pred->LoadBgSpec();
     pred->SetEvisBins(Binning::n_evis(), Binning::evis());
     pred->SetEnuBins(Binning::n_enu(), Binning::enu());
@@ -127,7 +136,8 @@ void fit_shape_3d(bool useOscProbTable = true) {
 
   TDirectory *dir = gDirectory;
 
-  TFile *savefile = new TFile(Paths::outpath("fit_shape_3d.root"), "RECREATE");
+  const char* savefilename = nominal ? "fit_shape_3d_nominal.root" : "fit_shape_3d.root";
+  TFile *savefile = new TFile(Paths::outpath(savefilename), "RECREATE");
   TTree *tr = new TTree("tr_fit", "fit results");
   tr->Branch("chi2_map", &dchi2result[0][0][0][0],
              Form("chi2_map[%d][%d][%d][%d]/D", nsteps_dm2, nsteps,
