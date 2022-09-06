@@ -42,7 +42,8 @@ time $BASE/scripts/compile.sh
 
 # --------------------------- Generate ToyMC samples ---------------------------
 genToys() {
-    set_threads 10
+    # set_threads 10
+    set_threads $(( $(nproc) / 3 ))
     cd $BASE/toySpectra
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"sigsys\")" &
     root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" "rungenToySpectraTree.C(\"bgsys\")" &
@@ -56,6 +57,7 @@ genToys() {
 genToys_parscans() {
     # unset OMP_NUM_THREADS
     export OMP_NUM_THREADS=2
+    cd $BASE/toySpectra
     srun -n 32 root -b -q LoadClasses.C -e ".L genToySpectraTree_parscans.C+$DBG" rungenToySpectraTree_parscans.C+
     hadd $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal.root $LBNL_FIT_OUTDIR/toys_parscans/*.root
     rm $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal_*.root
@@ -63,7 +65,9 @@ genToys_parscans() {
 
 # -------------------------- Generate evis/enu matrix --------------------------
 genEvisEnu() {
-    set_threads 30
+    # set_threads 30
+    # leave 2 threads for super hists, predicted IBD
+    set_threads $(( $(nproc) - 2 ))
     cd $BASE/toySpectra
     root -b -q LoadClasses.C genEvisToEnuMatrix.C+$DBG
     cd ../ShapeFit
@@ -94,6 +98,7 @@ genPredIBD() {
 }
 
 # Generate OscProbTables for faster near->far extrapolation
+# TODO: Multithread?
 genOscProb() {
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C genOscProbTable.C+$DBG
@@ -101,7 +106,9 @@ genOscProb() {
 
 # ------------------------ Generate covariance matrices ------------------------
 genCovMat() {
-    set_threads 8
+    # due to rounding down, should have at least 1 thread available for osc prob table
+    # set_threads $(( $(nproc) / 3 ))
+    set_threads 16
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(\"sigsys\", 0)" &
     root -b -q LoadClasses.C -e ".L build_covmatrix.C+$DBG" "run_build_covmatrix.C(\"bgsys\", 1)" &
@@ -112,18 +119,22 @@ genCovMat() {
 # ------------------------------------ Fit! ------------------------------------
 # run in salloc
 shapeFit() {
-    local period=${1:--1}       # default = -1 (6+8+7 AD)
+    # local period=${1:--1}       # default = -1 (6+8+7 AD)
     set_threads 12
     cd $BASE/ShapeFit
     # root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(${period})"
     root -b -q LoadClasses.C "fit_shape_3d.C+$DBG"
+    # nominal:
+    root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(true)"
 }
 
 # Generate Asimove delta-chi2 (4nu vs 3nu)
 # TODO: Make it multiprocess because threading doesn't seem to scale
 # run in salloc
 genAsimovDChi2() {
-    set_threads 12
+    # set_threads 12
+    # set_threads $(( $(nproc) / 2 ))
+    set_threads 20
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_3n.C &
     root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_4n.C &
@@ -134,23 +145,30 @@ genAsimovDChi2() {
 contours() {
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C "make_data_contours_CLs.C+$DBG"
+    # expected (nominal):
+    root -b -q LoadClasses.C "make_data_contours_CLs.C+$DBG(true)"
     # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
 }
 
-# NOTE: all() doesn't actually work since we run genToys_parscans within a Slurm job
+# NOTE: all() doesn't actually work on login nodes since we use srun in genToys_parscans
 all() {
-    genToys &
-    # genToys_parscans &
+    genToys
+
+    genToys_parscans
+
     genEvisEnu &
     genSuperHists &
     genPredIBD &
     wait
+
     genOscProb &
     genCovMat &
     wait
-    shapeFit &
-    genAsimovDChi2 &
-    wait
+
+    shapeFit
+
+    genAsimovDChi2
+
     contours
 }
 
