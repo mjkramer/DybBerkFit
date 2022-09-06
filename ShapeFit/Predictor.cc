@@ -498,7 +498,9 @@ void Predictor::LoadToyMCNominalSpec(const char* suffix)
               ->Get(LeakStr("h_nominal_stage%i_ad%d%s", ii + 1, idet + 1, suffix))
               ->Clone();
     }
-    tdper[ii].CorrectSpec(true);
+    // Don't correct if we're called before LoadBgSpec
+    if (tdper[ii].CorrBgEvtsSpec[1] != nullptr)
+      tdper[ii].CorrectSpec(true);
     // tdper[ii].PrintToScreen();//tmp
   }
 }
@@ -518,7 +520,8 @@ void Predictor::LoadToyMCEntry(Int_t i, bool correct)
   }
 
   for (int ii = 0; ii < Nstage; ++ii) {
-    if (correct == true)
+    // Don't correct if we're called before LoadBgSpec
+    if (correct == true && tdper[ii].CorrBgEvtsSpec[1] != nullptr)
       tdper[ii].CorrectSpec(true);
     // tdper[ii].PrintToScreen();//tmp
   }
@@ -596,7 +599,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       htemp = (TH1F*)m_li9spec->Get(name)->Clone();
       sprintf(name, "CorrLi9EvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrLi9EvtsSpec[idet] =
-          (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
+          (TH1F*)tdper[istage].CorrAccEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrLi9EvtsSpec[idet]->Reset();
       // fill into destination histogram
       for (Int_t ibin = 0; ibin < htemp->GetNbinsX(); ibin++) {
@@ -637,7 +640,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       Char_t nameFn[1024];
       sprintf(nameFn, "h_%dAD_fn_fine", idet + 1);
       tdper[istage].CorrFnEvtsSpec[idet] =
-          (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
+          (TH1F*)tdper[istage].CorrAccEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrFnEvtsSpec[idet]->Reset();
 
       TH1F* htemp;
@@ -727,7 +730,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       htemp = (TH1F*)m_alnspec->Get(name)->Clone();
       sprintf(name, "CorrAlnEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrAlnEvtsSpec[idet] =
-          (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
+          (TH1F*)tdper[istage].CorrAccEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrAlnEvtsSpec[idet]->Reset();
 
       // fill into destination histogram
@@ -769,7 +772,7 @@ void Predictor::LoadBgSpec(TString* accspecname, const Char_t* li9specname,
       htemp = (TH1F*) m_muondecayspec->Get(name)->Clone();
       sprintf(name, "CorrMuonDecayEvtsSpec_stage%d_ad%d", istage, idet);
       tdper[istage].CorrMuonDecayEvtsSpec[idet] =
-        (TH1F*)tdper[istage].ObsEvtsSpec[idet]->Clone(name);
+        (TH1F*)tdper[istage].CorrAccEvtsSpec[idet]->Clone(name);
       tdper[istage].CorrMuonDecayEvtsSpec[idet]->Reset();
 
       // fill into destination histogram
