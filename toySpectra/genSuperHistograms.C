@@ -114,7 +114,14 @@ void genSuperHistograms()
     }
   }
 
-  outfile->Write();
+  outfile->cd();
+  for (int istage = 0; istage < Nstage; ++istage) {
+    for (int idet = 0; idet < Ndetectors; ++idet) {
+      for (int icore = 0; icore < Ncores; ++icore) {
+        h[istage][idet][icore]->Write();
+      }
+    }
+  }
   outfile->Close();
 
 
