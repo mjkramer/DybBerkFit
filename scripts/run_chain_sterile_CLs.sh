@@ -58,7 +58,7 @@ genToys_parscans() {
     # unset OMP_NUM_THREADS
     export OMP_NUM_THREADS=2
     cd $BASE/toySpectra
-    srun -n 32 root -b -q LoadClasses.C -e ".L genToySpectraTree_parscans.C+$DBG" rungenToySpectraTree_parscans.C+
+    srun -n 32 root -b -q LoadClasses.C -e ".L CLs/genToySpectraTree_parscans_CLs.C+$DBG" CLs/rungenToySpectraTree_parscans_CLs.C+
     hadd $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal.root $LBNL_FIT_OUTDIR/toys_parscans/*.root
     rm $LBNL_FIT_OUTDIR/toys_parscans/toySpectra_parscans_nominal_*.root
 }
@@ -136,17 +136,17 @@ genAsimovDChi2() {
     # set_threads $(( $(nproc) / 2 ))
     set_threads 20
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_3n.C &
-    root -b -q LoadClasses.C -e ".L fit_shape_3d_CLs.C+$DBG" run_fit_shape_3d_CLs_4n.C &
+    root -b -q LoadClasses.C -e ".L CLs/fit_shape_3d_CLs.C+$DBG" CLs/run_fit_shape_3d_CLs_3n.C &
+    root -b -q LoadClasses.C -e ".L CLs/fit_shape_3d_CLs.C+$DBG" CLs/run_fit_shape_3d_CLs_4n.C &
     wait
 }
 
 # Generate contours
 contours() {
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C "make_data_contours_CLs.C+$DBG"
+    root -b -q LoadClasses.C "CLs/make_data_contours_CLs.C+$DBG"
     # expected (nominal):
-    root -b -q LoadClasses.C "make_data_contours_CLs.C+$DBG(true)"
+    root -b -q LoadClasses.C "CLs/make_data_contours_CLs.C+$DBG(true)"
     # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
 }
 

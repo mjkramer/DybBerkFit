@@ -18,9 +18,9 @@ extern int omp_get_thread_num();
 
 using namespace Config;
 
-void genToySpectraTree_parscans(const char *dataset_name,
-                                int itask,
-                                int ntasks)
+void genToySpectraTree_parscans_CLs(const char *dataset_name,
+                                    int itask,
+                                    int ntasks)
 {
   const int n_evis_bins = Binning::n_evis();
   double* evis_bins = Binning::evis();
