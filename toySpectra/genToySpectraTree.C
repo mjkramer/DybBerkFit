@@ -22,7 +22,7 @@ extern int omp_get_thread_num();
 
 using namespace Config;
 
-void genToySpectraTree(TString dataset_filename, TString output_filename,
+void genToySpectraTree(const char* dataset_filename, const char* output_filename,
                        double s2t13, double dm2ee, double s2t14, double dm241,
                        int nToys)
 {
@@ -49,7 +49,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
   // Create Expectations
   DataSet* mydata = new DataSet();
-  mydata->load(dataset_filename.Data());
+  mydata->load(dataset_filename);
 
   // Create Nominal (i.e. no random variation) Expectations
   DataSet* mydata_nominal = new DataSet();
@@ -129,7 +129,7 @@ void genToySpectraTree(TString dataset_filename, TString output_filename,
 
 
   // Prepare destination file
-  TFile* outfile = new TFile(output_filename.Data(), "RECREATE");
+  TFile* outfile = new TFile(output_filename, "RECREATE");
 
   TTree* tree_true_pars = new TTree("true_pars", "true oscillation parameters");
   tree_true_pars->Branch("sin22theta13", &s2t13, "sin22theta13/D");

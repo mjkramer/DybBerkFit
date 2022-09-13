@@ -122,3 +122,19 @@ for line in basefile_lines:
             match = True
     if not match:
         output_file7.write(line)
+
+output_file8 = open(base_filename+'_allsys_w_dm2ee_and_stat.txt','w')
+for line in basefile_lines:
+    items = line.split()
+    match = False
+    if len(items) > 1:
+        for par, opt, val in variations:
+            if items[0] == par:
+                output_file8.write(par + ' ' + val + '\n')
+                match = True
+        if items[0] ==  'randomizeDm2ee':
+            items[1] = '1'
+            output_file8.write(" ".join(items) + '\n')
+            match = True
+    if not match:
+        output_file8.write(line)

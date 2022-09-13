@@ -22,9 +22,11 @@ const int NdetectorsConfig[3][Ndetectors] = {{1, 1, 1, 0, 1, 1, 1, 0},
 
 // Used when osc pars are set to "nominal" in the ToyMC config
 const double S22T13_NOMINAL_LBNLBINS = 0.0853;
-const double S22T13_NOMINAL_BCWBINS = 0.0848;
 const double DM2EE_NOMINAL_LBNLBINS = 2.467e-3;
-const double DM2EE_NOMINAL_BCWBINS = 2.501e-3;
+// const double S22T13_NOMINAL_BCWBINS = 0.0848;
+// const double DM2EE_NOMINAL_BCWBINS = 2.501e-3;
+const double S22T13_NOMINAL_BCWBINS = 0.085;
+const double DM2EE_NOMINAL_BCWBINS = 2.5e-3;
 
 // chi2 map binning
 // const Int_t nsteps = 101;

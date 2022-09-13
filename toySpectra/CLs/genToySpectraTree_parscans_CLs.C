@@ -1,3 +1,8 @@
+// NOTE: We could get rid of this in lieu of just calling genToySpectraTree.C
+// (as we do for FC), with ntoys=0, a wrapper that takes care of looping over
+// grid points, and modifications to fit_shape_3d_CLs.C such that it loads a
+// unique file for each grid point.
+
 #include "Binning.h"
 #include "Config.h"
 #include "DataSet.h"
@@ -86,7 +91,6 @@ void genToySpectraTree_parscans_CLs(const char *dataset_name,
   Double_t dm2ee_array[npoints + 1];
   Double_t s2t14_array[npoints + 1];
   Double_t dm214_array[npoints + 1];
-  Int_t dm214_id[npoints + 1];
   Int_t ipoint = 0;
   for (Int_t it14 = 0; it14 < nsteps_s22t14; it14++) {
     for (Int_t im41 = 0; im41 < nsteps_dm214_all; im41++) {
@@ -113,7 +117,6 @@ void genToySpectraTree_parscans_CLs(const char *dataset_name,
             dm214_array[ipoint] =
                 dm214start_2 + lin_dm214_step * (im41 - nsteps_dm214);
           }
-          dm214_id[ipoint] = im41 + 1;
 
           ipoint++;
         }
@@ -125,7 +128,6 @@ void genToySpectraTree_parscans_CLs(const char *dataset_name,
   dm2ee_array[npoints] = DM2EE;
   s2t14_array[npoints] = 0.0;
   dm214_array[npoints] = 0.0;
-  dm214_id[npoints] = 0.0;
 
   // Note that the REAL number of points is npoints+1
 
