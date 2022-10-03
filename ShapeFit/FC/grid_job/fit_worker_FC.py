@@ -27,7 +27,7 @@ def process(toypath: str):
     # Need to restore cwd for LockfileListReader/Writer
     oldcwd = os.getcwd()
     os.chdir(f'{os.getenv("LBNL_FIT_HOME")}/ShapeFit')
-    cmd = f'root -b -q LoadClasses.C FC/fit_shape_3d_FC.C+("{toypath}", "{outpath}")'
+    cmd = f"root -b -q LoadClasses.C 'FC/fit_shape_3d_FC.C+(\"{toypath}\", \"{outpath}\")'"
     os.system(cmd)
     os.chdir(oldcwd)
 

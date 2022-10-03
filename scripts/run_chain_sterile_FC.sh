@@ -55,10 +55,16 @@ genToys() {
 # Generate toys with syst/stat variations for getting Dchi2 distributions
 # run in salloc
 genToys_parscans() {
+    # # unset OMP_NUM_THREADS
+    # export OMP_NUM_THREADS=4
+    # cd $BASE/toySpectra
+    # srun -n 16 root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" FC/rungenToySpectraTree_parscans_FC.C+
     # unset OMP_NUM_THREADS
-    export OMP_NUM_THREADS=4
-    cd $BASE/toySpectra
-    srun -n 16 root -b -q LoadClasses.C -e ".L genToySpectraTree.C+$DBG" FC/rungenToySpectraTree_parscans_FC.C+
+    ntasks=16
+    set_threads $(($(nproc) / $ntasks))
+    cd $BASE/ShapeFit/FC/grid_job
+    ./prep_parscans_job_FC.sh
+    ./submit_parscans_job_FC.sh -N 10 -t 4:00:00 --ntasks-per-node $ntasks
     unset OMP_NUM_THREADS
 }
 
@@ -102,6 +108,8 @@ genPredIBD() {
 # Generate OscProbTables for faster near->far extrapolation
 # TODO: Multithread?
 genOscProb() {
+    # cd $BASE/ShapeFit/FC/grid_job
+    # ./prep_fit_job_FC.sh
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C genOscProbTable.C+$DBG
     unset OMP_NUM_THREADS
@@ -139,7 +147,7 @@ genDChi2() {
     set_threads $(($(nproc) / $ntasks))
     cd $BASE/ShapeFit/FC/grid_job
     ./prep_fit_job_FC.sh
-    ./submit_fit_job_FC.sh -n $ntasks --array=1-5
+    ./submit_fit_job_FC.sh -N 10 -t 4:00:00 --ntasks-per-node $ntasks
     unset OMP_NUM_THREADS
 }
 
@@ -158,9 +166,9 @@ contours() {
 
 # NOTE: all() doesn't actually work on login nodes since we use srun in genToys_parscans
 all() {
-    genToys
+    # genToys
 
-    genToys_parscans
+    # genToys_parscans
 
     genEvisEnu &
     genSuperHists &
@@ -171,11 +179,11 @@ all() {
     genCovMat &
     wait
 
-    shapeFit
+    # shapeFit
 
-    genDChi2
+    # genDChi2
 
-    contours
+    # contours
 }
 
 eval $step "$@"

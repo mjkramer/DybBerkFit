@@ -46,13 +46,14 @@ void fit_shape_3d_FC(const char *toyfilename, const char *outfilename) {
     for (int istage = 0; istage < Nstage; ++istage)
       pred->LoadMainData(Paths::input(istage));
     pred->LoadPredictedIBD(Paths::predicted_ibd()); // dummy, not used
-    pred->LoadBgSpec();
+    // pred->LoadBgSpec();
     pred->SetEvisBins(Binning::n_evis(), Binning::evis());
     pred->SetEnuBins(Binning::n_enu(), Binning::enu());
     pred->LoadEvisToEnuMatrix(Paths::response());
     pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
                         Paths::dm2ee_covmatrix());
     ntoys = pred->LoadToyIBDSpec(toyfilename);
+    pred->LoadBgSpec();
   }
 
   // override values from Config.h

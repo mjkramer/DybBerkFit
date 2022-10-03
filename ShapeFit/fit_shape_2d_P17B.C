@@ -969,7 +969,7 @@ void fit_shape_2d_P17B(
   }
 
   savefile->cd();
-  // h_chi2_map->Write();
+  h_chi2_map->Write();
   // chi2graph->Write();
   // dchi2graph->Write();
   h_s22t13_dm2->Write();
@@ -1004,6 +1004,9 @@ void fit_shape_2d_P17B(
       pred->GetCorrMuonDecayEvtsSpec(istage, idet)->Clone(name)->Write();
     }
   }
+
+  for (Int_t iMode = 0; iMode < nModes; iMode++)
+    h_final_covmatrix[iMode]->Write();
 
   savefile->Close();
 
