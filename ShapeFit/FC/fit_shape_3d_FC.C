@@ -177,3 +177,28 @@ void fit_shape_3d_FC(const char *toyfilename, const char *outfilename) {
   h_dchi2->Write();
   outfile->Close();
 }
+
+// If s22t14 is -1, float it; otherwise, fix it
+void DoMinuitFit(TMinuit* minu, double dm214, double s22t14)
+{
+  int ierflag;
+  minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);
+  minu->mnparm(1, "DeltaMSqee", DM2EE, 0.0001, 0.0015, 0.0035, ierflag);
+  minu->mnparm(2, "SinSq2Theta14",
+               s22t14 == -1 ? 0.02 : s22t14,
+               0.01, 0, 1.0, ierflag);
+  minu->mnparm(3, "DeltaMSq41", dm214, 0.5*dm214, 1e-4, 10.0, ierflag);
+
+  minu->FixParameter(1);
+  minu->FixParameter(3);
+
+  if (s22t14 != -1)
+    minu->FixParameter(2);
+  else
+    minu->Release(2);
+
+  double arglist[2];
+  arglist[0] = 10000;
+  arglist[1] = 1.0;
+  minu->mnexcm("MIGRAD", arglist, 2, ierflag);
+}
