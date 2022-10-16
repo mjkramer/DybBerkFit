@@ -305,9 +305,9 @@ void OscProbTable::MakeAllPredictionsQuick(double s22t13, double dmee, double s2
   //-->find the best indices (note to self: could consider adding warning to Ranger::findIndex when you do not land on a grid point). 
   int idmee = ranger_dmee->findIndex(dmee);
   int idm41 = -1;
-  if(ranger_dm41->nsteps>1 && (dm41_test>=ranger_dm41->min &&  dm41_test<=ranger_dm41->max + 1.0e-10)){
+  if(ranger_dm41->nsteps>1 && (dm41_test>=ranger_dm41->min - 1.0e-10 &&  dm41_test<=ranger_dm41->max + 1.0e-10)){
     idm41 = ranger_dm41->findIndex(dm41);
-  }else if (ranger_dm41_2->nsteps>1 && (dm41_test_2>=ranger_dm41_2->min &&  dm41_test_2<=ranger_dm41_2->max + 1.0e-10)){
+  }else if (ranger_dm41_2->nsteps>1 && (dm41_test_2>=ranger_dm41_2->min - 1.0e-10 &&  dm41_test_2<=ranger_dm41_2->max + 1.0e-10)){
     idm41 = ranger_dm41->nsteps + ranger_dm41_2->findIndex(dm41);
   }else{
     cout << "ERROR!! requested dm41=" << dm41 << " in OscProbTable is outside of grid's range ["

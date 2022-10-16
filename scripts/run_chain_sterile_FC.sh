@@ -147,6 +147,7 @@ genDChi2() {
     set_threads $(($(nproc) / $ntasks))
     cd $BASE/ShapeFit/FC/grid_job
     ./prep_fit_job_FC.sh
+    ./trim_fit_job_FC.py /path/to/CLs/data_contours.root
     ./submit_fit_job_FC.sh -N 10 -t 4:00:00 --ntasks-per-node $ntasks
     unset OMP_NUM_THREADS
 }
@@ -154,7 +155,7 @@ genDChi2() {
 # Generate contours
 contours() {
     cd $BASE/ShapeFit
-    root -b -q LoadClasses.C "FC/genContours_FC.C+$DBG"
+    root -b -q LoadClasses.C "FC/genThresholds_FC.C+$DBG"
     root -b -q LoadClasses.C "FC/make_data_contours_FC.C+$DBG"
     # expected (nominal):
     # root -b -q LoadClasses.C "FC/make_data_contours_FC.C+$DBG(true)"
@@ -164,11 +165,12 @@ contours() {
     unset OMP_NUM_THREADS
 }
 
-# NOTE: all() doesn't actually work on login nodes since we use srun in genToys_parscans
+# NOTE: all() doesn't actually work since some steps run on the grid
+# Use it as a guideline.
 all() {
-    # genToys
+    genToys
 
-    # genToys_parscans
+    genToys_parscans
 
     genEvisEnu &
     genSuperHists &
@@ -179,11 +181,11 @@ all() {
     genCovMat &
     wait
 
-    # shapeFit
+    shapeFit
 
-    # genDChi2
+    genDChi2
 
-    # contours
+    contours
 }
 
 eval $step "$@"

@@ -4,6 +4,9 @@
 #include <TH2F.h>
 #include <TFile.h>
 
+#include <iostream>
+#include <fstream>
+
 using namespace Config;
 
 void genThresholds_FC()
@@ -55,12 +58,26 @@ void genThresholds_FC()
 
       const char *toyconfig = "allsys_w_dm2ee_and_stat";
       auto infilename = Paths::outpath(
-          "toys_parscans/"
-          "toySpectra_%s_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_dm214_%5.5f.root",
+          "FC_fits/"
+          "FC_%s_s2t13_%4.4f_dm2ee_%5.5f_s2t14_%4.4f_dm214_%5.5f.root",
           toyconfig, S22T13, DM2EE, s2t, dm2);
+
+      const bool file_exists = std::ifstream(infilename).good();
+      if (not file_exists) {
+        h90_thresh->Fill(s2t, dm2, -1);
+        h95_thresh->Fill(s2t, dm2, -1);
+        continue;
+      }
+
       TFile infile(infilename);
 
       auto h_dchi2 = infile.Get<TH1F>("h_dchi2");
+      if (h_dchi2 == nullptr) {
+        std::cout << "WARNING: Missing h_dchi2 in " << infilename << std::endl;
+        h90_thresh->Fill(s2t, dm2, -1);
+        h95_thresh->Fill(s2t, dm2, -1);
+        continue;
+      }
       h_dchi2->GetQuantiles(nq, yq, xq);
       h90_thresh->Fill(s2t, dm2, yq[0]);
       h95_thresh->Fill(s2t, dm2, yq[1]);

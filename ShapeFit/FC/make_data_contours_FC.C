@@ -27,7 +27,7 @@ void fill_thresh(TFile* f_thresh, const char* hname,
   for (int idm2 = 0; idm2 < nDM2; ++idm2) {
     for (int is2t = 0; is2t < nS2T; ++is2t) {
       dchi2_thresh[idm2][is2t] = h_thresh->GetBinContent(is2t+1, idm2+1);
-      if (dchi2_thresh[idm2][is2t] < 0) dchi2_thresh[idm2][is2t] = 0;
+      // if (dchi2_thresh[idm2][is2t] < 0) dchi2_thresh[idm2][is2t] = 0;
     }
   }
 }
@@ -37,11 +37,28 @@ void fill_dchi2_rel(Double_t chi2_map[1][1][nDM2][nS2T],
                     TH2D* h_dchi2_rel)
 {
   for (int idm2 = 0; idm2 < nDM2; ++idm2) {
+    bool foundLT1 = false, foundGT1 = false;
     for (int is2t = 0; is2t < nS2T; ++is2t) {
-      h_dchi2_rel->SetBinContent(is2t+1, idm2+1,
-                                 chi2_map[0][0][idm2][is2t] / dchi2_thresh[idm2][is2t]);
+      float dchi2_rel;
+      const float thresh = dchi2_thresh[idm2][is2t];
+      const float chi2 = chi2_map[0][0][idm2][is2t];
+      if (thresh == -1) {         // did we skip this point?
+        if (foundLT1 or foundGT1) { // right edge?
+          dchi2_rel = 1001;
+        } else {                // left edge
+          dchi2_rel = 0;
+        }
+      } else {                  // thresh != -1
+        dchi2_rel = chi2 / thresh;
+        if (dchi2_rel < 1) foundLT1 = true;
+        else foundGT1 = true;
+      }
+      h_dchi2_rel->SetBinContent(is2t+1, idm2+1, dchi2_rel);
+    } // s2t loop
+    if (not (foundLT1 and foundGT1)) {
+      cout << "WARNING: Missing needed grid points for idm2 = " << idm2 << endl;
     }
-  }
+  }   // dm2 loop
 }
 
 void make_data_contours_FC()
@@ -67,12 +84,12 @@ void make_data_contours_FC()
   }
 
   TH2D *h_dchi2_rel_90cl =
-      new TH2D("h_dchi2_rel_90cl", "h_dchi2_rel_90cl", nsteps_s22t14,
-               s22t14_bins, nsteps_dm214, dm214_bins);
+      new TH2D("h_dchi2_rel_90cl", "h_dchi2_rel_90cl", nS2T,
+               s22t14_bins, nDM2, dm214_bins);
 
   TH2D *h_dchi2_rel_95cl =
-      new TH2D("h_dchi2_rel_95cl", "h_dchi2_rel_95cl", nsteps_s22t14,
-               s22t14_bins, nsteps_dm214, dm214_bins);
+      new TH2D("h_dchi2_rel_95cl", "h_dchi2_rel_95cl", nS2T,
+               s22t14_bins, nDM2, dm214_bins);
 
   Double_t dchi2_thresh_90cl[nDM2][nS2T];
   Double_t dchi2_thresh_95cl[nDM2][nS2T];
@@ -137,13 +154,15 @@ void make_data_contours_FC()
   hh->SetTitleOffset(2.0, "Y");
   hh->SetTitle(";sin^{2}(2#theta_{14});#Deltam^{2}_{41}");
 
-  for (Int_t i = 0; i < list_90cl->GetSize(); i++) {
+  // for (Int_t i = 0; i < list_90cl->GetSize(); i++) {
+  for (Int_t i = 0; i < 1; i++) {
     auto cont_90cl = (TGraph *)list_90cl->At(i);
     cont_90cl->SetLineColor(1);
     cont_90cl->SetLineWidth(2);
     cont_90cl->Draw("L");
   }
-  for (Int_t i = 0; i < list_95cl->GetSize(); i++) {
+  // for (Int_t i = 0; i < list_95cl->GetSize(); i++) {
+  for (Int_t i = 0; i < 1; i++) {
     auto cont_95cl = (TGraph *)list_95cl->At(i);
     cont_95cl->SetLineColor(2);
     cont_95cl->SetLineWidth(2);

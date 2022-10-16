@@ -31,11 +31,8 @@ void minuit_fcn(int &npar, double *gin, double &f, double *x,
 
 void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1);
 
-void fit_shape_3d_FC(const char *toyfilename, const char *outfilename) {
+void fit_shape_3d_FC(const char *toyfilename, const char *outfilename, int ntoys = -1) {
   std::setbuf(stdout, nullptr);
-
-  static int ntoys;
-#pragma omp threadprivate(ntoys)
 
 #pragma omp parallel
   {
@@ -52,7 +49,10 @@ void fit_shape_3d_FC(const char *toyfilename, const char *outfilename) {
     pred->LoadEvisToEnuMatrix(Paths::response());
     pred->LoadCovMatrix(Paths::sig_covmatrix(), Paths::bg_covmatrix(),
                         Paths::dm2ee_covmatrix());
-    ntoys = pred->LoadToyIBDSpec(toyfilename);
+    const int ntoys_all = pred->LoadToyIBDSpec(toyfilename);
+#pragma omp master
+    if (ntoys == -1)
+      ntoys = ntoys_all;
     pred->LoadBgSpec();
   }
 
@@ -111,6 +111,9 @@ void fit_shape_3d_FC(const char *toyfilename, const char *outfilename) {
 
   //   static bool FixedTheMatrix = false;
   // #pragma omp threadprivate(FixedTheMatrix)
+
+  // Since ntoys is (possibly) set by the master thread above, insert a barrier
+#pragma omp barrier
 
 #pragma omp parallel for
   for (int itoy = 0; itoy < ntoys; ++itoy) {

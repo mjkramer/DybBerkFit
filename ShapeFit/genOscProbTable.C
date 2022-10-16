@@ -1,4 +1,5 @@
 #include "Binning.h"
+#include "Config.h"
 #include "FluxCalculator.h"
 #include "OscProbTable.h"
 #include "Paths.h"
@@ -28,9 +29,8 @@ void genOscProbTable()
   const Int_t nsteps_dm2 = 1;
   // Double_t dm2eestart=2.53e-3;
   // Double_t dm2eeend=2.53e-3;
-  // consistent with data_file: (XXX update to FD result?)
-  Double_t dm2eestart=2.501e-3;
-  Double_t dm2eeend=2.501e-3;
+  Double_t dm2eestart = DM2EE;
+  Double_t dm2eeend = DM2EE;
 
   // const Int_t nsteps_s22t14 = 1;
   // Double_t s22t14start=0.0;
