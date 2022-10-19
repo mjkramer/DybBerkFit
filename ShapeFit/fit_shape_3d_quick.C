@@ -1,6 +1,5 @@
-// XXX switch to OscProbTab?
-// Problem: OscProbTable doesn't go down to dm241 = 0
-// also TODO add multiple ntoys with syst+stat variations?
+// This differs from fit_shape_3d in that MINUIT does not minimize over dm214,
+// just theta13/14. Instead we just do a grid scan, as in fit_shape_3d_FC.
 
 #include "Binning.h"
 #include "Config.h"
@@ -38,14 +37,15 @@ void minuit_fcn_quick(int &npar, double *gin, double &f, double *x, int iflag){ 
   f = oscprobtab->CalculateChi2CovQuick(sin22t13,dm2_ee,sin22t14,dm2_41,PeriodFlag);
 }
 
-void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1,
-                 bool fixedSterileParams = false);
+// void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1,
+//                  bool fixedSterileParams = false);
+void DoMinuitFit(TMinuit *minu, double dm214, double s2tt14 = -1);
 
 // NOTE: "nominal" is used for the Asimov contour
 // "toyfile" is used for the median contour and its band
 // when both are false/null, we're fitting real data
-void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
-                  int nfits = -1, bool useOscProbTable = true) {
+void fit_shape_3d_quick(bool nominal = false, const char* toyfile = nullptr,
+                        int nfits = -1, int igrid = -1, int ngrid = -1) {
 #pragma omp parallel
   {
     pred = new Predictor;
@@ -136,20 +136,22 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
 
 #pragma omp parallel
   {
-    if (useOscProbTable) {
-      oscprobtab = new OscProbTable(pred);
-      oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
-      oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
-      oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
-      oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
-    }
+    oscprobtab = new OscProbTable(pred);
+    oscprobtab->SetDMeeRange(nsteps_dm2, dm2eestart, dm2eeend);
+    oscprobtab->SetDM41Range(nsteps_dm214, dm214start, dm214end, true);
+    oscprobtab->SetDM41Range2(nsteps_dm214_2, dm214start_2, dm214end_2);
+    oscprobtab->ReadTable(Paths::outpath("OscProbTable.txt"));
   }
 
   TDirectory *dir = gDirectory;
 
   const char* savefilename;
   if (nominal) savefilename = "fit_shape_3d_nominal.root";
-  else if (toyfile) savefilename = "fit_shape_3d_band.root";
+  else if (toyfile) {
+    if (igrid != -1)
+      savefilename = Form("fit_shape_3d_band_%d.root", igrid);
+    else savefilename = "fit_shape_3d_band.root";
+  }
   else savefilename = "fit_shape_3d.root";
 
   TFile *savefile = new TFile(Paths::outpath(savefilename), "RECREATE");
@@ -175,7 +177,16 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
     minu->SetPrintLevel(-1);
   }
 
-  for (int ievt = 0; ievt < nfits; ++ievt) {
+  int evtStart, evtEnd;
+  if (igrid == -1) {
+    evtStart = 0;
+    evtEnd = nfits;
+  } else {
+    evtStart = igrid * nfits / ngrid;
+    evtEnd = evtStart + nfits / ngrid;
+  }
+
+  for (int ievt = evtStart; ievt < evtEnd; ++ievt) {
 #pragma omp parallel
     {
       if (toyfile)
@@ -183,7 +194,7 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
 
       // Since we're floating dm214 in the fit, can't use OscProbTable
       // (but we use it later for the chi2 map)
-      minu->SetFCN(minuit_fcn);
+      // minu->SetFCN(minuit_fcn);
     }
 
     double minchi2 = 1e8;
@@ -193,89 +204,126 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
     double bestdm214 = 0;
 
     // semi parameter scan:
-#pragma omp parallel for
-    for (int step_dm214 = 0; step_dm214 < nsteps_dm214_fit; ++step_dm214) {
-      //      dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214_fit-1)+log(dm214start));
-      //      dm214=(dm214end-dm214start)*step_dm214*1./(nsteps_dm214-1)+dm214start;
+// #pragma omp parallel for
+//     for (int step_dm214 = 0; step_dm214 < nsteps_dm214_fit; ++step_dm214) {
+//       //      dm214=exp(log(dm214end/dm214start)*step_dm214*1./(nsteps_dm214_fit-1)+log(dm214start));
+//       //      dm214=(dm214end-dm214start)*step_dm214*1./(nsteps_dm214-1)+dm214start;
 
-      //      dm214=(0.501-0.001)*step_dm214*1./(nsteps_dm214_fit-1)+0.001;  //
-      //      linear scan with 5e-3 steps
-      //      dm214=exp(log(1.0/0.01)*step_dm214*1./(nsteps_dm214_fit-1)+log(0.01));
-      // attempt to optimize the initial point distributions
-      Double_t *grad = nullptr;
-      Double_t fpar, ferr;
-      // double dm214 = dm214_bins[step_dm214];
-      double dm214;
-      // if (step_dm214 < nsteps_dm214)
-      //   dm214 = ranger_dm41->returnVal(step_dm214);
-      // else
-      //   dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
-      if (step_dm214 < 3) {
-        dm214 = 0.003 * step_dm214 + 0.001;
-      } else if (step_dm214 < 11) {
-        dm214 = 0.005 * (step_dm214 - 3) + 0.01;
-      } else {
-        dm214 = 0.01 * (step_dm214 - 11) + 0.05;
-      }
+//       //      dm214=(0.501-0.001)*step_dm214*1./(nsteps_dm214_fit-1)+0.001;  //
+//       //      linear scan with 5e-3 steps
+//       //      dm214=exp(log(1.0/0.01)*step_dm214*1./(nsteps_dm214_fit-1)+log(0.01));
+//       // attempt to optimize the initial point distributions
+//       Double_t *grad = nullptr;
+//       Double_t fpar, ferr;
+//       // double dm214 = dm214_bins[step_dm214];
+//       double dm214;
+//       // if (step_dm214 < nsteps_dm214)
+//       //   dm214 = ranger_dm41->returnVal(step_dm214);
+//       // else
+//       //   dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
+//       if (step_dm214 < 3) {
+//         dm214 = 0.003 * step_dm214 + 0.001;
+//       } else if (step_dm214 < 11) {
+//         dm214 = 0.005 * (step_dm214 - 3) + 0.01;
+//       } else {
+//         dm214 = 0.01 * (step_dm214 - 11) + 0.05;
+//       }
 
-#pragma omp critical
-      cout << " ========== " << step_dm214 << " / " << nsteps_dm214_fit
-           << " (initial dm2 = " << dm214 << " ) ========== " << endl;
+// #pragma omp critical
+//       cout << " ========== " << step_dm214 << " / " << nsteps_dm214_fit
+//            << " (initial dm2 = " << dm214 << " ) ========== " << endl;
 
-      DoMinuitFit(minu, dm214, 0.02);
+//       DoMinuitFit(minu, dm214, 0.02);
 
-      Double_t pars[4];
-      minu->GetParameter(0, fpar, ferr);
-      pars[0] = fpar;
-      minu->GetParameter(1, fpar, ferr);
-      pars[1] = fpar;
-      minu->GetParameter(2, fpar, ferr);
-      pars[2] = fpar;
-      minu->GetParameter(3, fpar, ferr);
-      pars[3] = fpar;
-      Double_t minchi2_tmp = 1e6;
-      minu->Eval(4, grad, minchi2_tmp, pars, 0);
+//       Double_t pars[4];
+//       minu->GetParameter(0, fpar, ferr);
+//       pars[0] = fpar;
+//       minu->GetParameter(1, fpar, ferr);
+//       pars[1] = fpar;
+//       minu->GetParameter(2, fpar, ferr);
+//       pars[2] = fpar;
+//       minu->GetParameter(3, fpar, ferr);
+//       pars[3] = fpar;
+//       Double_t minchi2_tmp = 1e6;
+//       minu->Eval(4, grad, minchi2_tmp, pars, 0);
 
-#pragma omp critical
-      {
-        if (minchi2_tmp < minchi2) {
-          minchi2 = minchi2_tmp;
-          bests22t13 = pars[0];
-          bestdm213 = pars[1];
-          bests22t14 = pars[2];
-          bestdm214 = pars[3];
-        }
-      }
-    }
+// #pragma omp critical
+//       {
+//         if (minchi2_tmp < minchi2) {
+//           minchi2 = minchi2_tmp;
+//           bests22t13 = pars[0];
+//           bestdm213 = pars[1];
+//           bests22t14 = pars[2];
+//           bestdm214 = pars[3];
+//         }
+//       }
+//     }
 
-    Double_t best_pars[4] = {bests22t13,bestdm213,bests22t14,bestdm214};
+//     Double_t best_pars[4] = {bests22t13,bestdm213,bests22t14,bestdm214};
 
-    cout << "======== fit results (for checking) :"
-         << " " <<  bests22t13 << " " << bestdm213
-         << " " <<  bests22t14 << " " << bestdm214
-         << " " << minchi2 << endl;
+//     cout << "======== fit results (for checking) :"
+//          << " " <<  bests22t13 << " " << bestdm213
+//          << " " <<  bests22t14 << " " << bestdm214
+//          << " " << minchi2 << endl;
 
     // Now that we're fixing dm214, we can use OscProbTable
 #pragma omp parallel
     {
-      if (useOscProbTable) {
-        minu->SetFCN(minuit_fcn_quick);
-        // OscProbTable requires that we fix the covariance matrix?
-        // Don't move this up since we use pred (w/o fixed covmatrix) for the 4nu
-        // fits above
-        pred->SetSin22t13Step(20, 0.00, 0.20); // Set here!
-        pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3);
-      }
+      minu->SetFCN(minuit_fcn_quick);
+      // OscProbTable requires that we fix the covariance matrix?
+      // Don't move this up since we use pred (w/o fixed covmatrix) for the 4nu
+      // fits above
+      pred->SetSin22t13Step(20, 0.00, 0.20); // Set here!
+      pred->FixCovMatrix(S22T13, DM2EE, 0., 0.1e-3);
     }
 
     // Now get the chi2 for the null (3nu) hypothesis
-    DoMinuitFit(minu, 0.1, 0, true);
+    DoMinuitFit(minu, 0.1, 0);
     double bests22t13_null, bests22t13_null_err;
     minu->GetParameter(0, bests22t13_null, bests22t13_null_err);
-    if (useOscProbTable)
-      chi2_null = oscprobtab->CalculateChi2CovQuick(bests22t13_null, DM2EE, 0, 0.1, PeriodFlag);
-    else
-      chi2_null = pred->CalculateChi2Cov(bests22t13_null, DM2EE, 0, 0.1);
+    chi2_null = oscprobtab->CalculateChi2CovQuick(bests22t13_null, DM2EE, 0, 0.1, PeriodFlag);
+
+    // semi parameter scan:
+#pragma omp parallel for
+    for (int step_dm214 = 0; step_dm214 < nsteps_dm214_all; ++step_dm214) {
+#pragma omp critical
+      cout << " ========== " << step_dm214 << " / " << nsteps_dm214_all
+           << " ========== " << endl;
+
+      double dm214;
+      if (step_dm214 < nsteps_dm214)
+        dm214 = ranger_dm41->returnVal(step_dm214);
+      else
+        dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
+
+      DoMinuitFit(minu, dm214);
+
+      Double_t *grad;
+      Double_t fpar, ferr;
+      Double_t pars[4];
+      Double_t err[4];
+
+      minu->GetParameter(0, fpar, ferr);
+      pars[0] = fpar;
+      err[0] = ferr;
+      minu->GetParameter(1, fpar, ferr);
+      pars[1] = fpar;
+      err[1] = ferr;
+      minu->GetParameter(2, fpar, ferr);
+      pars[2] = fpar;
+      err[2] = ferr;
+      minu->GetParameter(3, fpar, ferr);
+      pars[3] = fpar;
+      err[3] = ferr;
+      Double_t minchi2_tmp = 1e6;
+      minu->Eval(4, grad, minchi2_tmp, pars, 0);
+
+#pragma omp critical
+      if (minchi2_tmp < minchi2) {
+        minchi2 = minchi2_tmp;
+      }
+    }
+
 
     for(int step_dm2=0;step_dm2<nsteps_dm2;++step_dm2){
       for(int step=0;step<nsteps;++step){
@@ -312,7 +360,7 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
             else
               dm214 = ranger_dm41_2->returnVal(step_dm214 - nsteps_dm214);
 
-            DoMinuitFit(minu, dm214, sin22t14, true);
+            DoMinuitFit(minu, dm214, sin22t14);
 
             Double_t pars[4];
             Double_t *grad = nullptr;
@@ -362,8 +410,10 @@ void fit_shape_3d(bool nominal = false, const char* toyfile = nullptr,
   quick_exit(0);
 }
 
-void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
-                        bool fixedSterileParams) {
+// void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
+//                         bool fixedSterileParams) {
+void DoMinuitFit(TMinuit *minu, double dm214, double s22t14)
+{
   int ierflag;
   minu->mnparm(0, "SinSq2Theta13", S22T13, 0.01, 0, 0.2, ierflag);
   minu->mnparm(1, "DeltaMSqee", DM2EE, 0.0001, 0.0015, 0.0035, ierflag);
@@ -373,13 +423,20 @@ void DoMinuitFit(TMinuit *minu, double dm214, double s22t14,
 
   minu->FixParameter(1);
 
-  if (fixedSterileParams) {
+  // if (fixedSterileParams) {
+  //   minu->FixParameter(2);
+  //   minu->FixParameter(3);
+  // } else {
+  //   minu->Release(2);
+  //   minu->Release(3);
+  // }
+
+  minu->FixParameter(3);
+
+  if (s22t14 != -1)
     minu->FixParameter(2);
-    minu->FixParameter(3);
-  } else {
+  else
     minu->Release(2);
-    minu->Release(3);
-  }
 
   double arglist[2];
   arglist[0] = 10000;

@@ -135,9 +135,13 @@ shapeFit() {
     set_threads 12
     cd $BASE/ShapeFit
     # root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(${period})"
+    # data:
     root -b -q LoadClasses.C "fit_shape_3d.C+$DBG"
-    # nominal:
+    # Asimov:
     root -b -q LoadClasses.C "fit_shape_3d.C+$DBG(true)"
+    # median/band:
+    cd $BASE/ShapeFit/FC/grid_job
+    ./submit_fit_job_FC_band.sh
     unset OMP_NUM_THREADS
 }
 
@@ -156,7 +160,12 @@ genDChi2() {
 contours() {
     cd $BASE/ShapeFit
     root -b -q LoadClasses.C "FC/genThresholds_FC.C+$DBG"
-    root -b -q LoadClasses.C "FC/make_data_contours_FC.C+$DBG"
+    # data:
+    root -b -q LoadClasses.C "FC/make_contours_FC.C+$DBG(0)"
+    # Asimov:
+    root -b -q LoadClasses.C "FC/make_contours_FC.C+$DBG(1)"
+    # median:
+    root -b -q LoadClasses.C "FC/make_contours_FC.C+$DBG(2)"
     # expected (nominal):
     # root -b -q LoadClasses.C "FC/make_data_contours_FC.C+$DBG(true)"
     # root -b -q LoadClasses.C "FC/make_mc_contours_FC.C+$DBG(true)"

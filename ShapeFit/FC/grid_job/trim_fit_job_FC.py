@@ -70,6 +70,11 @@ def main():
 
     outf = open(f'{direc}/input.list', 'w')
 
+    # Include the 3nu case (for median sensititvity etc)
+    # (NOTE: Now we use fit_job_FC_band for this)
+    # path_3nu = pathdict[('0.0000', '0.00000')]
+    # outf.write(path_3nu + '\n')
+
     for dm2_bin in range(1, h.GetNbinsY()+1):
         idm2 = dm2_bin - 1
         if idm2 < R.Config.nsteps_dm214:
