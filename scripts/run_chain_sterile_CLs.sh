@@ -148,6 +148,8 @@ contours() {
     # expected (nominal):
     root -b -q LoadClasses.C "CLs/make_data_contours_CLs.C+$DBG(true)"
     # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
+    # median/band (depends on Feldman-Cousins):
+    root -b -q LoadClasses.C "CLs/make_contours_CLs_band.C+$DBG"
 }
 
 # NOTE: all() doesn't actually work on login nodes since we use srun in genToys_parscans
