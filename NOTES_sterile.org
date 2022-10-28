@@ -1,3 +1,6 @@
+* "Good" contours
+Take the "95cl_0" contours with >=300 points. See SterileAnalysis/dump_contour_npoints.py.
+
 * The sterile (CLs) chain
 ** Parallel block:
 *** Generate toy spectra trees (including dm2ee)

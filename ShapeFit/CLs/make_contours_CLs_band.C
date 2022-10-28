@@ -168,6 +168,9 @@ void make_contours_CLs_band()
       cont_68->SetName(Form("dm241_vs_sin22theta14_cls_95cl_%d_%d",i, entry));
       cont_68->Write();
     }
+
+    h_cls->SetName(Form("h_cls_%d", entry));
+    h_cls->Write();
   }
 
   // h_cls->Write();
