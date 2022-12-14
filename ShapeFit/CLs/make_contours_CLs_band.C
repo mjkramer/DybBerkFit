@@ -12,12 +12,25 @@
 #include <TStyle.h>
 #include <TTree.h>
 
+#include <cassert>
 #include <fstream>
 
 using namespace Config;
 using namespace std;
 
-const char* INPUTFILE = "/global/cfs/cdirs/dayabay/scratch/mkramer/sterile_fits/FC/full_v4v5v3v1_extraIWS_newE@extraIws_reallyOn_newNonUni_alphasNeutrons@bcw/fit_shape_3d_band.root";
+// https://stackoverflow.com/a/48240847/6055997
+double quant(double *x, size_t n, double q)
+{
+    assert(q >= 0.0 && q <= 1.0);
+
+    const auto id = (n - 1) * q;
+    const size_t lo = floor(id);
+    const size_t hi = ceil(id);
+    const auto qs = x[lo];
+    const auto h  = (id - lo);
+
+    return (1.0 - h) * qs + h * x[hi];
+}
 
 void make_contours_CLs_band()
 {
@@ -73,7 +86,7 @@ void make_contours_CLs_band()
   TH2D* h_cls = new TH2D("h_cls", "h_cls", nS2T, s22t14_bins,
                           nDM2, dm214_bins);
 
-  TFile* f_data = new TFile(INPUTFILE);
+  TFile* f_data = new TFile(Paths::outpath("fit_shape_3d_band.root"));
 
   TTree * tr = (TTree*)f_data->Get("tr_fit");
   tr->SetBranchAddress("chi2_map",chi2_map);
@@ -176,6 +189,8 @@ void make_contours_CLs_band()
   // h_cls->Write();
 
   double x[nsteps_dm214_all];
+  double xL[nsteps_dm214_all];
+  double xR[nsteps_dm214_all];
   double y[nsteps_dm214_all];
   double limits[nfits];
   for (int iy = 0; iy < nsteps_dm214_all; ++iy) {
@@ -192,15 +207,22 @@ void make_contours_CLs_band()
     // XXX
     // x[iy] = TMath::Median(nfits, limits);
     std::sort(limits, limits + nfits);
-    if (nfits % 2)
-      x[iy] = limits[nfits/2];
-    else
-      x[iy] = 0.5 * (limits[nfits/2 - 1] + limits[nfits/2]);
+    x[iy] = quant(limits, nfits, 0.5);
+    xL[iy] = quant(limits, nfits, 0.15865);
+    xR[iy] = quant(limits, nfits, 0.84135);
   }
 
   auto g = new TGraph(nsteps_dm214_all, x, y);
   g->SetName("dm241_vs_sin22theta14_cls_95cl_median");
   g->Write();
+
+  auto gL = new TGraph(nsteps_dm214_all, xL, y);
+  gL->SetName("dm241_vs_sin22theta14_cls_95cl_left");
+  gL->Write();
+
+  auto gR = new TGraph(nsteps_dm214_all, xR, y);
+  gR->SetName("dm241_vs_sin22theta14_cls_95cl_right");
+  gR->Write();
 
   fout->Close();
 }

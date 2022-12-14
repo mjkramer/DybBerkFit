@@ -148,7 +148,8 @@ contours() {
     # expected (nominal):
     root -b -q LoadClasses.C "CLs/make_data_contours_CLs.C+$DBG(true)"
     # root -b -q LoadClasses.C "make_data_contours_comparison.C+$DBG"
-    # median/band (depends on Feldman-Cousins):
+    # median/band (depends on Feldman-Cousins); put a symlink to FC's
+    # fit_shape_3d_band.root in the CLs $LBNL_FIT_OUTDIR
     root -b -q LoadClasses.C "CLs/make_contours_CLs_band.C+$DBG"
 }
 

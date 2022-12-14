@@ -14,6 +14,7 @@
 // #include <TMath.h>
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 
 using namespace Config;
@@ -23,6 +24,20 @@ const int nS2T = nsteps_s22t14;
 const int nDM2 = nsteps_dm214_all;
 
 const int MAXTOYS = 1000;
+
+// https://stackoverflow.com/a/48240847/6055997
+double quant(double *x, size_t n, double q)
+{
+    assert(q >= 0.0 && q <= 1.0);
+
+    const auto id = (n - 1) * q;
+    const size_t lo = floor(id);
+    const size_t hi = ceil(id);
+    const auto qs = x[lo];
+    const auto h  = (id - lo);
+
+    return (1.0 - h) * qs + h * x[hi];
+}
 
 void fill_thresh(TFile* f_thresh, const char* hname,
                  Double_t dchi2_thresh[nDM2][nS2T])
@@ -59,8 +74,12 @@ void fill_dchi2_rel(Double_t chi2_map[1][1][nDM2][nS2T],
       }
       h_dchi2_rel->SetBinContent(is2t+1, idm2+1, dchi2_rel);
     } // s2t loop
-    if (not (foundLT1 and foundGT1)) {
-      cout << "WARNING: Missing needed grid points for idm2 = " << idm2 << endl;
+    if ((not foundLT1) and (not foundGT1)) {
+      cout << "WARNING: Missing needed grid points ON BOTH SIDES for idm2 = " << idm2 << endl;
+    } else if (not foundGT1) {
+      cout << "WARNING: Missing needed grid points ON THE RIGHT for idm2 = " << idm2 << endl;
+    } else if (not foundLT1) {
+      cout << "WARNING: Missing needed grid points ON THE LEFT for idm2 = " << idm2 << endl;
     }
   }   // dm2 loop
 }
@@ -238,6 +257,8 @@ void make_contours_FC(int mode = 0) // mode 0 = data, 1 = asimov, 2 = median/ban
 
   if (mode == 2) {
     double x[nsteps_dm214_all];
+    double xL[nsteps_dm214_all];
+    double xR[nsteps_dm214_all];
     double y[nsteps_dm214_all];
     double limits[nfits];
     for (int iy = 0; iy < nsteps_dm214_all; ++iy) {
@@ -254,15 +275,22 @@ void make_contours_FC(int mode = 0) // mode 0 = data, 1 = asimov, 2 = median/ban
       // XXX
       // x[iy] = TMath::Median(nfits, limits);
       std::sort(limits, limits + nfits);
-      if (nfits % 2)
-        x[iy] = limits[nfits/2];
-      else
-        x[iy] = 0.5 * (limits[nfits/2 - 1] + limits[nfits/2]);
+      x[iy] = quant(limits, nfits, 0.5);
+      xL[iy] = quant(limits, nfits, 0.15865);
+      xR[iy] = quant(limits, nfits, 0.84135);
     }
 
     auto g = new TGraph(nsteps_dm214_all, x, y);
     g->SetName("dm241_vs_sin22theta14_95cl_median");
     g->Write();
+
+    auto gL = new TGraph(nsteps_dm214_all, xL, y);
+    gL->SetName("dm241_vs_sin22theta14_95cl_left");
+    gL->Write();
+
+    auto gR = new TGraph(nsteps_dm214_all, xR, y);
+    gR->SetName("dm241_vs_sin22theta14_95cl_right");
+    gR->Write();
   }
 
   fout->Close();
