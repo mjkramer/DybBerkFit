@@ -2,6 +2,8 @@
 
 using namespace std;
 
+static constexpr double ARG_FACTOR = 1.266933;
+
 OscCalc::OscCalc()
 {
   // default parameters
@@ -121,13 +123,13 @@ double OscCalc::GetTheta12()
 
 double OscCalc::DeltaTerm(double deltam2_in, double L, double E)
 {
-  return pow(sin(1.267 * deltam2_in * L / E), 2);
+  return pow(sin(ARG_FACTOR * deltam2_in * L / E), 2);
 }
 double OscCalc::DeltaTermInt(double deltam2_in, double L, double E)
 {
-  Double_t phase = 1.267 * deltam2_in * L / E;
+  Double_t phase = ARG_FACTOR * deltam2_in * L / E;
 
-  return 1. / 1.267 / deltam2_in * (0.5 * phase - 0.25 * sin(2 * phase));
+  return 1. / ARG_FACTOR / deltam2_in * (0.5 * phase - 0.25 * sin(2 * phase));
 }
 
 Double_t OscCalc::OscProb(double L, double E, double s22t13)
@@ -136,9 +138,9 @@ Double_t OscCalc::OscProb(double L, double E, double s22t13)
   double theta12 = TMath::ASin(sqrt(sin22t12)) * 0.5;
 
   // 3-neutrino flavor calculation using equation 9 in the TDR
-  /*double term1=sin22t12*pow(cos(theta13),4)*pow(sin(1.267*deltam2_21*L/E),2);
-    double term2=pow(cos(theta12)*sin(2*theta13)*sin(1.267*deltam2_31*L/E),2);
-    double term3=pow(sin(theta12)*sin(2*theta13)*sin(1.267*deltam2_32*L/E),2);
+  /*double term1=sin22t12*pow(cos(theta13),4)*pow(sin(ARG_FACTOR*deltam2_21*L/E),2);
+    double term2=pow(cos(theta12)*sin(2*theta13)*sin(ARG_FACTOR*deltam2_31*L/E),2);
+    double term3=pow(sin(theta12)*sin(2*theta13)*sin(ARG_FACTOR*deltam2_32*L/E),2);
     return 1-(term1+term2+term3); */
 
   // 4-neutrino flavor calculation according to Eq. 6 of DocDB-9296-v1
